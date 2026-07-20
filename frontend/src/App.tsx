@@ -20,11 +20,16 @@ import {
   Moon,
   CheckCircle,
   Circle,
-  Settings
+  Settings,
+  Search,
+  BarChart2
 } from 'lucide-react';
 import type { ExpenseGroup, Transaction, Bank, Company, CompanyStats, HistoryItem, GroupType } from './types';
 
 import { localDatabase } from './services/localDatabase';
+import PinLock, { isPinEnabled, savePin, removePin } from './components/PinLock';
+import { notificationService } from './services/notificationService';
+
 
 let API_URL = localStorage.getItem('myfinans_api_url') || import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
@@ -75,6 +80,9 @@ export default function App() {
   const [txInstallmentCount, setTxInstallmentCount] = useState(2);
   const [editingTx, setEditingTx] = useState<Transaction | null>(null);
   const [txAmountType, setTxAmountType] = useState<'total' | 'monthly'>('total');
+  const [txCategory, setTxCategory] = useState<string>('other');
+  const [txIsRecurring, setTxIsRecurring] = useState<boolean>(false);
+  const [txRecurringDay, setTxRecurringDay] = useState<number>(15);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyStats, setCompanyStats] = useState<CompanyStats[]>([]);
   const [selectedCompanyTransactions, setSelectedCompanyTransactions] = useState<any[]>([]);
@@ -83,10 +91,61 @@ export default function App() {
   const [companySearchQuery, setCompanySearchQuery] = useState('');
   const [companySortBy, setCompanySortBy] = useState<'spent' | 'count' | 'alpha'>('spent');
   const [txCompanyId, setTxCompanyId] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'expenses' | 'companies'>('expenses');
+  const [activeTab, setActiveTab] = useState<'expenses' | 'companies' | 'stats'>('expenses');
   const [newCompanyName, setNewCompanyName] = useState('');
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [settingsApiUrl, setSettingsApiUrl] = useState(() => localStorage.getItem('myfinans_api_url') || '');
+
+  // Global Search State
+  const [showSearchModal, setShowSearchModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (appMode === 'offline') {
+      setSearchResults(localDatabase.searchTransactions(query));
+    }
+  };
+
+  // PIN Lock State
+  const [isUnlocked, setIsUnlocked] = useState(() => !isPinEnabled());
+  const [showPinSetup, setShowPinSetup] = useState(false);
+  const [pinInputVal, setPinInputVal] = useState('');
+  const [pinConfirmVal, setPinConfirmVal] = useState('');
+  const [pinSetupStep, setPinSetupStep] = useState<'enter' | 'confirm'>('enter');
+  const [pinSetupError, setPinSetupError] = useState('');
+
+  const handlePinSetupDigit = (d: string) => {
+    const current = pinSetupStep === 'enter' ? pinInputVal : pinConfirmVal;
+    if (current.length >= 4) return;
+    const next = current + d;
+    if (pinSetupStep === 'enter') {
+      setPinInputVal(next);
+      if (next.length === 4) setTimeout(() => setPinSetupStep('confirm'), 200);
+    } else {
+      setPinConfirmVal(next);
+      if (next.length === 4) {
+        setTimeout(() => {
+          if (next === pinInputVal) {
+            savePin(next);
+            setPinSetupError(t('pin_saved'));
+            setTimeout(() => { setShowPinSetup(false); setPinInputVal(''); setPinConfirmVal(''); setPinSetupStep('enter'); setPinSetupError(''); }, 1000);
+          } else {
+            setPinSetupError(t('pin_mismatch'));
+            setPinConfirmVal('');
+          }
+        }, 100);
+      }
+    }
+  };
+
+  const handlePinSetupDelete = () => {
+    if (pinSetupStep === 'enter') setPinInputVal(p => p.slice(0, -1));
+    else setPinConfirmVal(p => p.slice(0, -1));
+    setPinSetupError('');
+  };
+
 
   const [banks, setBanks] = useState<Bank[]>([]);
   const [selectedBankId, setSelectedBankId] = useState<string>('all');
@@ -233,8 +292,21 @@ export default function App() {
   }, [targetYear, targetMonth]);
 
   useEffect(() => {
-    fetchBanks();
-    fetchCompanies();
+    if (summaryData?.groups) {
+      notificationService.scheduleNotificationsForGroups(summaryData.groups);
+    }
+  }, [summaryData]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (appMode === 'offline') {
+        await localDatabase.checkAndCreateRecurringTransactions();
+        fetchData();
+      }
+      fetchBanks();
+      fetchCompanies();
+    };
+    init();
   }, []);
 
   // Language Switch
@@ -275,6 +347,78 @@ export default function App() {
       }
     } catch (err) {
       console.error('Error exporting backup:', err);
+    }
+  };
+
+  // CSV Export
+  const handleExportCSV = async () => {
+    try {
+      // Tüm group ve transaction'ları topla
+      let rows: string[][] = [];
+      const header = [
+        i18n.language === 'tr' ? 'Tarih' : 'Date',
+        i18n.language === 'tr' ? 'Grup' : 'Group',
+        i18n.language === 'tr' ? 'Açıklama' : 'Description',
+        i18n.language === 'tr' ? 'Firma' : 'Company',
+        i18n.language === 'tr' ? 'Tutar' : 'Amount',
+        i18n.language === 'tr' ? 'Aylık Tutar' : 'Monthly Amount',
+        i18n.language === 'tr' ? 'Taksit mi?' : 'Installment?',
+        i18n.language === 'tr' ? 'Taksit No' : 'Installment No',
+        i18n.language === 'tr' ? 'Ödeme Durumu' : 'Payment Status'
+      ];
+      rows.push(header);
+
+      // Offline modda localDatabase'den çek
+      if (appMode === 'offline') {
+        const allGroups = localDatabase.getGroupsWithTransactions();
+        allGroups.forEach((group: any) => {
+          (group.transactions || []).forEach((tx: any) => {
+            rows.push([
+              tx.date || '',
+              group.name || '',
+              tx.description || '',
+              tx.company_name || '',
+              String(tx.amount || 0),
+              String(tx.monthly_amount || 0),
+              tx.is_installment ? (i18n.language === 'tr' ? 'Evet' : 'Yes') : (i18n.language === 'tr' ? 'Hayır' : 'No'),
+              tx.is_installment ? `${tx.installment_no}/${tx.installment_count}` : '-',
+              tx.is_paid ? (i18n.language === 'tr' ? 'Ödendi' : 'Paid') : (i18n.language === 'tr' ? 'Ödenmedi' : 'Unpaid')
+            ]);
+          });
+        });
+      } else {
+        // Online modda: mevcut summaryData'yı kullan
+        summaryData?.groups.forEach(group => {
+          group.transactions?.forEach((tx: any) => {
+            rows.push([
+              tx.date || '',
+              group.name || '',
+              tx.description || '',
+              tx.company_name || '',
+              String(tx.amount || 0),
+              String(tx.monthly_amount || 0),
+              tx.is_installment ? (i18n.language === 'tr' ? 'Evet' : 'Yes') : (i18n.language === 'tr' ? 'Hayır' : 'No'),
+              tx.is_installment ? `${tx.installment_no}/${tx.installment_count}` : '-',
+              tx.is_paid ? (i18n.language === 'tr' ? 'Ödendi' : 'Paid') : (i18n.language === 'tr' ? 'Ödenmedi' : 'Unpaid')
+            ]);
+          });
+        });
+      }
+
+      // CSV string oluştur (BOM ile UTF-8, Excel uyumlu)
+      const csvContent = '\uFEFF' + rows.map(row =>
+        row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+      ).join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `myfinans_export_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error exporting CSV:', err);
     }
   };
 
@@ -582,6 +726,9 @@ export default function App() {
       setTxIsInstallment(tx.is_installment);
       setTxInstallmentCount(tx.installment_count);
       setTxCompanyId(tx.company_id || '');
+      setTxCategory(tx.category || 'other');
+      setTxIsRecurring(tx.is_recurring || false);
+      setTxRecurringDay(tx.recurring_day || 15);
     } else {
       setTxGroupId(groupId || (summaryData?.groups[0]?.id || ''));
       setTxDescription('');
@@ -590,6 +737,9 @@ export default function App() {
       setTxIsInstallment(false);
       setTxInstallmentCount(2);
       setTxCompanyId('');
+      setTxCategory('other');
+      setTxIsRecurring(false);
+      setTxRecurringDay(15);
     }
     setShowTxModal(true);
   };
@@ -613,7 +763,10 @@ export default function App() {
           date: txDate,
           is_installment: txIsInstallment,
           installment_count: txIsInstallment ? txInstallmentCount : 1,
-          company_id: txCompanyId || null
+          company_id: txCompanyId || null,
+          category: txCategory,
+          is_recurring: txIsRecurring,
+          recurring_day: txIsRecurring ? txRecurringDay : null
         });
 
         setShowTxModal(false);
@@ -641,7 +794,10 @@ export default function App() {
             date: txDate,
             is_installment: txIsInstallment,
             installment_count: txIsInstallment ? txInstallmentCount : 1,
-            company_id: txCompanyId || null
+            company_id: txCompanyId || null,
+            category: txCategory,
+            is_recurring: txIsRecurring,
+            recurring_day: txIsRecurring ? txRecurringDay : null
           })
         });
 
@@ -723,6 +879,20 @@ export default function App() {
       case 'loan': return <Landmark className="w-5 h-5 text-cyan-500 dark:text-cyan-400" />;
       case 'debt': return <Coins className="w-5 h-5 text-amber-500 dark:text-amber-400" />;
       default: return <Layers className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />;
+    }
+  };
+
+  const getCategoryEmoji = (cat?: string) => {
+    switch (cat) {
+      case 'market': return '🛒';
+      case 'entertainment': return '🎮';
+      case 'home': return '🏠';
+      case 'transport': return '🚗';
+      case 'health': return '💊';
+      case 'food': return '🍽️';
+      case 'clothing': return '👔';
+      case 'tech': return '📱';
+      default: return '🏷️';
     }
   };
 
@@ -813,7 +983,12 @@ export default function App() {
 
 
   return (
-    <div className="min-h-screen pb-20 relative overflow-hidden transition-colors duration-300">
+    <>
+      {/* PIN Lock Screen */}
+      {!isUnlocked && <PinLock onUnlock={() => setIsUnlocked(true)} />}
+
+      <div className="min-h-screen pb-20 relative overflow-hidden transition-colors duration-300">
+
       
       {/* Background Decorative Ambient Blurs */}
       <div className="absolute top-[-10%] left-[-20%] w-[60%] h-[50%] rounded-full bg-purple-500/10 dark:bg-purple-900/20 blur-[120px] animate-pulse-slow pointer-events-none"></div>
@@ -841,6 +1016,15 @@ export default function App() {
           </div>
           
           <div className="flex gap-1.5 shrink-0">
+            {/* Global Search */}
+            <button 
+              onClick={() => { setShowSearchModal(true); setSearchQuery(''); setSearchResults([]); }}
+              className="p-2 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer"
+              title={t('search_all')}
+            >
+              <Search className="w-4 h-4" />
+            </button>
+
             {/* Manage Banks */}
             <button 
               onClick={() => setShowBankManager(true)}
@@ -900,7 +1084,7 @@ export default function App() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-2 p-1 bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl mb-4">
+        <div className="flex gap-1.5 p-1 bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl mb-4">
           <button
             onClick={() => setActiveTab('expenses')}
             className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
@@ -909,7 +1093,7 @@ export default function App() {
                 : 'text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-300/30 dark:hover:bg-white/5'
             }`}
           >
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-3.5 h-3.5" />
             {t('expenses_tab')}
           </button>
           <button
@@ -920,10 +1104,22 @@ export default function App() {
                 : 'text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-300/30 dark:hover:bg-white/5'
             }`}
           >
-            <Coins className="w-4 h-4" />
+            <Coins className="w-3.5 h-3.5" />
             {t('companies_tab')}
           </button>
+          <button
+            onClick={() => { setActiveTab('stats'); fetchCompanyStats(); }}
+            className={`flex-1 py-2.5 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              activeTab === 'stats'
+                ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/20'
+                : 'text-slate-600 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-300/30 dark:hover:bg-white/5'
+            }`}
+          >
+            <BarChart2 className="w-3.5 h-3.5" />
+            {t('stats_tab')}
+          </button>
         </div>
+
 
         {/* Connection Error Message */}
         {error && (
@@ -1307,12 +1503,18 @@ export default function App() {
                                     
                                     <div className="min-w-0">
                                       <div className="flex items-center gap-1.5 flex-wrap">
+                                        <span className="text-xs shrink-0">{getCategoryEmoji(tx.category)}</span>
                                         <span className={`font-bold text-xs text-slate-800 dark:text-gray-200 truncate leading-snug ${tx.is_paid ? 'line-through opacity-50' : ''}`}>
                                           {tx.description}
                                         </span>
                                         {tx.company_name && (
                                           <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 shrink-0">
                                             {tx.company_name}
+                                          </span>
+                                        )}
+                                        {tx.is_recurring && (
+                                          <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0 flex items-center gap-0.5">
+                                            🔁 {t('recurring_active')}
                                           </span>
                                         )}
                                       </div>
@@ -1546,7 +1748,169 @@ export default function App() {
       </>
     )}
 
+        {/* --- STATS VIEW TAB --- */}
+        {activeTab === 'stats' && (() => {
+          const now = new Date();
+
+          // Use companyStats for top companies chart
+
+          const topCompanies = [...companyStats].sort((a,b) => b.total_amount - a.total_amount).slice(0, 5);
+          const maxCompanyAmount = topCompanies.length > 0 ? topCompanies[0].total_amount : 1;
+
+          // Use summaryData for type breakdown
+          const typeMap: Record<string, number> = { credit_card: 0, loan: 0, debt: 0, other: 0 };
+          summaryData?.groups.forEach(g => { typeMap[g.type] = (typeMap[g.type] || 0) + g.total_amount; });
+          const typeTotal = Object.values(typeMap).reduce((a,b) => a+b, 0);
+          const typeColors: Record<string, string> = {
+            credit_card: '#a855f7',
+            loan: '#22d3ee',
+            debt: '#f59e0b',
+            other: '#10b981'
+          };
+          const typeLabels: Record<string, string> = {
+            credit_card: t('credit_card'),
+            loan: t('loan'),
+            debt: t('debt'),
+            other: t('other')
+          };
+
+          // SVG pie chart segments
+          let cumulativePct = 0;
+          const pieSegments = Object.entries(typeMap).filter(([,v]) => v > 0).map(([key, value]) => {
+            const pct = value / (typeTotal || 1);
+            const startAngle = cumulativePct * 2 * Math.PI - Math.PI / 2;
+            cumulativePct += pct;
+            const endAngle = cumulativePct * 2 * Math.PI - Math.PI / 2;
+            const r = 60;
+            const cx = 70, cy = 70;
+            const x1 = cx + r * Math.cos(startAngle);
+            const y1 = cy + r * Math.sin(startAngle);
+            const x2 = cx + r * Math.cos(endAngle);
+            const y2 = cy + r * Math.sin(endAngle);
+            const largeArc = pct > 0.5 ? 1 : 0;
+            return { key, value, pct, color: typeColors[key], d: `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc},1 ${x2},${y2} Z` };
+          });
+
+          // Get last 12 months spending from history for bar chart
+          const historyBars: {label: string; total: number}[] = [];
+          for (let i = 5; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const monthName = [t('month_0'),t('month_1'),t('month_2'),t('month_3'),t('month_4'),t('month_5'),t('month_6'),t('month_7'),t('month_8'),t('month_9'),t('month_10'),t('month_11')][d.getMonth()].slice(0,3);
+            // Try to get from history data
+            const histEntry = historyData.find(h => h.year === d.getFullYear() && h.month === d.getMonth() + 1);
+            historyBars.push({ label: monthName, total: histEntry?.total_amount || 0 });
+          }
+          const maxBarAmount = Math.max(...historyBars.map(b => b.total), 1);
+          const currencyFmt = (v: number) => v.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: i18n.language === 'tr' ? 'TRY' : 'USD', maximumFractionDigits: 0 });
+
+          return (
+            <div className="space-y-4 animate-fade-in pb-4">
+
+              {/* Monthly Bar Chart */}
+              <div className="glass-card rounded-3xl p-5 shadow-xl">
+                <h3 className="text-sm font-extrabold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                  <BarChart2 className="w-4 h-4 text-purple-500" />
+                  {t('chart_monthly_title')}
+                </h3>
+                {historyBars.every(b => b.total === 0) ? (
+                  <p className="text-xs text-slate-400 text-center py-8">{t('no_data_yet')}</p>
+                ) : (
+                  <div className="flex items-end gap-2 h-36 w-full">
+                    {historyBars.map((bar, i) => {
+                      const heightPct = maxBarAmount > 0 ? (bar.total / maxBarAmount) * 100 : 0;
+                      return (
+                        <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0">
+                          <span className="text-[7px] font-bold text-slate-500 dark:text-gray-500 text-center leading-tight" style={{fontSize: '6.5px'}}>
+                            {bar.total > 0 ? currencyFmt(bar.total) : ''}
+                          </span>
+                          <div className="w-full rounded-t-lg relative overflow-hidden" style={{ height: `${Math.max(heightPct, 4)}%`, minHeight: bar.total > 0 ? '8px' : '4px' }}>
+                            <div
+                              className="absolute inset-0 rounded-t-lg"
+                              style={{
+                                background: bar.total > 0
+                                  ? `linear-gradient(to top, #9333ea, #c084fc)`
+                                  : 'rgba(148,163,184,0.2)'
+                              }}
+                            />
+                          </div>
+                          <span className="text-[8px] font-bold text-slate-400 dark:text-gray-500 truncate w-full text-center">{bar.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Type Breakdown Pie */}
+              <div className="glass-card rounded-3xl p-5 shadow-xl">
+                <h3 className="text-sm font-extrabold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-cyan-500" />
+                  {t('chart_by_type')} ({t('month_' + (now.getMonth()))})
+                </h3>
+                {typeTotal === 0 ? (
+                  <p className="text-xs text-slate-400 text-center py-8">{t('no_data_yet')}</p>
+                ) : (
+                  <div className="flex items-center gap-6">
+                    <svg width="140" height="140" viewBox="0 0 140 140" className="shrink-0">
+                      {pieSegments.map((seg, i) => (
+                        <path key={i} d={seg.d} fill={seg.color} opacity={0.9} className="transition-all" />
+                      ))}
+                      <circle cx="70" cy="70" r="30" fill="var(--bg-modal, #1e1b4b)" className="dark:fill-[#0f0c1a] fill-white" />
+                      <text x="70" y="70" textAnchor="middle" dominantBaseline="central" fontSize="9" fontWeight="800" fill="currentColor" className="text-slate-800 dark:text-white">
+                        {currencyFmt(typeTotal)}
+                      </text>
+                    </svg>
+                    <div className="space-y-2 flex-1 min-w-0">
+                      {pieSegments.map(seg => (
+                        <div key={seg.key} className="flex items-center gap-2">
+                          <div className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ background: seg.color }} />
+                          <span className="text-xs font-semibold text-slate-700 dark:text-gray-300 truncate">{typeLabels[seg.key]}</span>
+                          <span className="ml-auto text-xs font-extrabold text-slate-800 dark:text-white shrink-0">{Math.round(seg.pct * 100)}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Top Companies Bar */}
+              {topCompanies.length > 0 && (
+                <div className="glass-card rounded-3xl p-5 shadow-xl">
+                  <h3 className="text-sm font-extrabold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                    <Coins className="w-4 h-4 text-amber-500" />
+                    {t('chart_companies_top')}
+                  </h3>
+                  <div className="space-y-3">
+                    {topCompanies.map((co, i) => {
+                      const pct = co.total_amount / maxCompanyAmount * 100;
+                      return (
+                        <div key={co.id} className="flex items-center gap-3">
+                          <span className="text-[10px] font-extrabold text-slate-500 dark:text-gray-500 w-3 shrink-0">{i + 1}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-bold text-slate-700 dark:text-gray-300 truncate">{co.name}</span>
+                              <span className="text-xs font-extrabold text-slate-800 dark:text-white ml-2 shrink-0">{currencyFmt(co.total_amount)}</span>
+                            </div>
+                            <div className="h-1.5 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
+                              <div
+                                className="h-full rounded-full transition-all duration-700"
+                                style={{ width: `${pct}%`, background: `linear-gradient(to right, #9333ea, #c084fc)` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+            </div>
+          );
+        })()}
+
         {/* --- COMPANIES VIEW TAB --- */}
+
         {activeTab === 'companies' && (() => {
           const filteredAndSortedCompanies = companyStats
             .filter(c => c.name.toLowerCase().includes(companySearchQuery.toLowerCase()))
@@ -1808,7 +2172,110 @@ export default function App() {
         </div>
       )}
 
+      {/* --- GLOBAL SEARCH MODAL --- */}
+      {showSearchModal && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 px-4 pb-4 bg-black/70 backdrop-blur-md" onClick={() => setShowSearchModal(false)}>
+          <div
+            className="glass-card w-full max-w-sm rounded-3xl shadow-2xl border border-slate-300 dark:border-white/10 bg-[var(--bg-modal)] animate-fade-in overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Search Input */}
+            <div className="flex items-center gap-3 p-4 border-b border-slate-200 dark:border-white/10">
+              <Search className="w-5 h-5 text-purple-500 dark:text-purple-400 shrink-0" />
+              <input
+                autoFocus
+                type="text"
+                placeholder={t('search_placeholder')}
+                value={searchQuery}
+                onChange={e => handleSearch(e.target.value)}
+                className="flex-1 bg-transparent text-sm font-medium text-slate-800 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500 focus:outline-none"
+              />
+              {searchQuery && (
+                <button onClick={() => { setSearchQuery(''); setSearchResults([]); }} className="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 cursor-pointer">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+              <button onClick={() => setShowSearchModal(false)} className="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 cursor-pointer">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Results */}
+            <div className="max-h-[60vh] overflow-y-auto">
+              {searchQuery.trim().length > 0 && searchQuery.trim().length < 2 && (
+                <p className="text-center text-xs text-slate-400 dark:text-gray-500 py-8">{t('search_min_chars')}</p>
+              )}
+              {searchQuery.trim().length >= 2 && searchResults.length === 0 && (
+                <p className="text-center text-xs text-slate-400 dark:text-gray-500 py-8">{t('search_no_results')}</p>
+              )}
+              {searchResults.length > 0 && (
+                <div>
+                  <div className="px-4 py-2 bg-slate-100/50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/5">
+                    <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 dark:text-gray-500">
+                      {searchResults.length} {t('search_results')}
+                    </span>
+                  </div>
+                  <div className="divide-y divide-slate-100 dark:divide-white/[0.04]">
+                    {searchResults.map((tx, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          const d = new Date(tx.date);
+                          navigateToMonth(d.getFullYear(), d.getMonth() + 1);
+                          setShowSearchModal(false);
+                        }}
+                        className="flex items-start justify-between gap-3 px-4 py-3 cursor-pointer hover:bg-slate-100/60 dark:hover:bg-white/[0.03] transition-all"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-bold text-slate-800 dark:text-white truncate flex items-center gap-1">
+                            <span>{getCategoryEmoji(tx.category)}</span>
+                            <span>{tx.description}</span>
+                          </p>
+                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            <span className="text-[9px] font-semibold text-slate-400 dark:text-gray-500 truncate">{tx.group_name}</span>
+                            {tx.company_name && (
+                              <>
+                                <span className="text-[9px] text-slate-300 dark:text-gray-600">•</span>
+                                <span className="text-[9px] font-semibold text-purple-500 dark:text-purple-400 truncate">{tx.company_name}</span>
+                              </>
+                            )}
+                            {tx.is_recurring && (
+                              <>
+                                <span className="text-[9px] text-slate-300 dark:text-gray-600">•</span>
+                                <span className="text-[9px] font-semibold text-emerald-500 truncate">🔁 {t('recurring_active')}</span>
+                              </>
+                            )}
+                          </div>
+                          <p className="text-[9px] text-slate-400 dark:text-gray-500 mt-0.5">{tx.date}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-xs font-extrabold text-slate-700 dark:text-gray-200 block">
+                            {Number(tx.amount).toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
+                              style: 'currency', currency: i18n.language === 'tr' ? 'TRY' : 'USD', maximumFractionDigits: 0
+                            })}
+                          </span>
+                          <span className={`text-[8px] font-extrabold uppercase ${tx.is_paid ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                            {tx.is_paid ? t('paid') : t('unpaid')}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {!searchQuery && (
+                <div className="flex flex-col items-center justify-center py-10 gap-2">
+                  <Search className="w-8 h-8 text-slate-300 dark:text-gray-600" />
+                  <p className="text-xs text-slate-400 dark:text-gray-500">{t('search_hint')}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- SETTINGS MODAL --- */}
+
       {showSettingsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all">
           <div className="glass-card w-full max-w-sm rounded-3xl p-6 shadow-2xl relative border border-slate-300 dark:border-white/10 bg-[var(--bg-modal)] animate-fade-in">
@@ -1830,13 +2297,22 @@ export default function App() {
                 <label className="text-[10px] font-black uppercase text-slate-400 dark:text-gray-400 tracking-wider block">
                   {t('export_data')}
                 </label>
-                <button
-                  type="button"
-                  onClick={handleExportBackup}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-purple-600 hover:bg-purple-500 active:scale-98 transition-all font-bold text-xs text-white shadow-lg shadow-purple-600/20 cursor-pointer"
-                >
-                  {t('export_data')}
-                </button>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={handleExportBackup}
+                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-2xl bg-purple-600 hover:bg-purple-500 active:scale-98 transition-all font-bold text-xs text-white shadow-lg shadow-purple-600/20 cursor-pointer"
+                  >
+                    <span>JSON</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleExportCSV}
+                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-98 transition-all font-bold text-xs text-white shadow-lg shadow-emerald-600/20 cursor-pointer"
+                  >
+                    <span>CSV</span>
+                  </button>
+                </div>
               </div>
 
               {/* Import Backup Section */}
@@ -1918,6 +2394,39 @@ export default function App() {
                 </form>
               </div>
 
+              {/* PIN Lock Section */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-slate-400 dark:text-gray-400 tracking-wider block">
+                  {t('pin_lock')}
+                </label>
+                {isPinEnabled() ? (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setShowPinSetup(true); setPinSetupStep('enter'); setPinInputVal(''); setPinConfirmVal(''); setPinSetupError(''); }}
+                      className="flex-1 py-2.5 rounded-2xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:bg-slate-300/50 dark:hover:bg-white/10 font-bold text-xs transition-all cursor-pointer"
+                    >
+                      {t('pin_change')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { if(window.confirm(t('pin_remove') + '?')) { removePin(); alert(t('pin_removed')); } }}
+                      className="flex-1 py-2.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/20 font-bold text-xs transition-all cursor-pointer"
+                    >
+                      {t('pin_remove')}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => { setShowPinSetup(true); setPinSetupStep('enter'); setPinInputVal(''); setPinConfirmVal(''); setPinSetupError(''); }}
+                    className="w-full py-2.5 rounded-2xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:bg-slate-300/50 dark:hover:bg-white/10 font-bold text-xs transition-all cursor-pointer"
+                  >
+                    {t('pin_set')}
+                  </button>
+                )}
+              </div>
+
               {/* About App Section */}
               <div className="pt-4 border-t border-slate-300/30 dark:border-white/5 space-y-1.5 text-center">
                 <h4 className="text-xs font-extrabold text-slate-800 dark:text-white">
@@ -1936,10 +2445,40 @@ export default function App() {
                 </a>
                 <div className="mt-2">
                   <span className="inline-block text-[9px] font-extrabold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full">
-                    v9.5 - Offline Local Mode
+                    v10.0 - Offline Local Mode
                   </span>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- PIN SETUP MODAL --- */}
+      {showPinSetup && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-8 bg-black/70 backdrop-blur-md">
+          <div className="glass-card w-full max-w-xs rounded-3xl p-6 shadow-2xl border border-slate-300 dark:border-white/10 bg-[var(--bg-modal)]">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-base font-extrabold text-slate-800 dark:text-white">
+                {pinSetupStep === 'enter' ? t('pin_new') : t('pin_confirm')}
+              </h3>
+              <button onClick={() => setShowPinSetup(false)} className="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 cursor-pointer"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="flex justify-center gap-5 mb-4">
+              {[0,1,2,3].map(i => {
+                const currentPin = pinSetupStep === 'enter' ? pinInputVal : pinConfirmVal;
+                return <div key={i} className={`w-4 h-4 rounded-full transition-all ${currentPin.length > i ? 'bg-purple-500 scale-110' : 'bg-slate-200 dark:bg-white/10'}`} />;
+              })}
+            </div>
+            {pinSetupError && <p className={`text-xs font-bold text-center mb-3 ${pinSetupError === t('pin_saved') ? 'text-emerald-500' : 'text-red-500'}`}>{pinSetupError}</p>}
+            <div className="grid grid-cols-3 gap-2">
+              {['1','2','3','4','5','6','7','8','9','','0','del'].map((d, idx) => (
+                <button key={idx} type="button"
+                  onClick={() => { if(d==='del') handlePinSetupDelete(); else if(d!=='') handlePinSetupDigit(d); }}
+                  disabled={d===''}
+                  className={`h-14 rounded-xl font-bold text-lg transition-all active:scale-95 ${d==='' ? 'opacity-0 pointer-events-none' : d==='del' ? 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-gray-400 cursor-pointer' : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10 cursor-pointer'}`}
+                >{d==='del'?'⌫':d}</button>
+              ))}
             </div>
           </div>
         </div>
@@ -2137,24 +2676,43 @@ export default function App() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
-                  {t('select_company')}
-                </label>
-                <select
-                  value={txCompanyId}
-                  onChange={e => setTxCompanyId(e.target.value)}
-                  className="w-full bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 transition-all font-medium appearance-none cursor-pointer"
-                >
-                  <option value="" className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white">
-                    {t('general_company')}
-                  </option>
-                  {companies.map(c => (
-                    <option key={c.id} value={c.id} className="bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white">
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
+                    {t('category')}
+                  </label>
+                  <select
+                    value={txCategory}
+                    onChange={e => setTxCategory(e.target.value)}
+                    className="w-full bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 transition-all font-medium cursor-pointer"
+                  >
+                    <option value="other">{t('cat_other')}</option>
+                    <option value="market">🛒 {t('cat_market')}</option>
+                    <option value="entertainment">🎮 {t('cat_entertainment')}</option>
+                    <option value="home">🏠 {t('cat_home')}</option>
+                    <option value="transport">🚗 {t('cat_transport')}</option>
+                    <option value="health">💊 {t('cat_health')}</option>
+                    <option value="food">🍽️ {t('cat_food')}</option>
+                    <option value="clothing">👔 {t('cat_clothing')}</option>
+                    <option value="tech">📱 {t('cat_tech')}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-gray-400 uppercase tracking-wider mb-1.5">
+                    {t('select_company')}
+                  </label>
+                  <select
+                    value={txCompanyId}
+                    onChange={e => setTxCompanyId(e.target.value)}
+                    className="w-full bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 transition-all font-medium cursor-pointer"
+                  >
+                    <option value="">{t('general_company')}</option>
+                    {companies.map(c => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               {/* Installment Toggle */}
@@ -2168,13 +2726,37 @@ export default function App() {
                     <input 
                       type="checkbox" 
                       checked={txIsInstallment}
-                      onChange={e => setTxIsInstallment(e.target.checked)}
+                      onChange={e => {
+                        setTxIsInstallment(e.target.checked);
+                        if (e.target.checked) setTxIsRecurring(false); // Can't be both installment and recurring
+                      }}
                       className="sr-only peer"
                     />
                     <div className="w-11 h-6 bg-slate-300 dark:bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                   </label>
                 </div>
               </div>
+
+              {/* Recurring Toggle (Conditional) */}
+              {!txIsInstallment && (
+                <div className="pt-1">
+                  <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/5">
+                    <div className="space-y-0.5">
+                      <span className="text-xs font-bold text-slate-700 dark:text-gray-200">{t('is_recurring')}</span>
+                      <p className="text-[10px] text-slate-400 dark:text-gray-400">Her ay aynı gün otomatik kaydet</p>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer select-none">
+                      <input 
+                        type="checkbox" 
+                        checked={txIsRecurring}
+                        onChange={e => setTxIsRecurring(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-300 dark:bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                    </label>
+                  </div>
+                </div>
+              )}
 
               {/* Installment Count & Amount Entry Type Inputs (Conditional) */}
               {txIsInstallment && (
@@ -2340,5 +2922,7 @@ export default function App() {
       )}
       
     </div>
+    </>
   );
 }
+

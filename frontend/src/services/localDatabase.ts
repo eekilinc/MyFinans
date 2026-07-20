@@ -39,6 +39,9 @@ interface TXRaw {
   installment_count: number;
   created_at: string;
   company_id?: string | null;
+  category?: string | null;
+  is_recurring?: number; // 0 or 1
+  recurring_day?: number | null;
 }
 
 interface PaymentRaw {
@@ -243,7 +246,19 @@ export const localDatabase = {
   },
 
   // TRANSACTIONS
-  async saveTransaction(tx: { id?: string; group_id: string; description: string; amount: number; date: string; is_installment: boolean; installment_count: number; company_id?: string | null }): Promise<any> {
+  async saveTransaction(tx: { 
+    id?: string; 
+    group_id: string; 
+    description: string; 
+    amount: number; 
+    date: string; 
+    is_installment: boolean; 
+    installment_count: number; 
+    company_id?: string | null;
+    category?: string | null;
+    is_recurring?: boolean;
+    recurring_day?: number | null;
+  }): Promise<any> {
     const list = readTable<TXRaw>(KEYS.TRANSACTIONS);
     const companies = readTable<Company>(KEYS.COMPANIES);
     const compMap = new Map(companies.map(c => [c.id, c.name]));
@@ -260,7 +275,10 @@ export const localDatabase = {
         date: tx.date,
         is_installment: tx.is_installment ? 1 : 0,
         installment_count: tx.is_installment ? tx.installment_count : 1,
-        company_id: tx.company_id || null
+        company_id: tx.company_id || null,
+        category: tx.category || null,
+        is_recurring: tx.is_recurring ? 1 : 0,
+        recurring_day: tx.recurring_day || null
       };
       list[index] = targetTx;
     } else {
@@ -273,7 +291,10 @@ export const localDatabase = {
         is_installment: tx.is_installment ? 1 : 0,
         installment_count: tx.is_installment ? tx.installment_count : 1,
         created_at: new Date().toISOString(),
-        company_id: tx.company_id || null
+        company_id: tx.company_id || null,
+        category: tx.category || null,
+        is_recurring: tx.is_recurring ? 1 : 0,
+        recurring_day: tx.recurring_day || null
       };
       list.unshift(targetTx);
     }
@@ -284,6 +305,7 @@ export const localDatabase = {
       company_name: targetTx.company_id ? compMap.get(targetTx.company_id) : undefined
     };
   },
+
 
   async deleteTransaction(id: string): Promise<void> {
     let list = readTable<TXRaw>(KEYS.TRANSACTIONS);
@@ -367,7 +389,10 @@ export const localDatabase = {
               monthly_amount: t.amount,
               is_paid: isPaid,
               company_id: t.company_id || undefined,
-              company_name: t.company_id ? compMap.get(t.company_id) : undefined
+              company_name: t.company_id ? compMap.get(t.company_id) : undefined,
+              category: t.category || undefined,
+              is_recurring: t.is_recurring === 1,
+              recurring_day: t.recurring_day || undefined
             });
           }
         } else {
@@ -389,7 +414,10 @@ export const localDatabase = {
               monthly_amount: monthlyAmount,
               is_paid: isPaid,
               company_id: t.company_id || undefined,
-              company_name: t.company_id ? compMap.get(t.company_id) : undefined
+              company_name: t.company_id ? compMap.get(t.company_id) : undefined,
+              category: t.category || undefined,
+              is_recurring: t.is_recurring === 1,
+              recurring_day: t.recurring_day || undefined
             });
           }
         }
@@ -519,5 +547,141 @@ export const localDatabase = {
     writeTable(KEYS.GROUPS, Array.isArray(expense_groups) ? expense_groups : []);
     writeTable(KEYS.TRANSACTIONS, Array.isArray(transactions) ? transactions : []);
     writeTable(KEYS.PAYMENTS, Array.isArray(transaction_payments) ? transaction_payments : []);
+  },
+
+  // CSV EXPORT HELPER — tüm gruplar ve işlemler düz liste olarak
+  getGroupsWithTransactions(): any[] {
+    const groups = readTable<EGRaw>(KEYS.GROUPS);
+    const transactions = readTable<TXRaw>(KEYS.TRANSACTIONS);
+    const payments = readTable<PaymentRaw>(KEYS.PAYMENTS);
+    const companies = readTable<{ id: string; name: string }>(KEYS.COMPANIES);
+
+    return groups.map(group => {
+      const groupTxs = transactions.filter(tx => tx.group_id === group.id);
+      const txWithDetails = groupTxs.flatMap(tx => {
+        const installmentCount = tx.is_installment ? tx.installment_count : 1;
+        const results = [];
+        for (let i = 1; i <= installmentCount; i++) {
+          const payment = payments.find(p =>
+            p.transaction_id === tx.id && (!tx.is_installment || (p as any).installment_no === i)
+          );
+          const company = companies.find(c => c.id === tx.company_id);
+          results.push({
+            ...tx,
+            installment_no: i,
+            is_paid: payment?.is_paid === 1,
+            company_name: company?.name || '',
+            monthly_amount: tx.is_installment ? tx.amount / tx.installment_count : tx.amount
+          });
+        }
+        return results;
+      });
+      return { ...group, transactions: txWithDetails };
+    });
+  },
+
+  // GLOBAL SEARCH — tüm işlemlerde arama
+  searchTransactions(query: string): any[] {
+    if (!query || query.trim().length < 2) return [];
+    const q = query.trim().toLowerCase();
+    const groups = readTable<EGRaw>(KEYS.GROUPS);
+    const transactions = readTable<TXRaw>(KEYS.TRANSACTIONS);
+    const payments = readTable<PaymentRaw>(KEYS.PAYMENTS);
+    const companies = readTable<{ id: string; name: string }>(KEYS.COMPANIES);
+
+    const results: any[] = [];
+    transactions.forEach(tx => {
+      const company = companies.find(c => c.id === tx.company_id);
+      const group = groups.find(g => g.id === tx.group_id);
+      const companyName = company?.name || '';
+      const groupName = group?.name || '';
+      const amountStr = String(tx.amount);
+
+      if (
+        tx.description.toLowerCase().includes(q) ||
+        companyName.toLowerCase().includes(q) ||
+        groupName.toLowerCase().includes(q) ||
+        amountStr.includes(q)
+      ) {
+        const payment = payments.find(p => p.transaction_id === tx.id);
+        results.push({
+          ...tx,
+          company_name: companyName,
+          group_name: groupName,
+          is_paid: payment?.is_paid === 1,
+          monthly_amount: tx.is_installment ? tx.amount / tx.installment_count : tx.amount
+        });
+      }
+    });
+
+    return results.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 50);
+  },
+
+  async checkAndCreateRecurringTransactions(): Promise<void> {
+    const list = readTable<TXRaw>(KEYS.TRANSACTIONS);
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth() + 1; // 1-12
+
+    let createdNew = false;
+    const newList = [...list];
+
+    // Find all active recurring transactions
+    const recurringTxs = list.filter(t => t.is_recurring === 1);
+
+    for (const tx of recurringTxs) {
+      const origDate = new Date(tx.date);
+      const origYear = origDate.getFullYear();
+      const origMonth = origDate.getMonth() + 1;
+
+      let y = origYear;
+      let m = origMonth;
+
+      while (y < currentYear || (y === currentYear && m <= currentMonth)) {
+        // Skip current month if it is not yet the billing day, or let it generate anyway?
+        // Let's generate it as soon as the month is reached so it can be tracked.
+        const exists = list.some(t => {
+          if (t.group_id !== tx.group_id || t.description !== tx.description || t.amount !== tx.amount) return false;
+          const d = new Date(t.date);
+          return d.getFullYear() === y && (d.getMonth() + 1) === m;
+        });
+
+        if (!exists) {
+          const day = tx.recurring_day || origDate.getDate();
+          const monthStr = String(m).padStart(2, '0');
+          const dayStr = String(day).padStart(2, '0');
+          const newDateStr = `${y}-${monthStr}-${dayStr}`;
+
+          const newTx: TXRaw = {
+            id: generateUUID(),
+            group_id: tx.group_id,
+            description: tx.description,
+            amount: tx.amount,
+            date: newDateStr,
+            is_installment: 0,
+            installment_count: 1,
+            created_at: new Date().toISOString(),
+            company_id: tx.company_id || null,
+            category: tx.category || null,
+            is_recurring: 1,
+            recurring_day: tx.recurring_day || day
+          };
+          newList.push(newTx);
+          createdNew = true;
+        }
+
+        m++;
+        if (m > 12) {
+          m = 1;
+          y++;
+        }
+      }
+    }
+
+    if (createdNew) {
+      writeTable(KEYS.TRANSACTIONS, newList);
+    }
   }
 };
+
+

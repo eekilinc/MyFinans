@@ -11,6 +11,9 @@ export interface Transaction {
   is_paid: boolean; // Payment status for selected month
   company_id?: string;
   company_name?: string;
+  category?: string;
+  is_recurring?: boolean;
+  recurring_day?: number;
 }
 
 export type GroupType = 'credit_card' | 'loan' | 'debt' | 'other';
