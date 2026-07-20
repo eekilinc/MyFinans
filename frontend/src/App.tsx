@@ -2346,20 +2346,20 @@ export default function App() {
 
       {showSettingsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all">
-          <div className="glass-card w-full max-w-sm rounded-3xl p-6 shadow-2xl relative border border-slate-300 dark:border-white/10 bg-[var(--bg-modal)] animate-fade-in">
+          <div className="glass-card w-full max-w-sm rounded-3xl p-6 shadow-2xl relative border border-slate-300 dark:border-white/10 bg-[var(--bg-modal)] animate-fade-in max-h-[85vh] flex flex-col">
             <button 
               onClick={() => setShowSettingsModal(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
+              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-slate-800 dark:hover:text-white cursor-pointer z-20"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <h3 className="text-lg font-black text-slate-800 dark:text-white mb-5 flex items-center gap-2 pr-6">
+            <h3 className="text-lg font-black text-slate-800 dark:text-white mb-5 flex items-center gap-2 pr-6 shrink-0">
               <Settings className="w-5 h-5 text-purple-500 dark:text-purple-400 shrink-0" />
               <span>{t('settings')}</span>
             </h3>
 
-            <div className="space-y-6">
+            <div className="space-y-6 flex-1 overflow-y-auto pr-1">
               {/* Export Backup Section */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-slate-400 dark:text-gray-400 tracking-wider block">
@@ -2567,7 +2567,7 @@ export default function App() {
                 </a>
                 <div className="mt-2">
                   <span className="inline-block text-[9px] font-extrabold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full">
-                    v10.0 - Offline Local Mode
+                    v11.0 - Hybrid Cloud & Widgets
                   </span>
                 </div>
               </div>
