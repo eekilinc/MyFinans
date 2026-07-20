@@ -1063,7 +1063,7 @@ export default function App() {
             {activeAlerts.map((alert, idx) => (
               <div 
                 key={idx} 
-                className={`p-3.5 rounded-2xl border flex items-center justify-between shadow-md transition-all ${
+                className={`p-3.5 rounded-2xl border flex items-center justify-between gap-2 shadow-md transition-all ${
                   alert.status === 'today' 
                     ? 'bg-amber-500/10 border-amber-500/35 text-amber-800 dark:text-amber-300' 
                     : alert.status === 'overdue'
@@ -1071,19 +1071,20 @@ export default function App() {
                     : 'bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-gray-300'
                 }`}
               >
-                <div className="flex flex-col">
-                  <span className="font-bold text-sm text-slate-800 dark:text-white">{alert.groupName}</span>
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="font-bold text-sm text-slate-800 dark:text-white truncate">{alert.groupName}</span>
                   <span className="text-xs mt-0.5 opacity-80">
                     {alert.status === 'today' && t('due_today')}
                     {alert.status === 'upcoming' && t('due_in_days', { days: alert.daysLeft })}
                     {alert.status === 'overdue' && t('overdue_by_days', { days: alert.daysLeft })}
                   </span>
                 </div>
-                <div className="text-right">
-                  <span className="font-extrabold text-sm block">
+                <div className="text-right shrink-0">
+                  <span className="font-extrabold text-xs block">
                     {alert.amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
                       style: 'currency',
-                      currency: i18n.language === 'tr' ? 'TRY' : 'USD'
+                      currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                      maximumFractionDigits: 0
                     })}
                   </span>
                   <span className="text-[10px] opacity-60 font-semibold uppercase">
@@ -1135,13 +1136,13 @@ export default function App() {
                         onClick={() => toggleGroupExpand(group.id)}
                         className="p-4 flex items-center justify-between cursor-pointer hover:bg-slate-500/[0.02] dark:hover:bg-white/[0.02] active:bg-slate-500/[0.04] dark:active:bg-white/[0.04] transition-all select-none"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
                           <div className="p-2.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 shrink-0">
                             {getGroupIcon(group.type)}
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-bold text-sm text-slate-800 dark:text-white tracking-wide">{group.name}</h4>
+                              <h4 className="font-bold text-sm text-slate-800 dark:text-white tracking-wide truncate">{group.name}</h4>
                               {group.bank_name && (
                                 <span className="px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
                                   {group.bank_name}
@@ -1159,19 +1160,21 @@ export default function App() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 shrink-0">
                           <div className="text-right">
-                            <span className="font-extrabold text-sm block text-slate-800 dark:text-gray-100">
+                            <span className="font-extrabold text-xs block text-slate-800 dark:text-gray-100">
                               {group.total_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
                                 style: 'currency',
-                                currency: i18n.language === 'tr' ? 'TRY' : 'USD'
+                                currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                                maximumFractionDigits: 0
                               })}
                             </span>
                             {unpaidGroupAmount > 0 ? (
                               <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold block mt-0.5">
-                                {t('unpaid_summary')}: {unpaidGroupAmount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
+                                -{unpaidGroupAmount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
                                   style: 'currency',
-                                  currency: i18n.language === 'tr' ? 'TRY' : 'USD'
+                                  currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                                  maximumFractionDigits: 0
                                 })}
                               </span>
                             ) : (
@@ -1180,7 +1183,7 @@ export default function App() {
                               </span>
                             )}
                           </div>
-                          <div className="flex flex-col gap-1.5">
+                          <div className="flex flex-col gap-1">
                             <button
                               onClick={(e) => handleOpenEditGroup(group, e)}
                               className="p-1 rounded bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300/50 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-all cursor-pointer"
@@ -1261,29 +1264,30 @@ export default function App() {
                                     </div>
                                   </div>
                                   
-                                  <div className="flex items-center gap-3">
+                                  <div className="flex items-center gap-1.5 shrink-0">
                                     <div className="text-right">
-                                      <span className={`font-bold text-slate-700 dark:text-gray-200 ${tx.is_paid ? 'line-through opacity-50' : ''}`}>
+                                      <span className={`font-bold text-xs text-slate-700 dark:text-gray-200 ${tx.is_paid ? 'line-through opacity-50' : ''}`}>
                                         {tx.monthly_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
                                           style: 'currency',
-                                          currency: i18n.language === 'tr' ? 'TRY' : 'USD'
+                                          currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                                          maximumFractionDigits: 0
                                         })}
                                       </span>
                                       {tx.is_installment && (
                                         <span className="block text-[9px] text-slate-400 dark:text-gray-300 font-semibold">
-                                          {t('total_monthly_expense')}: {tx.amount}
+                                          {t('total')}: {tx.amount}
                                         </span>
                                       )}
                                     </div>
                                     <button
                                       onClick={(e) => { e.stopPropagation(); handleOpenAddTx(group.id, tx); }}
-                                      className="p-1.5 rounded-lg opacity-30 hover:opacity-100 hover:bg-slate-200 dark:hover:bg-white/5 text-slate-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-all cursor-pointer"
+                                      className="p-1.5 rounded-lg opacity-30 hover:opacity-100 hover:bg-slate-200 dark:hover:bg-white/5 text-slate-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 transition-all cursor-pointer shrink-0"
                                     >
                                       <Edit3 className="w-3.5 h-3.5" />
                                     </button>
                                     <button
                                       onClick={(e) => handleDeleteTx(tx.id, e)}
-                                      className="p-1.5 rounded-lg opacity-30 hover:opacity-100 hover:bg-slate-200 dark:hover:bg-white/5 text-slate-500 dark:text-gray-400 hover:text-red-500 transition-all cursor-pointer"
+                                      className="p-1.5 rounded-lg opacity-30 hover:opacity-100 hover:bg-slate-200 dark:hover:bg-white/5 text-slate-500 dark:text-gray-400 hover:text-red-500 transition-all cursor-pointer shrink-0"
                                     >
                                       <Trash2 className="w-3.5 h-3.5" />
                                     </button>
@@ -1382,21 +1386,21 @@ export default function App() {
                 <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-800 dark:text-white mb-3">
                   {t('add_company')}
                 </h3>
-                <form onSubmit={handleAddCompany} className="flex gap-2">
+                <form onSubmit={handleAddCompany} className="flex gap-2 flex-wrap">
                   <input 
                     type="text" 
                     placeholder={t('company_name')}
                     value={newCompanyName}
                     onChange={e => setNewCompanyName(e.target.value)}
                     required
-                    className="flex-1 bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 transition-all font-medium"
+                    className="flex-1 min-w-0 bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 transition-all font-medium"
                   />
                   <button 
                     type="submit"
-                    className="py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-xs text-white shadow-lg shadow-purple-600/25 transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                    className="py-2.5 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-xs text-white shadow-lg shadow-purple-600/25 transition-all cursor-pointer flex items-center gap-1 shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    {t('add_company')}
+                    <span className="hidden sm:inline">{t('add_company')}</span>
                   </button>
                 </form>
               </div>
