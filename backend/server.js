@@ -90,6 +90,27 @@ app.delete('/api/banks/:id', async (req, res) => {
   }
 });
 
+// PUT /api/banks/:id - Update a bank name
+app.put('/api/banks/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: 'Name is required' });
+  }
+  try {
+    const db = await getDb();
+    const existing = await db.get('SELECT * FROM banks WHERE id = ?', [id]);
+    if (!existing) {
+      return res.status(404).json({ error: 'Bank not found' });
+    }
+    await db.run('UPDATE banks SET name = ? WHERE id = ?', [name, id]);
+    const updated = await db.get('SELECT * FROM banks WHERE id = ?', [id]);
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // 1. GET /api/groups - Get all expense groups
 app.get('/api/groups', async (req, res) => {
   try {
@@ -239,6 +260,27 @@ app.delete('/api/companies/:id', async (req, res) => {
     }
     await db.run('DELETE FROM companies WHERE id = ?', [id]);
     res.json({ message: 'Company deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// PUT /api/companies/:id - Update a company name
+app.put('/api/companies/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: 'Name is required' });
+  }
+  try {
+    const db = await getDb();
+    const existing = await db.get('SELECT * FROM companies WHERE id = ?', [id]);
+    if (!existing) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+    await db.run('UPDATE companies SET name = ? WHERE id = ?', [name, id]);
+    const updated = await db.get('SELECT * FROM companies WHERE id = ?', [id]);
+    res.json(updated);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

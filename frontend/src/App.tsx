@@ -22,7 +22,9 @@ import {
   Circle,
   Settings,
   Search,
-  BarChart2
+  BarChart2,
+  Edit2,
+  Check
 } from 'lucide-react';
 import type { ExpenseGroup, Transaction, Bank, Company, CompanyStats, HistoryItem, GroupType } from './types';
 
@@ -93,6 +95,10 @@ export default function App() {
   const [txCompanyId, setTxCompanyId] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'expenses' | 'companies' | 'stats'>('expenses');
   const [newCompanyName, setNewCompanyName] = useState('');
+  const [editingBankId, setEditingBankId] = useState<string | null>(null);
+  const [editingBankName, setEditingBankName] = useState('');
+  const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
+  const [editingCompanyName, setEditingCompanyName] = useState('');
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [settingsApiUrl, setSettingsApiUrl] = useState(() => localStorage.getItem('myfinans_api_url') || '');
 
@@ -777,6 +783,59 @@ export default function App() {
       }
     } catch (err) {
       console.error('Error deleting company:', err);
+    }
+  };
+
+  const handleUpdateBank = async (bankId: string, name: string) => {
+    if (!name.trim()) return;
+    try {
+      if (appMode === 'offline') {
+        await localDatabase.updateBank(bankId, name);
+        setEditingBankId(null);
+        fetchBanks();
+        fetchData();
+      } else {
+        const res = await fetch(`${API_URL}/api/banks/${bankId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        if (res.ok) {
+          setEditingBankId(null);
+          fetchBanks();
+          fetchData();
+        }
+      }
+    } catch (err) {
+      console.error('Error updating bank:', err);
+    }
+  };
+
+  const handleUpdateCompany = async (companyId: string, name: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!name.trim()) return;
+    try {
+      if (appMode === 'offline') {
+        await localDatabase.updateCompany(companyId, name);
+        setEditingCompanyId(null);
+        fetchCompanies();
+        fetchCompanyStats();
+        fetchData();
+      } else {
+        const res = await fetch(`${API_URL}/api/companies/${companyId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        if (res.ok) {
+          setEditingCompanyId(null);
+          fetchCompanies();
+          fetchCompanyStats();
+          fetchData();
+        }
+      }
+    } catch (err) {
+      console.error('Error updating company:', err);
     }
   };
 
@@ -2082,47 +2141,88 @@ export default function App() {
                     <div 
                       key={c.id}
                       onClick={() => {
+                        if (editingCompanyId === c.id) return;
                         setSelectedCompany(c);
                         fetchCompanyTransactions(c.id);
                         setShowCompanyDetailModal(true);
                       }}
                       className="glass-card rounded-2xl border border-slate-300/30 dark:border-white/5 p-4 flex items-center justify-between gap-2 cursor-pointer hover:border-purple-500/30 hover:bg-purple-500/[0.01] active:scale-99 transition-all select-none"
                     >
-                      <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div className="p-2.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 shrink-0">
-                          <Coins className="w-5 h-5 text-slate-400 dark:text-gray-300" />
+                      {editingCompanyId === c.id ? (
+                        <div className="flex items-center gap-1.5 flex-1 min-w-0" onClick={e => e.stopPropagation()}>
+                          <input 
+                            type="text"
+                            value={editingCompanyName}
+                            onChange={e => setEditingCompanyName(e.target.value)}
+                            className="flex-1 bg-slate-100 dark:bg-white/5 border border-purple-500 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none font-medium"
+                            autoFocus
+                            onKeyDown={e => {
+                              if (e.key === 'Enter') handleUpdateCompany(c.id, editingCompanyName, e as any);
+                              if (e.key === 'Escape') setEditingCompanyId(null);
+                            }}
+                          />
+                          <button 
+                            onClick={(e) => handleUpdateCompany(c.id, editingCompanyName, e)}
+                            className="p-2 rounded-xl bg-purple-600 text-white hover:bg-purple-500 transition-all cursor-pointer shrink-0"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); setEditingCompanyId(null); }}
+                            className="p-2 rounded-xl bg-slate-200 dark:bg-white/10 text-slate-500 hover:text-slate-700 dark:hover:text-white transition-all cursor-pointer shrink-0"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
                         </div>
-                        <div className="min-w-0">
-                          <h4 className="font-bold text-sm text-slate-800 dark:text-white tracking-wide truncate">{c.name}</h4>
-                          <span className="text-[10px] font-bold text-slate-400 dark:text-gray-400 mt-1 block">
-                            {c.tx_count} {t('tx_count')}
-                          </span>
-                        </div>
-                      </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div className="p-2.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 shrink-0">
+                              <Coins className="w-5 h-5 text-slate-400 dark:text-gray-300" />
+                            </div>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-sm text-slate-800 dark:text-white tracking-wide truncate">{c.name}</h4>
+                              <span className="text-[10px] font-bold text-slate-400 dark:text-gray-400 mt-1 block">
+                                {c.tx_count} {t('tx_count')}
+                              </span>
+                            </div>
+                          </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
-                        <div className="text-right">
-                          <span className="font-extrabold text-xs block text-slate-800 dark:text-gray-100">
-                            {c.total_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
-                              style: 'currency',
-                              currency: i18n.language === 'tr' ? 'TRY' : 'USD',
-                              maximumFractionDigits: 0
-                            })}
-                          </span>
-                          <span className="text-[10px] text-slate-400 dark:text-gray-500 block mt-0.5">
-                            {t('total_spent')}
-                          </span>
-                        </div>
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteCompany(c.id, e);
-                          }}
-                          className="p-2 rounded-lg bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300/50 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-red-500 transition-all cursor-pointer shrink-0"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            <div className="text-right">
+                              <span className="font-extrabold text-xs block text-slate-800 dark:text-gray-100">
+                                {c.total_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
+                                  style: 'currency',
+                                  currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                                  maximumFractionDigits: 0
+                                })}
+                              </span>
+                              <span className="text-[10px] text-slate-400 dark:text-gray-500 block mt-0.5">
+                                {t('total_spent')}
+                              </span>
+                            </div>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingCompanyId(c.id);
+                                setEditingCompanyName(c.name);
+                              }}
+                              className="p-2 rounded-lg bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300/50 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-purple-500 transition-all cursor-pointer shrink-0"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteCompany(c.id, e);
+                              }}
+                              className="p-2 rounded-lg bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300/50 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-red-500 transition-all cursor-pointer shrink-0"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                   ))
                 )}
@@ -3019,13 +3119,51 @@ export default function App() {
                     key={bank.id} 
                     className="flex justify-between items-center p-3 rounded-xl bg-slate-200/30 dark:bg-white/5 border border-slate-300/50 dark:border-white/5 gap-2"
                   >
-                    <span className="text-sm font-bold text-slate-800 dark:text-gray-200 truncate min-w-0">{bank.name}</span>
-                    <button 
-                      onClick={() => handleDeleteBank(bank.id)}
-                      className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-red-500 transition-all cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {editingBankId === bank.id ? (
+                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <input 
+                          type="text"
+                          value={editingBankName}
+                          onChange={e => setEditingBankName(e.target.value)}
+                          className="flex-1 bg-slate-100 dark:bg-white/5 border border-purple-500 rounded-lg px-2.5 py-1 text-xs text-slate-800 dark:text-white focus:outline-none font-medium"
+                          autoFocus
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') handleUpdateBank(bank.id, editingBankName);
+                            if (e.key === 'Escape') setEditingBankId(null);
+                          }}
+                        />
+                        <button 
+                          onClick={() => handleUpdateBank(bank.id, editingBankName)}
+                          className="p-1 rounded bg-purple-600 text-white hover:bg-purple-500 transition-all cursor-pointer"
+                        >
+                          <Check className="w-3 h-3" />
+                        </button>
+                        <button 
+                          onClick={() => setEditingBankId(null)}
+                          className="p-1 rounded bg-slate-200 dark:bg-white/10 text-slate-500 hover:text-slate-700 dark:hover:text-white transition-all cursor-pointer"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="text-sm font-bold text-slate-800 dark:text-gray-200 truncate min-w-0 flex-1">{bank.name}</span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button 
+                            onClick={() => { setEditingBankId(bank.id); setEditingBankName(bank.name); }}
+                            className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-purple-500 transition-all cursor-pointer"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteBank(bank.id)}
+                            className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-red-500 transition-all cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 ))
               )}

@@ -124,6 +124,15 @@ export const localDatabase = {
     writeTable(KEYS.GROUPS, groups);
   },
 
+  async updateBank(id: string, name: string): Promise<Bank> {
+    const list = readTable<Bank>(KEYS.BANKS);
+    const index = list.findIndex(b => b.id === id);
+    if (index === -1) throw new Error('Bank not found');
+    list[index].name = name;
+    writeTable(KEYS.BANKS, list);
+    return list[index];
+  },
+
   // COMPANIES
   async getCompanies(): Promise<Company[]> {
     return readTable<Company>(KEYS.COMPANIES);
@@ -150,6 +159,15 @@ export const localDatabase = {
     let txs = readTable<TXRaw>(KEYS.TRANSACTIONS);
     txs = txs.map(t => t.company_id === id ? { ...t, company_id: null } : t);
     writeTable(KEYS.TRANSACTIONS, txs);
+  },
+
+  async updateCompany(id: string, name: string): Promise<Company> {
+    const list = readTable<Company>(KEYS.COMPANIES);
+    const index = list.findIndex(c => c.id === id);
+    if (index === -1) throw new Error('Company not found');
+    list[index].name = name;
+    writeTable(KEYS.COMPANIES, list);
+    return list[index];
   },
 
   async getCompanyStats(): Promise<CompanyStats[]> {
