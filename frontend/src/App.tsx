@@ -97,6 +97,14 @@ export default function App() {
     return (localStorage.getItem('myfinans_app_mode') as 'offline' | 'online') || 'offline';
   });
 
+  // Expanded years for history table collapse/expand (default: only current year open)
+  const [expandedYears, setExpandedYears] = useState<Record<number, boolean>>(() => ({
+    [new Date().getFullYear()]: true
+  }));
+  const toggleYearExpand = (year: number) => {
+    setExpandedYears(prev => ({ ...prev, [year]: !prev[year] }));
+  };
+
   // Sync Theme class on document element
   useEffect(() => {
     const root = document.documentElement;
@@ -776,6 +784,34 @@ export default function App() {
 
   const activeAlerts = getDuesAlerts();
 
+  // --- Computed: Group historyData by year ---
+  const yearGroups = historyData.reduce<Record<number, {
+    year: number;
+    months: typeof historyData;
+    yearTotal: number;
+    yearPaid: number;
+    yearUnpaid: number;
+    activeMonths: number;
+  }>>((acc, h) => {
+    if (!acc[h.year]) {
+      acc[h.year] = { year: h.year, months: [], yearTotal: 0, yearPaid: 0, yearUnpaid: 0, activeMonths: 0 };
+    }
+    acc[h.year].months.push(h);
+    acc[h.year].yearTotal += h.total_amount;
+    acc[h.year].yearPaid += h.paid_amount;
+    acc[h.year].yearUnpaid += h.unpaid_amount;
+    if (h.total_amount > 0) acc[h.year].activeMonths += 1;
+    return acc;
+  }, {});
+  const sortedYears = Object.keys(yearGroups).map(Number).sort((a, b) => b - a);
+
+  // Current year stats for dashboard banner
+  const currentYearGroup = yearGroups[targetYear];
+  const currentYearTotal = currentYearGroup?.yearTotal ?? 0;
+  const currentYearActiveMonths = currentYearGroup?.activeMonths ?? 0;
+  const currentYearAvg = currentYearActiveMonths > 0 ? currentYearTotal / currentYearActiveMonths : 0;
+
+
   return (
     <div className="min-h-screen pb-20 relative overflow-hidden transition-colors duration-300">
       
@@ -925,7 +961,8 @@ export default function App() {
                 <span className="block text-base font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
                   {summaryData.paid_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
                     style: 'currency',
-                    currency: i18n.language === 'tr' ? 'TRY' : 'USD'
+                    currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                    maximumFractionDigits: 0
                   })}
                 </span>
               </div>
@@ -936,11 +973,39 @@ export default function App() {
                 <span className="block text-base font-extrabold text-amber-600 dark:text-amber-400 mt-0.5">
                   {summaryData.unpaid_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
                     style: 'currency',
-                    currency: i18n.language === 'tr' ? 'TRY' : 'USD'
+                    currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                    maximumFractionDigits: 0
                   })}
                 </span>
               </div>
             </div>
+
+            {/* Yearly Summary Row */}
+            {currentYearTotal > 0 && (
+              <div className="flex items-center gap-2 py-3 border-b border-slate-200 dark:border-white/5 flex-wrap">
+                <span className="text-[10px] font-black uppercase text-slate-400 dark:text-gray-400 tracking-wider shrink-0">
+                  {targetYear} {t('this_year')}:
+                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-[10px] font-extrabold text-purple-600 dark:text-purple-400">
+                    {t('yearly_total')}: {currentYearTotal.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
+                      style: 'currency',
+                      currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                      maximumFractionDigits: 0
+                    })}
+                  </span>
+                  {currentYearAvg > 0 && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-200/60 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-[10px] font-extrabold text-slate-500 dark:text-gray-400">
+                      {t('monthly_avg')}: {currentYearAvg.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
+                        style: 'currency',
+                        currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                        maximumFractionDigits: 0
+                      })}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Quick Actions Grid */}
             <div className="grid grid-cols-2 gap-3 mt-4">
@@ -962,6 +1027,7 @@ export default function App() {
               </button>
             </div>
           </div>
+
 
         {/* Horizontal Bank Filter Scroll Bar */}
         {summaryData && !error && (
@@ -1305,63 +1371,178 @@ export default function App() {
           </div>
         )}
 
-        {/* --- GENERAL MONTHLY HISTORY TABLE / LIST --- */}
+        {/* --- GENERAL HISTORY TABLE — Grouped by Year --- */}
         {!error && historyData.length > 0 && (
           <div className="glass-card rounded-3xl p-5 shadow-xl mt-6">
             <h3 className="text-sm font-extrabold uppercase tracking-wider text-slate-500 dark:text-gray-400 mb-4 flex items-center gap-1.5">
               <Calendar className="w-4 h-4 text-purple-500 dark:text-purple-400" />
               {t('history_title')}
             </h3>
-            
-            <div className="space-y-2.5">
-              {/* Header row */}
-              <div className="grid grid-cols-3 text-[10px] font-bold text-slate-400 dark:text-gray-300 uppercase tracking-wider px-2">
-                <span>{t('month')}</span>
-                <span className="text-right">{t('total')}</span>
-                <span className="text-right">{t('status')}</span>
-              </div>
 
-              <div className="divide-y divide-slate-200 dark:divide-white/5">
-                {historyData.map((h, idx) => {
-                  const isCurrentMonth = h.year === targetYear && h.month === targetMonth;
-                  const monthName = t(`month_${h.month - 1}`);
-                  
-                  return (
-                    <div 
-                      key={idx}
-                      onClick={() => navigateToMonth(h.year, h.month)}
-                      className={`grid grid-cols-3 py-3 px-2 text-xs font-semibold items-center rounded-xl cursor-pointer hover:bg-slate-200/50 dark:hover:bg-white/5 active:scale-99 transition-all ${
-                        isCurrentMonth ? 'bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400' : 'text-slate-700 dark:text-gray-300'
+            <div className="space-y-3">
+              {sortedYears.map(year => {
+                const group = yearGroups[year];
+                const isExpanded = !!expandedYears[year];
+                const isCurrentYear = year === targetYear;
+                const avgPerMonth = group.activeMonths > 0 ? group.yearTotal / group.activeMonths : 0;
+
+                return (
+                  <div key={year} className={`rounded-2xl overflow-hidden border transition-all ${
+                    isCurrentYear
+                      ? 'border-purple-500/25 bg-purple-500/[0.02]'
+                      : 'border-slate-200 dark:border-white/5'
+                  }`}>
+                    {/* Year Header Row — tıklanabilir */}
+                    <button
+                      type="button"
+                      onClick={() => toggleYearExpand(year)}
+                      className={`w-full flex items-center justify-between px-4 py-3.5 cursor-pointer transition-all select-none ${
+                        isCurrentYear
+                          ? 'hover:bg-purple-500/5'
+                          : 'hover:bg-slate-200/40 dark:hover:bg-white/[0.03]'
                       }`}
                     >
-                      <span className="font-bold">{monthName} '{String(h.year).slice(-2)}</span>
-                      <span className="text-right font-extrabold">
-                        {h.total_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
-                          style: 'currency',
-                          currency: i18n.language === 'tr' ? 'TRY' : 'USD',
-                          maximumFractionDigits: 0
-                        })}
-                      </span>
-                      <span className="text-right">
-                        {h.total_amount === 0 ? (
-                          <span className="text-[10px] text-slate-400 dark:text-gray-300 font-bold">-</span>
-                        ) : h.unpaid_amount === 0 ? (
-                          <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase">
+                      {/* Sol: Yıl + chip'ler */}
+                      <div className="flex items-center gap-2 flex-wrap min-w-0">
+                        <span className={`text-sm font-extrabold tracking-wide ${
+                          isCurrentYear ? 'text-purple-600 dark:text-purple-400' : 'text-slate-700 dark:text-gray-200'
+                        }`}>
+                          {year}
+                          {isCurrentYear && (
+                            <span className="ml-1.5 text-[9px] font-black uppercase bg-purple-500/15 text-purple-600 dark:text-purple-400 px-1.5 py-0.5 rounded-full border border-purple-500/20">
+                              {t('this_year')}
+                            </span>
+                          )}
+                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                            isCurrentYear
+                              ? 'bg-purple-500/10 border-purple-500/20 text-purple-600 dark:text-purple-400'
+                              : 'bg-slate-200/60 dark:bg-white/5 border-slate-300 dark:border-white/10 text-slate-600 dark:text-gray-300'
+                          }`}>
+                            {group.yearTotal.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
+                              style: 'currency',
+                              currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                              maximumFractionDigits: 0
+                            })}
+                          </span>
+                          {avgPerMonth > 0 && (
+                            <span className="text-[9px] font-bold text-slate-400 dark:text-gray-500">
+                              Ort: {avgPerMonth.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
+                                style: 'currency',
+                                currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                                maximumFractionDigits: 0
+                              })}/ay
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Sağ: Ödeme durumu + ok */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        {group.yearUnpaid === 0 && group.yearTotal > 0 ? (
+                          <span className="text-[9px] font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-full uppercase">
                             {t('paid')}
                           </span>
-                        ) : (
-                          <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 uppercase">
-                            {t('unpaid_summary')}: {Math.round(h.unpaid_amount)}
+                        ) : group.yearUnpaid > 0 ? (
+                          <span className="text-[9px] font-extrabold text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded-full uppercase">
+                            ₺{Math.round(group.yearUnpaid).toLocaleString()}
                           </span>
-                        )}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+                        ) : null}
+                        <ChevronRight className={`w-4 h-4 text-slate-400 dark:text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
+                      </div>
+                    </button>
+
+                    {/* Month Rows — collapsible */}
+                    {isExpanded && (
+                      <div className="border-t border-slate-200 dark:border-white/5">
+                        {/* Sütun başlıkları */}
+                        <div className="grid grid-cols-3 text-[9px] font-bold text-slate-400 dark:text-gray-500 uppercase tracking-wider px-4 py-2 bg-slate-100/50 dark:bg-white/[0.02]">
+                          <span>{t('month')}</span>
+                          <span className="text-right">{t('total')}</span>
+                          <span className="text-right">{t('status')}</span>
+                        </div>
+                        <div className="divide-y divide-slate-100 dark:divide-white/[0.03]">
+                          {group.months.map((h, idx) => {
+                            const isCurrentMonth = h.year === targetYear && h.month === targetMonth;
+                            const monthName = t(`month_${h.month - 1}`);
+                            return (
+                              <div
+                                key={idx}
+                                onClick={() => navigateToMonth(h.year, h.month)}
+                                className={`grid grid-cols-3 py-2.5 px-4 text-xs font-semibold items-center cursor-pointer transition-all active:scale-99 ${
+                                  isCurrentMonth
+                                    ? 'bg-purple-500/8 text-purple-600 dark:text-purple-400'
+                                    : 'text-slate-700 dark:text-gray-300 hover:bg-slate-100/60 dark:hover:bg-white/[0.03]'
+                                }`}
+                              >
+                                <span className="font-bold flex items-center gap-1.5">
+                                  {isCurrentMonth && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shrink-0" />
+                                  )}
+                                  {monthName}
+                                </span>
+                                <span className="text-right font-extrabold">
+                                  {h.total_amount === 0
+                                    ? <span className="text-slate-300 dark:text-gray-600">—</span>
+                                    : h.total_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
+                                        style: 'currency',
+                                        currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                                        maximumFractionDigits: 0
+                                      })
+                                  }
+                                </span>
+                                <span className="text-right">
+                                  {h.total_amount === 0 ? (
+                                    <span className="text-[9px] text-slate-300 dark:text-gray-600 font-bold">—</span>
+                                  ) : h.unpaid_amount === 0 ? (
+                                    <span className="px-1.5 py-0.5 rounded-full text-[8px] font-extrabold bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 uppercase">
+                                      {t('paid')}
+                                    </span>
+                                  ) : (
+                                    <span className="px-1.5 py-0.5 rounded-full text-[8px] font-extrabold bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400">
+                                      -{Math.round(h.unpaid_amount).toLocaleString()}
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Yıl alt özet */}
+                        <div className="flex items-center justify-between px-4 py-3 bg-slate-100/50 dark:bg-white/[0.02] border-t border-slate-200 dark:border-white/5">
+                          <span className="text-[9px] font-black uppercase text-slate-400 dark:text-gray-500 tracking-wider">
+                            {year} {t('yearly_total')}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-extrabold text-slate-700 dark:text-gray-200">
+                              {group.yearTotal.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
+                                style: 'currency',
+                                currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                                maximumFractionDigits: 0
+                              })}
+                            </span>
+                            {group.yearPaid > 0 && (
+                              <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+                                ({t('paid_summary')}: {group.yearPaid.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
+                                  style: 'currency',
+                                  currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                                  maximumFractionDigits: 0
+                                })})
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
+
       </>
     )}
 

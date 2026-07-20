@@ -102,7 +102,15 @@ const resources = {
       api_url: "Sunucu Adresi (API URL)",
       app_mode: "Uygulama Çalışma Modu",
       offline_mode: "Cihaz Hafızası (Çevrimdışı)",
-      online_mode: "Uzak Sunucu (Çevrimiçi)"
+      online_mode: "Uzak Sunucu (Çevrimiçi)",
+      yearly_total: "Yıllık Toplam",
+      yearly_paid: "Yıllık Ödenen",
+      monthly_avg: "Aylık Ort.",
+      this_year: "Bu Yıl",
+      year_summary: "{{year}} Yılı",
+      expand_year: "Yılı Genişlet",
+      collapse_year: "Yılı Daralt",
+      history_yearly_group: "Yıl bazında gruplandırılmış geçmiş"
     }
   },
   en: {
@@ -205,7 +213,15 @@ const resources = {
       api_url: "Server Address (API URL)",
       app_mode: "App Running Mode",
       offline_mode: "Device Memory (Offline)",
-      online_mode: "Remote Server (Online)"
+      online_mode: "Remote Server (Online)",
+      yearly_total: "Yearly Total",
+      yearly_paid: "Yearly Paid",
+      monthly_avg: "Monthly Avg.",
+      this_year: "This Year",
+      year_summary: "Year {{year}}",
+      expand_year: "Expand Year",
+      collapse_year: "Collapse Year",
+      history_yearly_group: "History grouped by year"
     }
   }
 };
