@@ -283,7 +283,7 @@ app.get('/api/companies/:id/transactions', async (req, res) => {
 
 // 5. POST /api/transactions - Create a transaction
 app.post('/api/transactions', async (req, res) => {
-  const { group_id, description, amount, date, is_installment, installment_count, company_id } = req.body;
+  const { group_id, description, amount, date, is_installment, installment_count, company_id, category, is_recurring, recurring_day } = req.body;
 
   if (!group_id || !description || amount === undefined || !date) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -293,6 +293,9 @@ app.post('/api/transactions', async (req, res) => {
   const isInstallment = is_installment ? 1 : 0;
   const count = isInstallment ? parseInt(installment_count, 10) || 1 : 1;
   const companyId = company_id || null;
+  const cat = category || 'other';
+  const isRecur = is_recurring ? 1 : 0;
+  const recurDay = recurring_day !== undefined && recurring_day !== null ? parseInt(recurring_day, 10) : null;
 
   try {
     const db = await getDb();
@@ -303,9 +306,9 @@ app.post('/api/transactions', async (req, res) => {
     }
 
     await db.run(
-      `INSERT INTO transactions (id, group_id, description, amount, date, is_installment, installment_count, company_id) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [id, group_id, description, parseFloat(amount), date, isInstallment, count, companyId]
+      `INSERT INTO transactions (id, group_id, description, amount, date, is_installment, installment_count, company_id, category, is_recurring, recurring_day) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [id, group_id, description, parseFloat(amount), date, isInstallment, count, companyId, cat, isRecur, recurDay]
     );
 
     const transaction = await db.get('SELECT * FROM transactions WHERE id = ?', [id]);
@@ -318,7 +321,7 @@ app.post('/api/transactions', async (req, res) => {
 // 5b. PUT /api/transactions/:id - Update a transaction
 app.put('/api/transactions/:id', async (req, res) => {
   const { id } = req.params;
-  const { group_id, description, amount, date, is_installment, installment_count, company_id } = req.body;
+  const { group_id, description, amount, date, is_installment, installment_count, company_id, category, is_recurring, recurring_day } = req.body;
 
   try {
     const db = await getDb();
@@ -336,6 +339,11 @@ app.put('/api/transactions/:id', async (req, res) => {
       ? (is_installment ? parseInt(installment_count, 10) || 1 : 1)
       : existing.installment_count;
     const updatedCompanyId = company_id !== undefined ? (company_id || null) : existing.company_id;
+    const updatedCategory = category !== undefined ? category : existing.category;
+    const updatedIsRecurring = is_recurring !== undefined ? (is_recurring ? 1 : 0) : existing.is_recurring;
+    const updatedRecurringDay = recurring_day !== undefined 
+      ? (recurring_day !== null ? parseInt(recurring_day, 10) : null)
+      : existing.recurring_day;
 
     if (group_id !== undefined) {
       const group = await db.get('SELECT * FROM expense_groups WHERE id = ?', [updatedGroupId]);
@@ -346,9 +354,9 @@ app.put('/api/transactions/:id', async (req, res) => {
 
     await db.run(
       `UPDATE transactions 
-       SET group_id = ?, description = ?, amount = ?, date = ?, is_installment = ?, installment_count = ?, company_id = ? 
+       SET group_id = ?, description = ?, amount = ?, date = ?, is_installment = ?, installment_count = ?, company_id = ?, category = ?, is_recurring = ?, recurring_day = ? 
        WHERE id = ?`,
-      [updatedGroupId, updatedDescription, updatedAmount, updatedDate, updatedIsInstallment, updatedInstallmentCount, updatedCompanyId, id]
+      [updatedGroupId, updatedDescription, updatedAmount, updatedDate, updatedIsInstallment, updatedInstallmentCount, updatedCompanyId, updatedCategory, updatedIsRecurring, updatedRecurringDay, id]
     );
 
     const updatedTransaction = await db.get('SELECT * FROM transactions WHERE id = ?', [id]);
@@ -433,7 +441,10 @@ app.get('/api/monthly-summary', async (req, res) => {
               monthly_amount: t.amount,
               is_paid: isPaid,
               company_id: t.company_id,
-              company_name: t.company_name
+              company_name: t.company_name,
+              category: t.category || undefined,
+              is_recurring: t.is_recurring === 1,
+              recurring_day: t.recurring_day || undefined
             });
           }
         } else {
@@ -456,7 +467,10 @@ app.get('/api/monthly-summary', async (req, res) => {
               monthly_amount: monthlyAmount,
               is_paid: isPaid,
               company_id: t.company_id,
-              company_name: t.company_name
+              company_name: t.company_name,
+              category: t.category || undefined,
+              is_recurring: t.is_recurring === 1,
+              recurring_day: t.recurring_day || undefined
             });
           }
         }
@@ -701,6 +715,141 @@ app.post('/api/backup/import', async (req, res) => {
     res.json({ message: 'Backup restored successfully' });
   } catch (error) {
     try {
+      await db.run('ROLLBACK');
+    } catch (e) {}
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/sync - Sync local storage data with the cloud server database
+app.post('/api/sync', async (req, res) => {
+  const { mode, data } = req.body;
+  if (!mode || !data) {
+    return res.status(400).json({ error: 'Missing mode or data' });
+  }
+
+  try {
+    const db = await getDb();
+    await db.run('BEGIN TRANSACTION');
+
+    if (mode === 'push') {
+      // Overwrite server database tables with client local data
+      await db.run('DELETE FROM transaction_payments');
+      await db.run('DELETE FROM transactions');
+      await db.run('DELETE FROM expense_groups');
+      await db.run('DELETE FROM companies');
+      await db.run('DELETE FROM banks');
+
+      if (Array.isArray(data.banks)) {
+        for (const b of data.banks) {
+          await db.run('INSERT INTO banks (id, name, created_at) VALUES (?, ?, ?)', [b.id, b.name, b.created_at]);
+        }
+      }
+      if (Array.isArray(data.companies)) {
+        for (const c of data.companies) {
+          await db.run('INSERT INTO companies (id, name, created_at) VALUES (?, ?, ?)', [c.id, c.name, c.created_at]);
+        }
+      }
+      if (Array.isArray(data.expense_groups)) {
+        for (const eg of data.expense_groups) {
+          await db.run('INSERT INTO expense_groups (id, name, type, due_day, statement_day, bank_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [eg.id, eg.name, eg.type, eg.due_day, eg.statement_day, eg.bank_id, eg.created_at]);
+        }
+      }
+      if (Array.isArray(data.transactions)) {
+        for (const t of data.transactions) {
+          await db.run('INSERT INTO transactions (id, group_id, description, amount, date, is_installment, installment_count, company_id, category, is_recurring, recurring_day, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [t.id, t.group_id, t.description, t.amount, t.date, t.is_installment, t.installment_count, t.company_id, t.category, t.is_recurring, t.recurring_day, t.created_at]);
+        }
+      }
+      if (Array.isArray(data.transaction_payments)) {
+        for (const p of data.transaction_payments) {
+          await db.run('INSERT INTO transaction_payments (id, transaction_id, year, month, is_paid, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+            [p.id, p.transaction_id, p.year, p.month, p.is_paid, p.created_at]);
+        }
+      }
+    } else if (mode === 'merge') {
+      // Merge client data with server database (union by unique ID)
+      if (Array.isArray(data.banks)) {
+        for (const b of data.banks) {
+          const exists = await db.get('SELECT id FROM banks WHERE id = ?', [b.id]);
+          if (!exists) {
+            await db.run('INSERT INTO banks (id, name, created_at) VALUES (?, ?, ?)', [b.id, b.name, b.created_at]);
+          } else {
+            await db.run('UPDATE banks SET name = ? WHERE id = ?', [b.name, b.id]);
+          }
+        }
+      }
+      if (Array.isArray(data.companies)) {
+        for (const c of data.companies) {
+          const exists = await db.get('SELECT id FROM companies WHERE id = ?', [c.id]);
+          if (!exists) {
+            await db.run('INSERT INTO companies (id, name, created_at) VALUES (?, ?, ?)', [c.id, c.name, c.created_at]);
+          } else {
+            await db.run('UPDATE companies SET name = ? WHERE id = ?', [c.name, c.id]);
+          }
+        }
+      }
+      if (Array.isArray(data.expense_groups)) {
+        for (const eg of data.expense_groups) {
+          const exists = await db.get('SELECT id FROM expense_groups WHERE id = ?', [eg.id]);
+          if (!exists) {
+            await db.run('INSERT INTO expense_groups (id, name, type, due_day, statement_day, bank_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+              [eg.id, eg.name, eg.type, eg.due_day, eg.statement_day, eg.bank_id, eg.created_at]);
+          } else {
+            await db.run('UPDATE expense_groups SET name = ?, type = ?, due_day = ?, statement_day = ?, bank_id = ? WHERE id = ?',
+              [eg.name, eg.type, eg.due_day, eg.statement_day, eg.bank_id, eg.id]);
+          }
+        }
+      }
+      if (Array.isArray(data.transactions)) {
+        for (const t of data.transactions) {
+          const exists = await db.get('SELECT id FROM transactions WHERE id = ?', [t.id]);
+          if (!exists) {
+            await db.run('INSERT INTO transactions (id, group_id, description, amount, date, is_installment, installment_count, company_id, category, is_recurring, recurring_day, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+              [t.id, t.group_id, t.description, t.amount, t.date, t.is_installment, t.installment_count, t.company_id, t.category, t.is_recurring, t.recurring_day, t.created_at]);
+          } else {
+            await db.run('UPDATE transactions SET group_id = ?, description = ?, amount = ?, date = ?, is_installment = ?, installment_count = ?, company_id = ?, category = ?, is_recurring = ?, recurring_day = ? WHERE id = ?',
+              [t.group_id, t.description, t.amount, t.date, t.is_installment, t.installment_count, t.company_id, t.category, t.is_recurring, t.recurring_day, t.id]);
+          }
+        }
+      }
+      if (Array.isArray(data.transaction_payments)) {
+        for (const p of data.transaction_payments) {
+          const exists = await db.get('SELECT transaction_id FROM transaction_payments WHERE transaction_id = ? AND year = ? AND month = ?', [p.transaction_id, p.year, p.month]);
+          if (!exists) {
+            await db.run('INSERT INTO transaction_payments (id, transaction_id, year, month, is_paid, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+              [p.id, p.transaction_id, p.year, p.month, p.is_paid, p.created_at]);
+          } else {
+            await db.run('UPDATE transaction_payments SET is_paid = ? WHERE transaction_id = ? AND year = ? AND month = ?', [p.is_paid, p.transaction_id, p.year, p.month]);
+          }
+        }
+      }
+    }
+
+    await db.run('COMMIT');
+
+    // Retrieve full synced data from DB to send back to client
+    const syncedBanks = await db.all('SELECT * FROM banks');
+    const syncedCompanies = await db.all('SELECT * FROM companies');
+    const syncedGroups = await db.all('SELECT * FROM expense_groups');
+    const syncedTransactions = await db.all('SELECT * FROM transactions');
+    const syncedPayments = await db.all('SELECT * FROM transaction_payments');
+
+    res.json({
+      message: 'Sync successful',
+      data: {
+        banks: syncedBanks,
+        companies: syncedCompanies,
+        expense_groups: syncedGroups,
+        transactions: syncedTransactions,
+        transaction_payments: syncedPayments
+      }
+    });
+
+  } catch (error) {
+    try {
+      const db = await getDb();
       await db.run('ROLLBACK');
     } catch (e) {}
     res.status(500).json({ error: error.message });

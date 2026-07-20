@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@drawable/widget_background">
+
+    <!-- Brand Header -->
+    <LinearLayout
+        android:id="@+id/header_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true">
+        
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MyFinans"
+            android:textColor="#a855f7"
+            android:textStyle="bold"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Main Remaining Balance Display -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_centerInParent="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Kalan Ödemeler"
+            android:textColor="#94a3b8"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/widget_unpaid_amount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="₺0.00"
+            android:textColor="#ffffff"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginTop="2dp" />
+
+        <TextView
+            android:id="@+id/widget_unpaid_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ödenmemiş harcama yok"
+            android:textColor="#e2e8f0"
+            android:textSize="10sp"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,8 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Lock } from 'lucide-react';
+import { Lock, Fingerprint } from 'lucide-react';
+import { NativeBiometric } from 'capacitor-native-biometric';
+import { Capacitor } from '@capacitor/core';
 
 const PIN_KEY = 'myfinans_pin_hash';
+const BIO_KEY = 'myfinans_biometric_enabled';
 
 function hashPin(pin: string): string {
   return btoa(pin.split('').reverse().join('') + '_myfinans_2025');
@@ -10,6 +13,14 @@ function hashPin(pin: string): string {
 
 export function isPinEnabled(): boolean {
   return !!localStorage.getItem(PIN_KEY);
+}
+
+export function isBiometricEnabled(): boolean {
+  return localStorage.getItem(BIO_KEY) === 'true';
+}
+
+export function enableBiometric(enable: boolean): void {
+  localStorage.setItem(BIO_KEY, enable ? 'true' : 'false');
 }
 
 export function verifyPin(pin: string): boolean {
@@ -24,6 +35,7 @@ export function savePin(pin: string): void {
 
 export function removePin(): void {
   localStorage.removeItem(PIN_KEY);
+  localStorage.removeItem(BIO_KEY);
 }
 
 interface PinLockProps {
@@ -35,6 +47,44 @@ export default function PinLock({ onUnlock }: PinLockProps) {
   const [pin, setPin] = useState('');
   const [shake, setShake] = useState(false);
   const [error, setError] = useState('');
+  const [hasBiometric, setHasBiometric] = useState(false);
+
+  useEffect(() => {
+    // Check if biometric is available and enabled
+    const checkBio = async () => {
+      if (!Capacitor.isNativePlatform()) return;
+      try {
+        const result = await NativeBiometric.isAvailable();
+        if (result.isAvailable) {
+          setHasBiometric(true);
+          if (isBiometricEnabled()) {
+            triggerBiometric();
+          }
+        }
+      } catch (e) {
+        console.error('Biometric availability check failed:', e);
+      }
+    };
+    checkBio();
+  }, []);
+
+  const triggerBiometric = async () => {
+    if (!Capacitor.isNativePlatform()) return;
+    try {
+      const result = await NativeBiometric.isAvailable();
+      if (result.isAvailable) {
+        await NativeBiometric.verifyIdentity({
+          reason: t('bio_reason') || "Lütfen giriş yapmak için kimliğinizi doğrulayın",
+          title: t('bio_title') || "Biyometrik Doğrulama",
+          subtitle: t('bio_subtitle') || "Güvenli Giriş",
+          description: t('bio_description') || "MyFinans uygulamasını açmak için parmak izi veya yüz tanımayı kullanın."
+        });
+        onUnlock();
+      }
+    } catch (e: any) {
+      console.error('Biometric authentication failed:', e);
+    }
+  };
 
   const handleDigit = (d: string) => {
     if (pin.length >= 4) return;
@@ -60,7 +110,7 @@ export default function PinLock({ onUnlock }: PinLockProps) {
     setError('');
   };
 
-  const digits = ['1','2','3','4','5','6','7','8','9','','0','del'];
+  const digits = ['1','2','3','4','5','6','7','8','9','bio','0','del'];
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950 px-8">
@@ -85,11 +135,15 @@ export default function PinLock({ onUnlock }: PinLockProps) {
         <div className="grid grid-cols-3 gap-3 w-full">
           {digits.map((d, idx) => (
             <button key={idx} type="button"
-              onClick={() => { if (d === 'del') handleDelete(); else if (d !== '') handleDigit(d); }}
-              disabled={d === ''}
-              className={`h-16 rounded-2xl font-bold text-xl transition-all active:scale-95 select-none ${d === '' ? 'opacity-0 pointer-events-none' : d === 'del' ? 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 cursor-pointer' : 'bg-white/8 border border-white/10 text-white hover:bg-white/15 active:bg-purple-600/30 cursor-pointer'}`}
+              onClick={() => { 
+                if (d === 'del') handleDelete(); 
+                else if (d === 'bio') triggerBiometric();
+                else handleDigit(d); 
+              }}
+              disabled={d === 'bio' && !hasBiometric}
+              className={`h-16 rounded-2xl font-bold text-xl transition-all active:scale-95 select-none flex items-center justify-center ${d === 'bio' && !hasBiometric ? 'opacity-0 pointer-events-none' : d === 'del' ? 'bg-white/5 border border-white/10 text-gray-400 hover:bg-white/10 cursor-pointer' : d === 'bio' ? 'bg-purple-600/20 border border-purple-500/30 text-purple-400 hover:bg-purple-600/30 cursor-pointer' : 'bg-white/8 border border-white/10 text-white hover:bg-white/15 active:bg-purple-600/30 cursor-pointer'}`}
             >
-              {d === 'del' ? '⌫' : d}
+              {d === 'del' ? '⌫' : d === 'bio' ? <Fingerprint className="w-6 h-6" /> : d}
             </button>
           ))}
         </div>

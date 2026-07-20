@@ -27,7 +27,7 @@ import {
 import type { ExpenseGroup, Transaction, Bank, Company, CompanyStats, HistoryItem, GroupType } from './types';
 
 import { localDatabase } from './services/localDatabase';
-import PinLock, { isPinEnabled, savePin, removePin } from './components/PinLock';
+import PinLock, { isPinEnabled, savePin, removePin, isBiometricEnabled, enableBiometric } from './components/PinLock';
 import { notificationService } from './services/notificationService';
 
 
@@ -115,6 +115,14 @@ export default function App() {
   const [pinConfirmVal, setPinConfirmVal] = useState('');
   const [pinSetupStep, setPinSetupStep] = useState<'enter' | 'confirm'>('enter');
   const [pinSetupError, setPinSetupError] = useState('');
+
+  const [biometricEnabled, setBiometricEnabled] = useState(isBiometricEnabled());
+
+  const handleToggleBiometric = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.checked;
+    enableBiometric(val);
+    setBiometricEnabled(val);
+  };
 
   const handlePinSetupDigit = (d: string) => {
     const current = pinSetupStep === 'enter' ? pinInputVal : pinConfirmVal;
@@ -245,6 +253,46 @@ export default function App() {
     }
   };
 
+  const handleSync = async (mode: 'merge' | 'push' | 'pull') => {
+    try {
+      setLoading(true);
+      const localBackup = localDatabase.exportBackup();
+      const localData = localBackup.data;
+
+      const res = await fetch(`${API_URL}/api/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          mode,
+          data: localData
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error('Sync failed on server');
+      }
+
+      const resData = await res.json();
+      
+      // Update local storage database with synced data
+      if (resData.data) {
+        localDatabase.importBackup(resData.data);
+      }
+      
+      alert(t('sync_success'));
+      fetchData();
+      fetchBanks();
+      fetchCompanies();
+    } catch (err) {
+      console.error(err);
+      alert(t('sync_failed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -294,8 +342,26 @@ export default function App() {
   useEffect(() => {
     if (summaryData?.groups) {
       notificationService.scheduleNotificationsForGroups(summaryData.groups);
+      
+      // Update Android Native Widget if available
+      try {
+        if ((window as any).MyFinansWidget) {
+          const unpaidVal = summaryData.unpaid_amount;
+          const unpaidCount = summaryData.groups.filter(g => (g.total_amount - g.paid_amount) > 0).length;
+          
+          const currencySymbol = i18n.language === 'tr' ? '₺' : '$';
+          const unpaidText = `${currencySymbol}${unpaidVal.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          const countText = unpaidCount > 0 
+            ? (i18n.language === 'tr' ? `${unpaidCount} ödenmemiş grup bekliyor` : `${unpaidCount} unpaid groups pending`)
+            : (i18n.language === 'tr' ? 'Ödenmemiş harcama yok' : 'No unpaid expenses');
+            
+          (window as any).MyFinansWidget.updateWidgetData(unpaidText, countText);
+        }
+      } catch (e) {
+        console.error('Error updating native widget:', e);
+      }
     }
-  }, [summaryData]);
+  }, [summaryData, i18n.language]);
 
   useEffect(() => {
     const init = async () => {
@@ -2335,6 +2401,42 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Cloud Sync Section */}
+              <div className="space-y-2 bg-purple-600/5 p-4 rounded-3xl border border-purple-500/10">
+                <label className="text-[10px] font-black uppercase text-purple-600 dark:text-purple-400 tracking-wider block">
+                  {t('cloud_sync')}
+                </label>
+                <p className="text-[10px] text-slate-500 dark:text-gray-400 leading-normal font-medium">
+                  {t('sync_desc')}
+                </p>
+                <div className="grid grid-cols-3 gap-1.5 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => handleSync('merge')}
+                    className="py-2 px-1 rounded-xl bg-purple-600 hover:bg-purple-500 active:scale-95 transition-all font-bold text-[9px] text-white cursor-pointer text-center"
+                    title={t('sync_merge_title')}
+                  >
+                    {t('sync_merge')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSync('push')}
+                    className="py-2 px-1 rounded-xl bg-cyan-600 hover:bg-cyan-500 active:scale-95 transition-all font-bold text-[9px] text-white cursor-pointer text-center"
+                    title={t('sync_push_title')}
+                  >
+                    {t('sync_push')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSync('pull')}
+                    className="py-2 px-1 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 transition-all font-bold text-[9px] text-white cursor-pointer text-center"
+                    title={t('sync_pull_title')}
+                  >
+                    {t('sync_pull')}
+                  </button>
+                </div>
+              </div>
+
               {/* App Mode Switcher */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-slate-400 dark:text-gray-400 tracking-wider block">
@@ -2412,7 +2514,7 @@ export default function App() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => { if(window.confirm(t('pin_remove') + '?')) { removePin(); alert(t('pin_removed')); } }}
+                      onClick={() => { if(window.confirm(t('pin_remove') + '?')) { removePin(); setBiometricEnabled(false); alert(t('pin_removed')); } }}
                       className="flex-1 py-2.5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500/20 font-bold text-xs transition-all cursor-pointer"
                     >
                       {t('pin_remove')}
@@ -2428,6 +2530,24 @@ export default function App() {
                   </button>
                 )}
               </div>
+
+              {/* Biometric Lock Section */}
+              {isPinEnabled() && (
+                <div className="flex items-center justify-between py-1 bg-slate-200/20 dark:bg-white/[0.02] p-3 rounded-2xl border border-slate-300/30 dark:border-white/5">
+                  <span className="text-xs font-bold text-slate-700 dark:text-gray-300">
+                    {t('biometric_login')}
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer"
+                      checked={biometricEnabled}
+                      onChange={handleToggleBiometric}
+                    />
+                    <div className="w-9 h-5 bg-slate-300 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                  </label>
+                </div>
+              )}
 
               {/* About App Section */}
               <div className="pt-4 border-t border-slate-300/30 dark:border-white/5 space-y-1.5 text-center">
