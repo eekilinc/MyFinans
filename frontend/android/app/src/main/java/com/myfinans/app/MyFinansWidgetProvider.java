@@ -1,5 +1,7 @@
 package com.myfinans.app;
 
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
@@ -28,6 +30,16 @@ public class MyFinansWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.myfinans_widget);
         views.setTextViewText(R.id.widget_unpaid_amount, unpaidAmount);
         views.setTextViewText(R.id.widget_unpaid_count, unpaidCount);
+
+        // Click-to-open-app action mapping
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+        views.setOnClickPendingIntent(R.id.widget_root, pendingIntent);
 
         appWidgetManager.updateAppWidget(appWidgetId, views);
     }
