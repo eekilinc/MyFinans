@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+/* Enable class-based dark mode in Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg-color: #0b0b0f;
+  --text-color: #e5e7eb;
+  
+  --card-bg: rgba(21, 21, 28, 0.55);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --card-bg-hover: rgba(30, 30, 42, 0.65);
+  --card-border-hover: rgba(255, 255, 255, 0.15);
+  
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-muted-more: #6b7280;
+  
+  --bg-input: rgba(255, 255, 255, 0.05);
+  --border-input: rgba(255, 255, 255, 0.1);
+  --bg-modal: #121217;
+  
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --ambient-blur-purple: rgba(168, 85, 247, 0.25);
+  --ambient-blur-cyan: rgba(6, 182, 212, 0.35);
+  
+  --button-ghost-bg: rgba(255, 255, 255, 0.05);
+  --button-ghost-border: rgba(255, 255, 255, 0.1);
+  --button-ghost-hover: rgba(255, 255, 255, 0.1);
+}
+
+.light {
+  --bg-color: #f3f4f6;
+  --text-color: #1f2937;
+  
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-border: rgba(0, 0, 0, 0.08);
+  --card-bg-hover: rgba(255, 255, 255, 0.95);
+  --card-border-hover: rgba(0, 0, 0, 0.12);
+  
+  --text-main: #1f2937;
+  --text-muted: #4b5563;
+  --text-muted-more: #9ca3af;
+  
+  --bg-input: rgba(0, 0, 0, 0.04);
+  --border-input: rgba(0, 0, 0, 0.1);
+  --bg-modal: #ffffff;
+  
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --ambient-blur-purple: rgba(168, 85, 247, 0.12);
+  --ambient-blur-cyan: rgba(6, 182, 212, 0.15);
+  
+  --button-ghost-bg: rgba(0, 0, 0, 0.04);
+  --button-ghost-border: rgba(0, 0, 0, 0.08);
+  --button-ghost-hover: rgba(0, 0, 0, 0.08);
+}
+
+@layer utilities {
+  .glass-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    color: var(--text-main);
+  }
+  
+  .glass-card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .glass-card-hover:hover {
+    background: var(--card-bg-hover);
+    border-color: var(--card-border-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px -10px var(--shadow-color);
+  }
+  
+  .text-glow-purple {
+    text-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+  }
+
+  .text-glow-cyan {
+    text-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.2);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.3);
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-10px) scale(1.05);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 8s ease-in-out infinite;
+}

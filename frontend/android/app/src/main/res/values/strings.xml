@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MyFinans</string>
+    <string name="title_activity_main">MyFinans</string>
+    <string name="package_name">com.myfinans.app</string>
+    <string name="custom_url_scheme">com.myfinans.app</string>
+</resources>

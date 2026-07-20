@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:5001"
+    volumes:
+      - myfinans-data:/app/data
+    environment:
+      - PORT=5001
+      - DATABASE_PATH=/app/data/myfinans.db
+      - NODE_ENV=production
+    restart: always
+
+volumes:
+  myfinans-data:
