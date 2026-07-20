@@ -998,28 +998,30 @@ export default function App() {
       <div className="max-w-md mx-auto px-4 pt-6">
         
         {/* Header Section */}
-        <header className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-2 min-w-0">
+        <header className="flex flex-col gap-3 mb-6 bg-slate-100/10 dark:bg-white/[0.02] p-4 rounded-3xl border border-slate-300/30 dark:border-white/5 backdrop-blur-md">
+          {/* Row 1: Brand Info */}
+          <div className="flex items-center gap-3">
             <img 
               src="/logo.png" 
               className="w-10 h-10 rounded-xl shadow-[0_0_15px_rgba(168,85,247,0.15)] border border-purple-500/20 object-cover shrink-0 animate-float" 
               alt="MyFinans Logo" 
             />
-            <div className="min-w-0">
-              <h1 className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-500 dark:from-purple-400 dark:via-pink-400 dark:to-cyan-400 bg-clip-text text-transparent text-glow-purple truncate">
+            <div>
+              <h1 className="text-xl font-extrabold tracking-tight bg-gradient-to-r from-purple-600 via-pink-500 to-cyan-500 dark:from-purple-400 dark:via-pink-400 dark:to-cyan-400 bg-clip-text text-transparent text-glow-purple leading-tight">
                 MyFinans
               </h1>
-              <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 tracking-wider block truncate">
+              <span className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 tracking-wider block">
                 {t('app_subtitle')}
               </span>
             </div>
           </div>
           
-          <div className="flex gap-1.5 shrink-0">
+          {/* Row 2: Action Buttons */}
+          <div className="grid grid-cols-5 gap-2 pt-2 border-t border-slate-300/30 dark:border-white/5">
             {/* Global Search */}
             <button 
               onClick={() => { setShowSearchModal(true); setSearchQuery(''); setSearchResults([]); }}
-              className="p-2 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer"
+              className="py-2.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
               title={t('search_all')}
             >
               <Search className="w-4 h-4" />
@@ -1028,7 +1030,7 @@ export default function App() {
             {/* Manage Banks */}
             <button 
               onClick={() => setShowBankManager(true)}
-              className="p-2 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+              className="py-2.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
               title={t('manage_banks')}
             >
               <Landmark className="w-4 h-4" />
@@ -1037,7 +1039,7 @@ export default function App() {
             {/* Theme Toggle */}
             <button 
               onClick={toggleTheme}
-              className="p-2 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer"
+              className="py-2.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
             >
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
@@ -1045,16 +1047,16 @@ export default function App() {
             {/* Language Switch */}
             <button 
               onClick={toggleLanguage}
-              className="px-2 py-1.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300/50 dark:hover:bg-white/10 active:scale-95 transition-all text-[10px] font-bold text-slate-700 dark:text-gray-400 dark:hover:text-white flex items-center gap-1 cursor-pointer"
+              className="py-2.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300/50 dark:hover:bg-white/10 active:scale-95 transition-all text-[10px] font-bold text-slate-700 dark:text-gray-400 dark:hover:text-white flex items-center justify-center gap-1 cursor-pointer"
             >
               <Globe className="w-3.5 h-3.5" />
-              {i18n.language.toUpperCase()}
+              <span>{i18n.language.toUpperCase()}</span>
             </button>
 
             {/* Settings */}
             <button 
               onClick={() => setShowSettingsModal(true)}
-              className="p-2 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
+              className="py-2.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center"
               title={t('settings')}
             >
               <Settings className="w-4 h-4" />
