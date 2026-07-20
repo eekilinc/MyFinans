@@ -1411,11 +1411,11 @@ export default function App() {
                   className="w-full bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-3.5 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 transition-all font-medium"
                 />
 
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   <span className="text-[10px] font-black uppercase text-slate-400 dark:text-gray-400 tracking-wider">
                     {t('sort_by')}
                   </span>
-                  <div className="flex gap-1.5 p-0.5 bg-slate-200/30 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl">
+                  <div className="flex gap-1 p-0.5 bg-slate-200/30 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl overflow-x-auto max-w-full">
                     <button
                       type="button"
                       onClick={() => setCompanySortBy('spent')}
@@ -1469,26 +1469,27 @@ export default function App() {
                         fetchCompanyTransactions(c.id);
                         setShowCompanyDetailModal(true);
                       }}
-                      className="glass-card rounded-2xl border border-slate-300/30 dark:border-white/5 p-4 flex items-center justify-between cursor-pointer hover:border-purple-500/30 hover:bg-purple-500/[0.01] active:scale-99 transition-all select-none"
+                      className="glass-card rounded-2xl border border-slate-300/30 dark:border-white/5 p-4 flex items-center justify-between gap-2 cursor-pointer hover:border-purple-500/30 hover:bg-purple-500/[0.01] active:scale-99 transition-all select-none"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
                         <div className="p-2.5 rounded-xl bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 shrink-0">
                           <Coins className="w-5 h-5 text-slate-400 dark:text-gray-300" />
                         </div>
-                        <div>
-                          <h4 className="font-bold text-sm text-slate-800 dark:text-white tracking-wide">{c.name}</h4>
+                        <div className="min-w-0">
+                          <h4 className="font-bold text-sm text-slate-800 dark:text-white tracking-wide truncate">{c.name}</h4>
                           <span className="text-[10px] font-bold text-slate-400 dark:text-gray-400 mt-1 block">
                             {c.tx_count} {t('tx_count')}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-2 shrink-0">
                         <div className="text-right">
-                          <span className="font-extrabold text-sm block text-slate-800 dark:text-gray-100">
+                          <span className="font-extrabold text-xs block text-slate-800 dark:text-gray-100">
                             {c.total_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', {
                               style: 'currency',
-                              currency: i18n.language === 'tr' ? 'TRY' : 'USD'
+                              currency: i18n.language === 'tr' ? 'TRY' : 'USD',
+                              maximumFractionDigits: 0
                             })}
                           </span>
                           <span className="text-[10px] text-slate-400 dark:text-gray-500 block mt-0.5">
@@ -1500,7 +1501,7 @@ export default function App() {
                             e.stopPropagation();
                             handleDeleteCompany(c.id, e);
                           }}
-                          className="p-2 rounded-lg bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300/50 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-red-500 transition-all cursor-pointer"
+                          className="p-2 rounded-lg bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 hover:bg-slate-300/50 dark:hover:bg-white/10 text-slate-500 dark:text-gray-400 hover:text-red-500 transition-all cursor-pointer shrink-0"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -1741,12 +1742,12 @@ export default function App() {
                   {t('app_desc')}
                 </p>
                 <a 
-                  href="https://github.com/myfinans/myfinans-app" 
+                  href="https://github.com/eekilinc/MyFinans" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="inline-block text-[10px] text-purple-500 hover:underline font-bold mt-1"
                 >
-                  github.com/myfinans/myfinans-app
+                  github.com/eekilinc/MyFinans
                 </a>
                 <div className="mt-2">
                   <span className="inline-block text-[9px] font-extrabold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full">
@@ -2101,21 +2102,21 @@ export default function App() {
             </h3>
 
             {/* Add Bank Form */}
-            <form onSubmit={handleAddBank} className="flex gap-2 mb-6">
+            <form onSubmit={handleAddBank} className="flex gap-2 mb-6 flex-wrap">
               <input 
                 type="text" 
                 placeholder={t('bank_name')}
                 value={newBankName}
                 onChange={e => setNewBankName(e.target.value)}
                 required
-                className="flex-1 bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 transition-all font-medium"
+                className="flex-1 min-w-0 bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 transition-all font-medium"
               />
               <button 
                 type="submit"
-                className="py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-xs text-white shadow-lg shadow-purple-600/25 transition-all cursor-pointer flex items-center gap-1 shrink-0"
+                className="py-2.5 px-3.5 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-xs text-white shadow-lg shadow-purple-600/25 transition-all cursor-pointer flex items-center gap-1 shrink-0"
               >
                 <Plus className="w-3.5 h-3.5" />
-                {t('add_bank')}
+                <span className="hidden sm:inline">{t('add_bank')}</span>
               </button>
             </form>
 
@@ -2127,9 +2128,9 @@ export default function App() {
                 banks.map(bank => (
                   <div 
                     key={bank.id} 
-                    className="flex justify-between items-center p-3 rounded-xl bg-slate-200/30 dark:bg-white/5 border border-slate-300/50 dark:border-white/5"
+                    className="flex justify-between items-center p-3 rounded-xl bg-slate-200/30 dark:bg-white/5 border border-slate-300/50 dark:border-white/5 gap-2"
                   >
-                    <span className="text-sm font-bold text-slate-800 dark:text-gray-200">{bank.name}</span>
+                    <span className="text-sm font-bold text-slate-800 dark:text-gray-200 truncate min-w-0">{bank.name}</span>
                     <button 
                       onClick={() => handleDeleteBank(bank.id)}
                       className="p-1.5 rounded-lg opacity-60 hover:opacity-100 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-red-500 transition-all cursor-pointer"
