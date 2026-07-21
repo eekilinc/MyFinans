@@ -41,6 +41,23 @@ public class MainActivity extends BridgeActivity {
                         }
                     });
                 }
+
+                @JavascriptInterface
+                public void printPage() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                android.print.PrintManager printManager = (android.print.PrintManager) getSystemService(Context.PRINT_SERVICE);
+                                android.print.PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter("MyFinans Raporu");
+                                String jobName = "MyFinans Raporu";
+                                printManager.print(jobName, printAdapter, new android.print.PrintAttributes.Builder().build());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }
             }, "MyFinansWidget");
         }
     }
