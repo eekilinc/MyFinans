@@ -100,6 +100,12 @@ export default function App() {
   const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
   const [editingCompanyName, setEditingCompanyName] = useState('');
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [budgetLimit, setBudgetLimit] = useState<number>(() => {
+    const saved = localStorage.getItem('myfinans_budget_limit');
+    return saved ? Number(saved) : 0;
+  });
+  const [showAboutModal, setShowAboutModal] = useState(false);
+  const [aboutActiveTab, setAboutActiveTab] = useState<'general' | 'features' | 'changelog' | 'license'>('general');
   const [settingsApiUrl, setSettingsApiUrl] = useState(() => localStorage.getItem('myfinans_api_url') || '');
 
   // Global Search State
@@ -1112,7 +1118,7 @@ export default function App() {
       {/* PIN Lock Screen */}
       {!isUnlocked && <PinLock onUnlock={() => setIsUnlocked(true)} />}
 
-      <div className="min-h-screen pb-20 relative overflow-hidden transition-colors duration-300">
+      <div className="min-h-screen pb-20 relative overflow-hidden transition-colors duration-300 print:hidden">
 
       
       {/* Background Decorative Ambient Blurs */}
@@ -1330,6 +1336,49 @@ export default function App() {
               </div>
             )}
 
+            {/* Budget Limit progress bar */}
+            {budgetLimit > 0 && (() => {
+              const spent = summaryData.total_amount;
+              const ratio = Math.min((spent / budgetLimit) * 100, 100);
+              const isOver = spent > budgetLimit;
+              const isWarning = spent > budgetLimit * 0.8 && spent <= budgetLimit;
+
+              let barColor = 'bg-emerald-500';
+              let textTheme = 'text-emerald-500';
+              if (isOver) {
+                barColor = 'bg-red-500';
+                textTheme = 'text-red-500';
+              } else if (isWarning) {
+                barColor = 'bg-amber-500';
+                textTheme = 'text-amber-500';
+              }
+
+              return (
+                <div className="py-3 border-b border-slate-200 dark:border-white/5 space-y-2">
+                  <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-400 dark:text-gray-400 tracking-wider">
+                    <span>{t('budget_usage')}</span>
+                    <span className={`font-extrabold normal-case ${textTheme}`}>
+                      {t('budget_spent_of', {
+                        spent: spent.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: i18n.language === 'tr' ? 'TRY' : 'USD', maximumFractionDigits: 0 }),
+                        limit: budgetLimit.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: i18n.language === 'tr' ? 'TRY' : 'USD', maximumFractionDigits: 0 })
+                      })} ({ratio.toFixed(1)}%)
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-slate-200 dark:bg-white/5 rounded-full overflow-hidden relative border border-slate-300/30 dark:border-white/5">
+                    <div 
+                      className={`h-full ${barColor} transition-all duration-500 ease-out`} 
+                      style={{ width: `${ratio}%` }}
+                    />
+                  </div>
+                  {isOver && (
+                    <p className="text-[10px] font-bold text-red-500 text-center animate-pulse">
+                      {t('budget_warning')}
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
+
             {/* Quick Actions Grid */}
             <div className="grid grid-cols-2 gap-3 mt-4">
               <button 
@@ -1349,6 +1398,15 @@ export default function App() {
                 {t('add_transaction')}
               </button>
             </div>
+
+            {/* PDF Report Trigger */}
+            <button
+              onClick={() => window.print()}
+              className="w-full flex items-center justify-center gap-2 mt-3 py-2.5 px-4 rounded-2xl bg-purple-600/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 hover:bg-purple-600/20 transition-all font-extrabold text-xs cursor-pointer"
+            >
+              <Landmark className="w-4 h-4" />
+              <span>{t('print_report')}</span>
+            </button>
           </div>
 
 
@@ -2598,6 +2656,27 @@ export default function App() {
                 </form>
               </div>
 
+              {/* Monthly Budget Limit Section */}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-slate-400 dark:text-gray-400 tracking-wider block">
+                  {t('budget_limit')}
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="10000"
+                    value={budgetLimit || ''}
+                    onChange={e => {
+                      const val = Number(e.target.value) || 0;
+                      setBudgetLimit(val);
+                      localStorage.setItem('myfinans_budget_limit', String(val));
+                    }}
+                    className="flex-1 bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 transition-all font-medium"
+                  />
+                </div>
+              </div>
+
               {/* PIN Lock Section */}
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-slate-400 dark:text-gray-400 tracking-wider block">
@@ -2650,27 +2729,144 @@ export default function App() {
               )}
 
               {/* About App Section */}
-              <div className="pt-4 border-t border-slate-300/30 dark:border-white/5 space-y-1.5 text-center">
-                <h4 className="text-xs font-extrabold text-slate-800 dark:text-white">
-                  {t('app_about')}
-                </h4>
-                <p className="text-[10px] text-slate-400 dark:text-gray-400 leading-relaxed font-semibold">
-                  {t('app_desc')}
-                </p>
-                <a 
-                  href="https://github.com/eekilinc/MyFinans" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="inline-block text-[10px] text-purple-500 hover:underline font-bold mt-1"
+              <div className="pt-4 border-t border-slate-300/30 dark:border-white/5 text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAboutModal(true);
+                    setAboutActiveTab('general');
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl bg-purple-600/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 hover:bg-purple-600/20 transition-all font-bold text-xs cursor-pointer"
                 >
-                  github.com/eekilinc/MyFinans
-                </a>
-                <div className="mt-2">
-                  <span className="inline-block text-[9px] font-extrabold text-purple-600 dark:text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-full">
-                    v11.0 - Hybrid Cloud & Widgets
-                  </span>
-                </div>
+                  <Sparkles className="w-4 h-4" />
+                  <span>{t('app_about')}</span>
+                </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- PROFESSIONAL ABOUT MODAL --- */}
+      {showAboutModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all">
+          <div className="glass-card w-full max-w-md rounded-3xl p-6 shadow-2xl relative border border-slate-300 dark:border-white/10 bg-[var(--bg-modal)] animate-fade-in max-h-[85vh] flex flex-col">
+            <button 
+              onClick={() => setShowAboutModal(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-white/10 text-slate-400 hover:text-slate-800 dark:hover:text-white cursor-pointer z-20"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-5 shrink-0">
+              <div className="p-3 rounded-2xl bg-purple-600/20 border border-purple-500/30">
+                <Sparkles className="w-6 h-6 text-purple-500 dark:text-purple-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-800 dark:text-white leading-none">MyFinans</h3>
+                <span className="text-[10px] font-bold text-slate-400 dark:text-gray-400 mt-1 block">v11.1 - Professional Edition</span>
+              </div>
+            </div>
+
+            {/* Modal Tabs */}
+            <div className="flex gap-1 p-1 bg-slate-200/50 dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-2xl mb-4 shrink-0 overflow-x-auto">
+              {(['general', 'features', 'changelog', 'license'] as const).map(tab => (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setAboutActiveTab(tab)}
+                  className={`flex-1 py-1.5 px-3 rounded-xl font-bold text-[10px] transition-all cursor-pointer uppercase ${
+                    aboutActiveTab === tab
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'text-slate-500 dark:text-gray-400 hover:text-slate-800 dark:hover:text-white'
+                  }`}
+                >
+                  {t(`about_${tab}`)}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab Contents (Scrollable) */}
+            <div className="flex-1 overflow-y-auto space-y-4 pr-1 text-slate-700 dark:text-gray-300 text-xs leading-relaxed font-medium">
+              {aboutActiveTab === 'general' && (
+                <div className="space-y-4">
+                  <p>{t('app_desc')}</p>
+                  <div className="p-4 rounded-2xl bg-slate-100/50 dark:bg-white/[0.02] border border-slate-300/30 dark:border-white/5 space-y-2">
+                    <div className="flex justify-between items-center text-[10px] font-bold">
+                      <span className="text-slate-400">{t('app_subtitle')}</span>
+                      <span className="text-purple-500">MyFinans Web/Android</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[10px] font-bold">
+                      <span className="text-slate-400">GitHub</span>
+                      <a href="https://github.com/eekilinc/MyFinans" target="_blank" rel="noopener noreferrer" className="text-purple-500 hover:underline">
+                        github.com/eekilinc/MyFinans
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {aboutActiveTab === 'features' && (
+                <div className="space-y-2">
+                  {[
+                    "🔄 " + (i18n.language === 'tr' ? "Çift Yönlü Hibrit Bulut Senkronizasyonu" : "Bidirectional Hybrid Cloud Sync"),
+                    "🔑 " + (i18n.language === 'tr' ? "Biyometrik Kilit (Parmak İzi / FaceID)" : "Biometric Lock (Fingerprint / FaceID)"),
+                    "📱 " + (i18n.language === 'tr' ? "Kalan Ödeme Takip Eden Android Widget'ı" : "Android Home Screen Widget for Payments"),
+                    "📊 " + (i18n.language === 'tr' ? "Aylık Harcama Grafikleri (SVG)" : "Monthly Spending Charts (SVG)"),
+                    "🖨 " + (i18n.language === 'tr' ? "PDF Rapor & Ekstre Yazdırma Desteği" : "PDF Statement & Print Reports Support"),
+                    "🔒 " + (i18n.language === 'tr' ? "Güvenli 4 Haneli PIN Kilit Ekranı" : "Secure 4-Digit PIN Lock Screen"),
+                    "🔁 " + (i18n.language === 'tr' ? "Aylık Tekrarlayan & Taksitli Harcamalar" : "Monthly Recurring & Installment Tracker"),
+                    "📈 " + (i18n.language === 'tr' ? "Kategori & Firma Harcama İstatistikleri" : "Category & Company Expense Analytics")
+                  ].map((feat, idx) => (
+                    <div key={idx} className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-100/50 dark:bg-white/[0.02] border border-slate-300/30 dark:border-white/5 font-semibold text-slate-800 dark:text-gray-200">
+                      {feat}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {aboutActiveTab === 'changelog' && (
+                <div className="space-y-4">
+                  <div className="relative border-l-2 border-purple-500/30 ml-2.5 pl-4 space-y-5">
+                    <div className="relative">
+                      <div className="absolute -left-[23px] top-1.5 w-2.5 h-2.5 rounded-full bg-purple-500 shadow-md"></div>
+                      <h4 className="font-extrabold text-[10px] text-slate-800 dark:text-white uppercase">v11.1 (2026-07-21)</h4>
+                      <p className="text-[10px] text-slate-500 dark:text-gray-400 mt-1">
+                        {i18n.language === 'tr' 
+                          ? "Aylık bütçe limitleri, PDF rapor şablonu, banka/firma düzenleme ve sekmeli hakkında sayfası eklendi."
+                          : "Added monthly budget limits, PDF print template, bank/company editing, and tabbed About section."}
+                      </p>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute -left-[23px] top-1.5 w-2.5 h-2.5 rounded-full bg-purple-500/40"></div>
+                      <h4 className="font-extrabold text-[10px] text-slate-800 dark:text-white uppercase">v11.0 (2026-07-20)</h4>
+                      <p className="text-[10px] text-slate-500 dark:text-gray-400 mt-1">
+                        {i18n.language === 'tr' 
+                          ? "Parmak izi kilidi, SQLite bulut eşitleme (Sync) ve Android ana ekran widget'ı eklendi."
+                          : "Added biometrics lock, SQLite cloud sync, and Android home screen widget."}
+                      </p>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute -left-[23px] top-1.5 w-2.5 h-2.5 rounded-full bg-purple-500/40"></div>
+                      <h4 className="font-extrabold text-[10px] text-slate-800 dark:text-white uppercase">v10.0 (2026-07-20)</h4>
+                      <p className="text-[10px] text-slate-500 dark:text-gray-400 mt-1">
+                        {i18n.language === 'tr' 
+                          ? "Çevrimdışı yerel depolama veritabanı, yerel bildirimler ve responsive mobil header tasarımı yapıldı."
+                          : "Built offline storage database, local notification reminders, and responsive mobile header."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {aboutActiveTab === 'license' && (
+                <div className="space-y-3">
+                  <p>{t('app_license_desc')}</p>
+                  <pre className="p-3 bg-slate-900/50 rounded-xl font-mono text-[9px] text-gray-400 border border-slate-300/10 whitespace-pre-wrap leading-relaxed select-all">
+                    {`MIT License\n\nCopyright (c) 2026 eekilinc\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software...`}
+                  </pre>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -3181,6 +3377,84 @@ export default function App() {
         </div>
       )}
       
+    </div>
+
+    {/* --- PRINT ONLY REPORT LAYOUT --- */}
+    <div className="hidden print:block p-8 bg-white text-black min-h-screen font-sans">
+      <div className="flex justify-between items-start border-b-2 border-slate-300 pb-4 mb-6">
+        <div>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900">MyFinans</h1>
+          <p className="text-xs text-slate-500 mt-1">{t('app_subtitle')}</p>
+        </div>
+        <div className="text-right">
+          <h2 className="text-lg font-bold text-slate-900">
+            {currentDate.toLocaleDateString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { month: 'long', year: 'numeric' })}
+          </h2>
+          <p className="text-[10px] text-slate-500 mt-1">{i18n.language === 'tr' ? 'Finansal Durum Raporu' : 'Financial Statement Report'}</p>
+        </div>
+      </div>
+
+      {/* Summary Numbers */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="p-4 rounded-xl border border-slate-300 bg-slate-50">
+          <span className="text-[9px] uppercase font-bold text-slate-500 block">{t('total_monthly_expense')}</span>
+          <span className="text-lg font-black text-slate-900 mt-1 block">
+            {summaryData?.total_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: i18n.language === 'tr' ? 'TRY' : 'USD' })}
+          </span>
+        </div>
+        <div className="p-4 rounded-xl border border-slate-300 bg-slate-50">
+          <span className="text-[9px] uppercase font-bold text-slate-500 block">{t('paid_summary')}</span>
+          <span className="text-lg font-black text-emerald-700 mt-1 block">
+            {summaryData?.paid_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: i18n.language === 'tr' ? 'TRY' : 'USD' })}
+          </span>
+        </div>
+        <div className="p-4 rounded-xl border border-slate-300 bg-slate-50">
+          <span className="text-[9px] uppercase font-bold text-slate-500 block">{t('unpaid_summary')}</span>
+          <span className="text-lg font-black text-amber-700 mt-1 block">
+            {summaryData?.unpaid_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: i18n.language === 'tr' ? 'TRY' : 'USD' })}
+          </span>
+        </div>
+      </div>
+
+      {/* Groups & Transactions Table */}
+      <div className="space-y-6">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 border-b border-slate-200 pb-2">
+          {i18n.language === 'tr' ? 'Harcama Grupları Detayı' : 'Expense Groups Details'}
+        </h3>
+        <table className="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr className="border-b-2 border-slate-300 text-slate-500 font-bold">
+              <th className="py-2">{i18n.language === 'tr' ? 'Grup Adı' : 'Group Name'}</th>
+              <th className="py-2">{t('banks')}</th>
+              <th className="py-2 text-right">{i18n.language === 'tr' ? 'Toplam Tutar' : 'Total Amount'}</th>
+              <th className="py-2 text-right">{i18n.language === 'tr' ? 'Ödenen Tutar' : 'Paid Amount'}</th>
+              <th className="py-2 text-right">{i18n.language === 'tr' ? 'Kalan Tutar' : 'Unpaid Amount'}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {summaryData?.groups.map(g => (
+              <tr key={g.id} className="border-b border-slate-200 font-medium text-slate-900">
+                <td className="py-2.5 font-bold">{g.name}</td>
+                <td className="py-2.5">{g.bank_name || '-'}</td>
+                <td className="py-2.5 text-right font-semibold">
+                  {g.total_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: i18n.language === 'tr' ? 'TRY' : 'USD' })}
+                </td>
+                <td className="py-2.5 text-right text-emerald-700 font-bold">
+                  {g.paid_amount.toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: i18n.language === 'tr' ? 'TRY' : 'USD' })}
+                </td>
+                <td className="py-2.5 text-right text-amber-700 font-bold">
+                  {(g.total_amount - g.paid_amount).toLocaleString(i18n.language === 'tr' ? 'tr-TR' : 'en-US', { style: 'currency', currency: i18n.language === 'tr' ? 'TRY' : 'USD' })}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Footer */}
+      <div className="mt-12 pt-4 border-t border-slate-300 text-center text-[10px] text-slate-400 font-bold">
+        <span>MyFinans {new Date().getFullYear()} — {i18n.language === 'tr' ? 'Otomatik Olarak Oluşturulmuştur' : 'Automatically Generated'}</span>
+      </div>
     </div>
     </>
   );
