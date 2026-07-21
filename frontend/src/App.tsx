@@ -31,6 +31,13 @@ import type { ExpenseGroup, Transaction, Bank, Company, CompanyStats, HistoryIte
 import { localDatabase } from './services/localDatabase';
 import PinLock, { isPinEnabled, savePin, removePin, isBiometricEnabled, enableBiometric } from './components/PinLock';
 import { notificationService } from './services/notificationService';
+import { registerPlugin } from '@capacitor/core';
+
+interface MyFinansPrintPlugin {
+  printPage(): Promise<void>;
+}
+
+const MyFinansPrint = registerPlugin<MyFinansPrintPlugin>('MyFinansPrint');
 
 
 let API_URL = localStorage.getItem('myfinans_api_url') || import.meta.env.VITE_API_URL || 'http://localhost:5001';
@@ -1401,10 +1408,10 @@ export default function App() {
 
             {/* PDF Report Trigger */}
             <button
-              onClick={() => {
-                if ((window as any).MyFinansWidget && (window as any).MyFinansWidget.printPage) {
-                  (window as any).MyFinansWidget.printPage();
-                } else {
+              onClick={async () => {
+                try {
+                  await MyFinansPrint.printPage();
+                } catch (e) {
                   window.print();
                 }
               }}
