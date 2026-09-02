@@ -21,11 +21,11 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-      <div className="relative w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl bg-slate-900 border-t sm:border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[85vh] pb-safe">
+      <div className="relative w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[85vh] pb-safe transition-colors">
         {/* Mobile drag handle */}
-        <div className="sm:hidden w-12 h-1 bg-slate-700 rounded-full mx-auto mt-2.5 mb-1" />
+        <div className="sm:hidden w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mt-2.5 mb-1" />
         {/* Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img
               src="/icon.png"
@@ -36,13 +36,13 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               }}
             />
             <div>
-              <h3 className="text-base font-black text-white">MyFinans v12.1</h3>
-              <p className="text-[11px] text-slate-400">{t('app_subtitle')}</p>
+              <h3 className="text-base font-black text-slate-900 dark:text-white">MyFinans v12.2</h3>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">{t('app_subtitle')}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -134,13 +134,22 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
 
           {activeTab === 'changelog' && (
             <div className="space-y-3">
-              <div className="p-3.5 rounded-2xl bg-purple-950/30 border border-purple-500/30 space-y-1">
-                <span className="text-xs font-black text-purple-300">v12.1 (Mobil & UI Güncellemesi)</span>
-                <p className="text-xs text-slate-300 whitespace-pre-line leading-relaxed">
-                  • Mobil Alt Gezinme Çubuğu (Bottom Dock) eklendi; tek parmakla Harcamalar, Firmalar, Ekle, Analiz ve Ayarlar erişimi sağlandı.
+              <div className="p-3.5 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-500/30 space-y-1">
+                <span className="text-xs font-black text-purple-700 dark:text-purple-300">v12.2 (Navbar, Temalar & Ayar İçe Aktarma)</span>
+                <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                  • Top Navbar kalabalıktan arındırıldı; ferah, modern ve açılır menülü bir üst çubuk yapısı kuruldu.
+                  {"\n"}• Kusursuz Açık Tema (Light Mode) ve 5 farklı renk paleti (Asil Mor, Zümrüt, Okyanus, Gün Batımı, Titanyum) entegre edildi.
+                  {"\n"}• Ayarları Dışa Aktarma ve Dosyadan Ayarları İçe Aktarma (Settings Import/Export) sistemi eklendi.
+                  {"\n"}• Verilerle birlikte ayarları da kapsayan tek tıkla Tam Yedekleme altyapısı hazırlandı.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 space-y-1">
+                <span className="text-xs font-black text-slate-700 dark:text-slate-300">v12.1</span>
+                <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                  • Mobil Alt Gezinme Çubuğu (Bottom Dock) eklendi; tek parmakla kullanım sağlandı.
                   {"\n"}• Garantili "Şimdi Ayarla" ve Ayarlar görünürlüğü getirildi.
-                  {"\n"}• Yepyeni modern uygulama logosu, ikon seti ve Android launcher simgeleri entegre edildi.
-                  {"\n"}• Mobil alt sayfa (Bottom-Sheet) modallar tasarlandı.
+                  {"\n"}• Yepyeni modern logo, ikon seti ve Android launcher simgeleri entegre edildi.
                 </p>
               </div>
 

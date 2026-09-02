@@ -20,6 +20,7 @@ import PinLock, { isPinEnabled } from './components/PinLock';
 import { Toast } from './components/Toast';
 import { Header } from './components/Header';
 import { MobileBottomNav } from './components/MobileBottomNav';
+import { useTheme } from './context/ThemeContext';
 import { DashboardSummary } from './components/DashboardSummary';
 import { UpcomingTimeline } from './components/UpcomingTimeline';
 import { CategoryBreakdown } from './components/CategoryBreakdown';
@@ -41,15 +42,13 @@ interface MyFinansPrintPlugin {
 const MyFinansPrint = registerPlugin<MyFinansPrintPlugin>('MyFinansPrint');
 
 export default function App() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // Security Lock
   const [isUnlocked, setIsUnlocked] = useState(() => !isPinEnabled());
 
   // Theme & Language
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
-  });
+  const { theme, setTheme, accent, setAccent } = useTheme();
 
   // Date Navigation State (Selected Year & Month)
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -108,19 +107,6 @@ export default function App() {
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showAboutModal, setShowAboutModal] = useState(false);
 
-  // Apply Theme Class
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prev => (prev === 'dark' ? 'light' : 'dark'));
-  };
 
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -518,41 +504,127 @@ export default function App() {
     await fetchCompanies();
   };
 
-  // Export / Import JSON & CSV
-  const handleExportJSON = () => {
-    const backup = localDatabase.exportBackup();
-    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  // Export / Import Settings & Full Backup
+  const handleExportSettings = () => {
+    const settingsPayload = {
+      app: 'MyFinans',
+      type: 'myfinans_settings',
+      version: '12.1',
+      exported_at: new Date().toISOString(),
+      settings: {
+        budget_limit: budgetLimit,
+        theme,
+        accent,
+        api_url: apiUrl,
+        language: i18n.language
+      }
+    };
+    const blob = new Blob([JSON.stringify(settingsPayload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `MyFinans_Backup_${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `MyFinans_Ayarlar_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    showToast('JSON yedek dosyası indirildi.');
+    showToast('Ayarlar dosyası başarıyla indirildi.');
   };
 
-  const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportSettings = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = async event => {
       try {
         const payload = JSON.parse(event.target?.result as string);
-        if (payload && payload.data) {
-          localDatabase.importBackup(payload.data);
+        const settings = payload.settings || payload;
+        if (settings) {
+          if (typeof settings.budget_limit === 'number') {
+            handleSaveBudgetLimit(settings.budget_limit);
+          }
+          if (settings.theme && (settings.theme === 'dark' || settings.theme === 'light')) {
+            setTheme(settings.theme);
+          }
+          if (settings.accent) {
+            setAccent(settings.accent);
+          }
+          if (typeof settings.api_url === 'string') {
+            handleSaveApiUrl(settings.api_url);
+          }
+          if (settings.language) {
+            i18n.changeLanguage(settings.language);
+          }
+          showToast('Ayarlar başarıyla içe aktarıldı ve uygulandı!');
+        } else {
+          showToast('Geçersiz ayar dosyası formatı.', 'error');
+        }
+      } catch (_err) {
+        showToast('Ayarlar dosyası okunamadı.', 'error');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleExportFullBackup = () => {
+    const dataBackup = localDatabase.exportBackup();
+    const fullPayload = {
+      app: 'MyFinans',
+      type: 'myfinans_full_backup',
+      version: '12.1',
+      exported_at: new Date().toISOString(),
+      settings: {
+        budget_limit: budgetLimit,
+        theme,
+        accent,
+        api_url: apiUrl,
+        language: i18n.language
+      },
+      data: dataBackup.data || dataBackup
+    };
+    const blob = new Blob([JSON.stringify(fullPayload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `MyFinans_Tam_Yedek_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast('Tam yedek dosyası başarıyla indirildi.');
+  };
+
+  const handleImportFullBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async event => {
+      try {
+        const payload = JSON.parse(event.target?.result as string);
+        if (payload) {
+          if (payload.settings) {
+            const s = payload.settings;
+            if (typeof s.budget_limit === 'number') handleSaveBudgetLimit(s.budget_limit);
+            if (s.theme) setTheme(s.theme);
+            if (s.accent) setAccent(s.accent);
+            if (typeof s.api_url === 'string') handleSaveApiUrl(s.api_url);
+            if (s.language) i18n.changeLanguage(s.language);
+          }
+          const dataToRestore = payload.data || payload;
+          localDatabase.importBackup(dataToRestore);
           await fetchData();
           await fetchCompanies();
           await fetchCompanyStats();
           await fetchBanks();
-          showToast(t('import_success'));
+          showToast('Tüm veriler ve ayarlar başarıyla geri yüklendi!');
         }
       } catch (_err) {
-        showToast('Yedek dosyası okunamadı.', 'error');
+        showToast('Yedek dosyası okunamadı veya bozuk.', 'error');
       }
     };
     reader.readAsText(file);
+    e.target.value = '';
   };
 
   const handleExportCSV = () => {
@@ -604,7 +676,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-purple-500 selection:text-white pb-28 sm:pb-12">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-purple-500 selection:text-white pb-28 sm:pb-12 transition-colors duration-200">
       {/* Toast Notifications */}
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
@@ -614,8 +686,6 @@ export default function App() {
         onPrevMonth={handlePrevMonth}
         onNextMonth={handleNextMonth}
         onResetMonth={handleResetMonth}
-        theme={theme}
-        onToggleTheme={toggleTheme}
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         onOpenSearch={() => setShowSearchModal(true)}
@@ -629,7 +699,6 @@ export default function App() {
           setShowGroupModal(true);
         }}
         onOpenSettings={() => setShowSettingsModal(true)}
-        onOpenAbout={() => setShowAboutModal(true)}
         onExportCSV={handleExportCSV}
         onPrintReport={handlePrintReport}
         isOnlineMode={!!apiUrl}
@@ -767,15 +836,15 @@ export default function App() {
       <SettingsModal
         isOpen={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
-        theme={theme}
-        onToggleTheme={toggleTheme}
         budgetLimit={budgetLimit}
         onSaveBudgetLimit={handleSaveBudgetLimit}
         apiUrl={apiUrl}
         onSaveApiUrl={handleSaveApiUrl}
         onSync={handleSync}
-        onExportJSON={handleExportJSON}
-        onImportJSON={handleImportJSON}
+        onExportSettings={handleExportSettings}
+        onImportSettings={handleImportSettings}
+        onExportFullBackup={handleExportFullBackup}
+        onImportFullBackup={handleImportFullBackup}
         onExportCSV={handleExportCSV}
         onClearAllData={handleClearAllData}
       />

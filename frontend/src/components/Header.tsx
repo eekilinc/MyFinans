@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ChevronLeft,
@@ -8,28 +8,28 @@ import {
   Settings,
   Search,
   Plus,
-  HelpCircle,
   FileSpreadsheet,
   Printer,
   Cloud,
   HardDrive,
-  FolderPlus
+  FolderPlus,
+  Palette,
+  FileDown,
+  Check
 } from 'lucide-react';
+import { useTheme, ACCENT_COLORS, type AccentColor } from '../context/ThemeContext';
 
 interface HeaderProps {
   currentDate: Date;
   onPrevMonth: () => void;
   onNextMonth: () => void;
   onResetMonth: () => void;
-  theme: 'dark' | 'light';
-  onToggleTheme: () => void;
   activeTab: 'expenses' | 'companies' | 'stats';
   onSelectTab: (tab: 'expenses' | 'companies' | 'stats') => void;
   onOpenSearch: () => void;
   onOpenAddTx: () => void;
   onOpenAddGroup: () => void;
   onOpenSettings: () => void;
-  onOpenAbout: () => void;
   onExportCSV: () => void;
   onPrintReport: () => void;
   isOnlineMode: boolean;
@@ -40,20 +40,25 @@ export const Header: React.FC<HeaderProps> = ({
   onPrevMonth,
   onNextMonth,
   onResetMonth,
-  theme,
-  onToggleTheme,
   activeTab,
   onSelectTab,
   onOpenSearch,
   onOpenAddTx,
   onOpenAddGroup,
   onOpenSettings,
-  onOpenAbout,
   onExportCSV,
   onPrintReport,
   isOnlineMode
 }) => {
   const { t, i18n } = useTranslation();
+  const { theme, toggleTheme, accent, setAccent, accentConfig } = useTheme();
+
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+
+  const colorPickerRef = useRef<HTMLDivElement>(null);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+
   const currentMonthIndex = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
   const monthName = t(`month_${currentMonthIndex}`);
@@ -63,14 +68,27 @@ export const Header: React.FC<HeaderProps> = ({
     i18n.changeLanguage(nextLang);
   };
 
+  // Close menus on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (colorPickerRef.current && !colorPickerRef.current.contains(e.target as Node)) {
+        setShowColorPicker(false);
+      }
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-slate-900/90 dark:bg-slate-950/90 border-b border-slate-800 shadow-sm transition-colors pt-safe">
+    <header className="sticky top-0 z-40 w-full backdrop-blur-xl bg-white/90 dark:bg-slate-950/90 border-b border-slate-200 dark:border-slate-800/80 shadow-sm transition-colors pt-safe">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         {/* ================= MOBILE VIEW (sm:hidden) ================= */}
-        <div className="sm:hidden py-2.5 space-y-2">
-          {/* Mobile Top Bar: Logo & Actions */}
+        <div className="sm:hidden py-2 space-y-2">
+          {/* Row 1: Logo & Essential Actions */}
           <div className="flex items-center justify-between">
-            {/* Logo & Name */}
             <div className="flex items-center gap-2">
               <img
                 src="/icon.png"
@@ -82,20 +100,20 @@ export const Header: React.FC<HeaderProps> = ({
               />
               <div className="leading-tight">
                 <div className="flex items-center gap-1.5">
-                  <h1 className="text-base font-black bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent">
+                  <h1 className="text-base font-black text-slate-900 dark:text-white">
                     MyFinans
                   </h1>
-                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-950/80 text-purple-300 border border-purple-800/40">
-                    v12.1
+                  <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
+                    v12.2
                   </span>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] text-slate-400">
+                <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
                   {isOnlineMode ? (
-                    <span className="inline-flex items-center gap-0.5 text-emerald-400 font-semibold">
+                    <span className="inline-flex items-center gap-0.5 text-emerald-600 dark:text-emerald-400 font-semibold">
                       <Cloud className="w-2.5 h-2.5" /> Bulut
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-0.5 text-slate-400 font-semibold">
+                    <span className="inline-flex items-center gap-0.5 text-slate-500 dark:text-slate-400 font-semibold">
                       <HardDrive className="w-2.5 h-2.5" /> Çevrimdışı
                     </span>
                   )}
@@ -103,81 +121,76 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            {/* Mobile Header Quick Actions */}
+            {/* Mobile Header Buttons: Search, Theme Toggle, Settings */}
             <div className="flex items-center gap-1.5">
-              {/* Search */}
               <button
                 onClick={onOpenSearch}
-                className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-white active:scale-95 transition-all"
+                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 active:scale-95 transition-all"
                 title={t('search_all')}
               >
                 <Search className="w-4 h-4" />
               </button>
 
-              {/* Theme Toggle */}
               <button
-                onClick={onToggleTheme}
-                className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 text-slate-300 hover:text-yellow-400 active:scale-95 transition-all"
-                title="Tema"
+                onClick={toggleTheme}
+                className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-200 active:scale-95 transition-all"
+                title="Açık/Koyu Tema"
               >
-                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-600" />}
               </button>
 
-              {/* Language Switch */}
               <button
                 onClick={toggleLanguage}
-                className="px-2 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700/60 text-xs font-bold text-slate-300 hover:text-white active:scale-95 transition-all"
+                className="px-2 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 text-xs font-bold text-slate-700 dark:text-slate-300 active:scale-95 transition-all"
                 title="Dil"
               >
                 {i18n.language.startsWith('tr') ? 'TR' : 'EN'}
               </button>
 
-              {/* Settings Button - Prominently Visible on Mobile Header */}
               <button
                 onClick={onOpenSettings}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-900 border border-purple-700/60 text-purple-200 active:scale-95 shadow-sm transition-all"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/80 border border-purple-200 dark:border-purple-700/60 text-purple-700 dark:text-purple-200 active:scale-95 shadow-sm transition-all"
                 title={t('settings')}
                 aria-label="Ayarlar"
               >
-                <Settings className="w-4 h-4 text-purple-300" />
+                <Settings className="w-4 h-4 text-purple-600 dark:text-purple-300" />
                 <span className="text-xs font-bold">{t('settings')}</span>
               </button>
             </div>
           </div>
 
-          {/* Mobile Second Bar: Month/Year Navigator & Add Group */}
+          {/* Row 2: Month Picker & Group Add */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex-1 flex items-center justify-between bg-slate-800/70 border border-slate-700/60 rounded-xl p-1 shadow-inner">
+            <div className="flex-1 flex items-center justify-between bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/60 rounded-xl p-1 shadow-inner">
               <button
                 onClick={onPrevMonth}
-                className="p-1 rounded-lg hover:bg-slate-700 text-slate-300 hover:text-white transition-all active:scale-90"
+                className="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all active:scale-90"
                 title="Önceki Ay"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={onResetMonth}
-                className="px-2 py-0.5 text-xs font-bold text-slate-100 hover:text-purple-300 transition-colors"
+                className="px-2 py-0.5 text-xs font-bold text-slate-800 dark:text-slate-100 hover:text-purple-600 dark:hover:text-purple-300 transition-colors"
                 title="Bugüne Dön"
               >
                 {monthName} {currentYear}
               </button>
               <button
                 onClick={onNextMonth}
-                className="p-1 rounded-lg hover:bg-slate-700 text-slate-300 hover:text-white transition-all active:scale-90"
+                className="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition-all active:scale-90"
                 title="Sonraki Ay"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Quick Add Group button on mobile */}
             <button
               onClick={onOpenAddGroup}
-              className="flex items-center gap-1 px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/70 text-xs font-bold text-slate-200 active:scale-95 transition-all shadow-sm shrink-0"
+              className="flex items-center gap-1 px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/70 text-xs font-bold text-slate-700 dark:text-slate-200 active:scale-95 transition-all shadow-sm shrink-0"
               title={t('add_group')}
             >
-              <FolderPlus className="w-3.5 h-3.5 text-purple-400" />
+              <FolderPlus className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               <span>Grup</span>
             </button>
           </div>
@@ -185,176 +198,255 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* ================= DESKTOP VIEW (hidden sm:block) ================= */}
         <div className="hidden sm:block">
-          <div className="flex items-center justify-between h-16 gap-3">
-            {/* Logo & Online Badge */}
+          {/* Main Clean Top Bar */}
+          <div className="flex items-center justify-between h-16 gap-4">
+            {/* Left: Brand Identity */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2.5">
-                <img
-                  src="/icon.png"
-                  alt="MyFinans Logo"
-                  className="w-10 h-10 rounded-2xl shadow-lg shadow-purple-500/20 border border-purple-500/30 object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLElement).style.display = 'none';
-                  }}
-                />
-                <div>
-                  <h1 className="text-xl font-black bg-gradient-to-r from-purple-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent leading-none">
+              <img
+                src="/icon.png"
+                alt="MyFinans Logo"
+                className="w-9 h-9 rounded-2xl shadow-md border border-purple-500/30 object-cover"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white">
                     MyFinans
-                  </h1>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    {isOnlineMode ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/70 text-emerald-400 border border-emerald-800/50">
-                        <Cloud className="w-2.5 h-2.5" /> Bulut
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700/60">
-                        <HardDrive className="w-2.5 h-2.5" /> Çevrimdışı
-                      </span>
-                    )}
-                    <span className="text-[10px] font-semibold text-purple-400/90">v12.1</span>
-                  </div>
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-purple-50 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
+                    v12.2
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[11px]">
+                  {isOnlineMode ? (
+                    <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                      <Cloud className="w-3 h-3" /> Bulut Aktif
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 font-semibold">
+                      <HardDrive className="w-3 h-3" /> Çevrimdışı Mod
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Month selector for header */}
-            <div className="flex items-center bg-slate-800/70 border border-slate-700/60 rounded-2xl p-1 shadow-inner">
+            {/* Center: Clean Month Navigator */}
+            <div className="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-1 shadow-inner">
               <button
                 onClick={onPrevMonth}
-                className="p-1.5 rounded-xl hover:bg-slate-700/60 text-slate-300 hover:text-white transition-all active:scale-95"
+                className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all active:scale-95"
                 title="Önceki Ay"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={onResetMonth}
-                className="px-3 py-1 text-sm font-bold text-slate-100 hover:text-purple-400 transition-colors whitespace-nowrap"
+                className="px-4 py-1 text-sm font-bold text-slate-800 dark:text-slate-100 hover:text-purple-600 dark:hover:text-purple-400 transition-colors whitespace-nowrap"
                 title="Bugüne Dön"
               >
                 {monthName} {currentYear}
               </button>
               <button
                 onClick={onNextMonth}
-                className="p-1.5 rounded-xl hover:bg-slate-700/60 text-slate-300 hover:text-white transition-all active:scale-95"
+                className="p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all active:scale-95"
                 title="Sonraki Ay"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Desktop Action Buttons */}
+            {/* Right: Consolidated Clean Action Suite */}
             <div className="flex items-center gap-2">
+              {/* Quick Search Button */}
               <button
                 onClick={onOpenSearch}
-                className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-700/70 border border-slate-700/50 text-slate-300 hover:text-white transition-all shadow-sm active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/70 hover:bg-slate-200 dark:hover:bg-slate-700/70 border border-slate-200 dark:border-slate-700/60 text-xs font-semibold text-slate-700 dark:text-slate-300 transition-all shadow-sm active:scale-95"
                 title={t('search_all')}
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                <span>Ara</span>
               </button>
 
-              <button
-                onClick={onExportCSV}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800/60 hover:bg-emerald-950/40 border border-slate-700/50 hover:border-emerald-700/50 text-xs font-semibold text-slate-300 hover:text-emerald-400 transition-all shadow-sm active:scale-95"
-                title="Excel / CSV Dışa Aktar"
-              >
-                <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-                <span>CSV</span>
-              </button>
+              {/* Theme & Color Swatch Popover */}
+              <div className="relative" ref={colorPickerRef}>
+                <button
+                  onClick={() => setShowColorPicker(!showColorPicker)}
+                  className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800/70 hover:bg-slate-200 dark:hover:bg-slate-700/70 border border-slate-200 dark:border-slate-700/60 text-slate-700 dark:text-slate-300 transition-all shadow-sm active:scale-95 flex items-center gap-1.5"
+                  title="Tema & Renk Paleti"
+                >
+                  <Palette className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <span
+                    className="w-2.5 h-2.5 rounded-full ring-1 ring-slate-400/40"
+                    style={{ backgroundColor: accentConfig.colorHex }}
+                  />
+                </button>
 
-              <button
-                onClick={onPrintReport}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800/60 hover:bg-purple-950/40 border border-slate-700/50 hover:border-purple-700/50 text-xs font-semibold text-slate-300 hover:text-purple-400 transition-all shadow-sm active:scale-95"
-                title="PDF / Rapor Yazdır"
-              >
-                <Printer className="w-4 h-4 text-purple-400" />
-                <span>PDF</span>
-              </button>
+                {showColorPicker && (
+                  <div className="absolute right-0 mt-2 w-64 p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-50 animate-in fade-in zoom-in-95">
+                    {/* Dark / Light Mode Switch */}
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                        {theme === 'dark' ? 'Koyu Mod' : 'Açık Mod'}
+                      </span>
+                      <button
+                        onClick={toggleTheme}
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 transition-colors"
+                      >
+                        {theme === 'dark' ? (
+                          <>
+                            <Sun className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Açık</span>
+                          </>
+                        ) : (
+                          <>
+                            <Moon className="w-3.5 h-3.5 text-indigo-600" />
+                            <span>Koyu</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
 
-              <button
-                onClick={onToggleTheme}
-                className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-700/70 border border-slate-700/50 text-slate-300 hover:text-yellow-400 transition-all shadow-sm active:scale-95"
-                title="Tema Değiştir"
-              >
-                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </button>
+                    {/* Color Swatches Grid */}
+                    <div className="pt-3">
+                      <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                        Renk Teması
+                      </span>
+                      <div className="grid grid-cols-5 gap-2">
+                        {ACCENT_COLORS.map(c => (
+                          <button
+                            key={c.id}
+                            onClick={() => {
+                              setAccent(c.id as AccentColor);
+                              setShowColorPicker(false);
+                            }}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                              accent === c.id
+                                ? 'ring-2 ring-offset-2 ring-slate-900 dark:ring-offset-slate-900 scale-105 shadow-md'
+                                : 'hover:scale-105 opacity-80 hover:opacity-100'
+                            }`}
+                            style={{ backgroundColor: c.colorHex }}
+                            title={c.nameTr}
+                          >
+                            {accent === c.id && <Check className="w-4 h-4 text-white stroke-[3]" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
 
+              {/* Language Switch */}
               <button
                 onClick={toggleLanguage}
-                className="px-2.5 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700/70 border border-slate-700/50 text-xs font-bold text-slate-300 hover:text-white transition-all shadow-sm active:scale-95"
+                className="px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/70 hover:bg-slate-200 dark:hover:bg-slate-700/70 border border-slate-200 dark:border-slate-700/60 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all shadow-sm active:scale-95"
                 title="Dil Değiştir"
               >
                 {i18n.language.startsWith('tr') ? 'TR' : 'EN'}
               </button>
 
+              {/* Dışa Aktar Dropdown Menu (Consolidating CSV + PDF) */}
+              <div className="relative" ref={exportMenuRef}>
+                <button
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800/70 hover:bg-slate-200 dark:hover:bg-slate-700/70 border border-slate-200 dark:border-slate-700/60 text-xs font-bold text-slate-700 dark:text-slate-300 transition-all shadow-sm active:scale-95"
+                  title="Rapor & Dışa Aktarma"
+                >
+                  <FileDown className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                  <span>Dışa Aktar</span>
+                </button>
+
+                {showExportMenu && (
+                  <div className="absolute right-0 mt-2 w-48 p-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 animate-in fade-in zoom-in-95 space-y-1">
+                    <button
+                      onClick={() => {
+                        onExportCSV();
+                        setShowExportMenu(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                    >
+                      <FileSpreadsheet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>Excel / CSV İndir</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        onPrintReport();
+                        setShowExportMenu(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-950/40 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-purple-700 dark:hover:text-purple-300 transition-colors"
+                    >
+                      <Printer className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                      <span>PDF / Rapor Yazdır</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Ayarlar Button (Prominent & Clear) */}
               <button
                 onClick={onOpenSettings}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-purple-950/60 hover:bg-purple-900/60 border border-purple-700/50 text-xs font-bold text-purple-200 hover:text-white transition-all shadow-sm active:scale-95"
+                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 border border-purple-200 dark:border-purple-700/50 text-xs font-bold text-purple-700 dark:text-purple-200 transition-all shadow-sm active:scale-95"
                 title={t('settings')}
               >
-                <Settings className="w-4 h-4 text-purple-400" />
+                <Settings className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 <span>{t('settings')}</span>
-              </button>
-
-              <button
-                onClick={onOpenAbout}
-                className="p-2.5 rounded-xl bg-slate-800/60 hover:bg-slate-700/70 border border-slate-700/50 text-slate-300 hover:text-white transition-all shadow-sm active:scale-95"
-                title={t('app_about')}
-              >
-                <HelpCircle className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* Desktop Navigation Tabs & Quick Add */}
-          <div className="flex items-center justify-between pb-3 pt-1 gap-2">
-            {/* Tabs */}
-            <div className="flex items-center gap-1.5 bg-slate-800/50 p-1 rounded-2xl border border-slate-700/40">
+          {/* Desktop Sub-Bar: Clean Navigation Tabs & Primary CTAs */}
+          <div className="flex items-center justify-between pb-3 pt-1 gap-2 border-t border-slate-100 dark:border-slate-900">
+            {/* Navigation Tabs */}
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-2xl border border-slate-200 dark:border-slate-800">
               <button
                 onClick={() => onSelectTab('expenses')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   activeTab === 'expenses'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/40'
+                    ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/30'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800'
                 }`}
               >
                 {t('expenses_tab')}
               </button>
               <button
                 onClick={() => onSelectTab('companies')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   activeTab === 'companies'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/40'
+                    ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/30'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800'
                 }`}
               >
                 {t('companies_tab')}
               </button>
               <button
                 onClick={() => onSelectTab('stats')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   activeTab === 'stats'
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/40'
+                    ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/30'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800'
                 }`}
               >
                 {t('stats_tab')}
               </button>
             </div>
 
-            {/* Quick Add buttons */}
+            {/* Primary Action Buttons */}
             <div className="flex items-center gap-2">
               <button
                 onClick={onOpenAddGroup}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700/70 text-xs sm:text-sm font-bold text-slate-200 hover:text-white transition-all shadow-sm active:scale-95"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/70 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all shadow-sm active:scale-95"
               >
-                <Plus className="w-3.5 h-3.5 text-purple-400" />
+                <Plus className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                 <span>{t('add_group')}</span>
               </button>
               <button
                 onClick={onOpenAddTx}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-xs sm:text-sm font-bold text-white shadow-md shadow-purple-600/20 transition-all active:scale-95"
+                className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-xs font-bold text-white shadow-md shadow-purple-600/20 transition-all active:scale-95"
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                 <span>{t('add_transaction')}</span>
               </button>
             </div>

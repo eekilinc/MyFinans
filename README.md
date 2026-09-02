@@ -2,10 +2,10 @@
   <img src="docs/screenshots/app_icon.png" width="120" height="120" alt="MyFinans Logo" style="border-radius: 26px; box-shadow: 0 8px 30px rgba(139, 92, 246, 0.35);">
 </p>
 
-<h1 align="center">MyFinans (v12.0)</h1>
+<h1 align="center">MyFinans (v12.2)</h1>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><img alt="Son Sürüm" src="https://img.shields.io/badge/sürüm-v12.0--final-8b5cf6?style=flat-square&logo=android"></a>
+  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><img alt="Son Sürüm" src="https://img.shields.io/badge/sürüm-v12.2--final-8b5cf6?style=flat-square&logo=android"></a>
   <a href="https://github.com/eekilinc/MyFinans/actions/workflows/release.yml"><img alt="Release CI" src="https://img.shields.io/badge/CI%2FCD-passing-success?style=flat-square&logo=githubactions"></a>
   <img alt="Android 7 ve üzeri" src="https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=flat-square&logo=android">
   <img alt="React 19 & TypeScript" src="https://img.shields.io/badge/React_19-TypeScript_5-61dafb?style=flat-square&logo=react">
@@ -20,10 +20,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><strong>↓ Final APK'yı İndir (v12.0)</strong></a>
+  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><strong>↓ Final APK'yı İndir (v12.2)</strong></a>
   · <a href="#-ekran-görüntüleri">Ekran Görüntüleri</a>
   · <a href="#-özellikler-ve-çalışma-mantığı">Özellikler</a>
-  · <a href="#-120-ile-gelen-yenilikler">v12.0 Yenilikleri</a>
+  · <a href="#-v122-ile-gelen-yenilikler">v12.2 Yenilikleri</a>
   · <a href="#-kurulum-ve-çalıştırma">Kurulum</a>
   · <a href="#-mimari-ve-teknoloji-yığını">Mimari</a>
   · <a href="#-çevrimdışı-güvenlik-ve-gizlilik">Gizlilik</a>
@@ -67,31 +67,36 @@
 | **Kredi Kartı Ekstre Döngüsü** | Kartın hesap kesim gününe (statement day) ve son ödeme gününe (due day) göre taksitleri ait oldukları aya otomatik yansıtır. |
 | **Gelişmiş Taksit Motoru** | Taksitli alışverişlerde toplam tutarı veya aylık taksit tutarını girin; kalan taksitleri ve gelecekteki ayların ödeme planını anında hesaplar. |
 | **Dinamik Bütçe Limiti & "Şimdi Ayarla"** | Aylık harcama hedefinizi belirleyin; %80, %90 ve %100 aşım seviyelerinde renkli gösterge ve anlık durum ikazları alın. Bütçe hedefi yoksa tek tıkla "Şimdi Ayarla" butonuyla kurun. |
+| **Sadeleştirilmiş Top Navbar** | Masaüstü ve mobilde kalabalıktan arındırılmış, dışa aktarma işlemlerini tek açılır menüde toplayan modern üst başlık. |
+| **Açık / Koyu Tema & 5 Renk Paleti** | Göz alıcı Açık Mod (Light Mode), Koyu Mod (Dark Mode) ve 5 farklı renk aksanı (Asil Mor, Zümrüt Yeşil, Okyanus Mavi, Gün Batımı, Titanyum Gri). |
+| **Kapsamlı Ayarlar İçe / Dışa Aktarma** | Bütçe, tema, renk, sunucu ve dil tercihlerini JSON olarak dışa aktarın ve istediğiniz cihaza içe aktararak geri yükleyin. |
 | **Mobil Alt Gezinme Barı (Bottom Dock)** | Mobil cihazlarda tek parmakla Harcamalar, Firmalar, Hızlı Ekle (+), Analiz ve her zaman görünür **Ayarlar** menüsü arasında geçiş yapın. |
 | **Kategori Dağılımı ve Filtre** | Market, fatura, eğlence vb. harcamaların görsel ağırlık çubuğu üzerinden kategoriye göre tek tıkla filtreleme yapın. |
 | **Hızlı İşlem Kopyalama (Duplicate)** | Her ay tekrarlanan veya benzer harcamaları tek dokunuşla cari aya çoğaltın. |
 | **Evrensel Arama & Filtreleme** | Açıklama, firma, tutar aralığı ve ödeme durumuna göre anlık sonuç getiren arama motoru. |
-| **Firma ve Satıcı Analitiği** | Hangi firmaya toplam ne kadar ödeme yaptığınızı, işlem adedini ve son işlem tarihini tek bakışta izleyin; hızlı firma adı düzeltme imkanı. |
 | **Excel & CSV Dışa Aktarma** | Türkçe karakter sorunu olmayan **UTF-8 BOM** formatında tek tıkla Excel/Google Sheets uyumlu tablo çıktısı alın. |
 | **PIN & Biyometrik Kilit** | 4 haneli PIN şifresi ve Android parmak izi / yüz tanıma desteğiyle finansal verilerinize izinsiz erişimi engelleyin. |
 | **Android Ana Ekran Widget'ı** | Uygulamayı açmadan cari ayın toplam, ödenen ve bekleyen borçlarını ana ekrandan doğrudan takip edin. |
 | **Yerel Bildirimler** | Yaklaşan hesap kesim ve son ödeme tarihlerinde gecikmeye düşmemeniz için otomatik hatırlatıcı bildirimler. |
-| **Yedekleme ve Geri Yükleme** | Tüm verinizi tek bir JSON dosyası olarak şifrelenmiş şekilde dışa aktarın, dilediğiniz cihaza aktarın. |
 
 ---
 
-## 🚀 12.0 ile Gelen Yenilikler
+## 🚀 v12.2 ile Gelen Yenilikler
 
-- 📱 **Tam Mobil Uyumluluk & Mobil Alt Bar (Bottom Dock)**: Akıllı telefonlar için optimize edilmiş `MobileBottomNav` eklendi. Harcamalar, Firmalar, Hızlı Ekle (+), Analiz ve **Ayarlar** menülerine tek başparmak hareketiyle anında ulaşılır.
-- ⚙️ **Kesintisiz "Ayarlar" ve "Şimdi Ayarla" Erişimi**: Ayarlar menüsü hem mobil üst başlıkta, hem alt gezinme çubuğunda hem de gösterge panelindeki *"Şimdi Ayarla"* butonuyla garantilendi.
+- 🧭 **Sadeleştirilmiş ve Ferah Top Navbar**: Üst bardaki yan yana duran dağınık butonlar kaldırıldı. Raporlama ve aktarım araçları şık bir **"Dışa Aktar"** açılır menüsünde toplandı. Arama ve tema araçları minimalist hale getirildi.
+- ☀️ **Kusursuz Açık Tema (Light Mode)**: Açık tema arka planı, kartları, kenarlıkları ve metin kontrastları baştan sona yeniden tasarlandı; yüksek okunabilirlik ve modern beyaz/açık gri arayüz sağlandı.
+- 🎨 **5 Farklı Renk Paleti (Theme Accents)**:
+  - 💜 **Asil Mor (Royal Purple)**
+  - 💚 **Zümrüt Yeşil (Emerald Green)**
+  - 💙 **Okyanus Mavi (Ocean Blue)**
+  - 🧡 **Gün Batımı (Sunset Rose)**
+  - 🖤 **Titanyum Gri (Titanium Slate)**
+- 📥 **Ayarları İçe ve Dışa Aktarma (Settings Import / Export)**:
+  - Sadece harcamalar değil; aylık bütçe limiti, aktif tema modu, seçili renk paleti, dil ve sunucu ayarlarını içeren bağımsız `MyFinans_Ayarlar.json` dışa/içe aktarma motoru eklendi.
+  - Veritabanı ve ayarları tek pakette birleştiren **Tam Yedekleme** desteği sunuldu.
+- 📱 **Tam Mobil Uyumluluk & Mobil Alt Bar (Bottom Dock)**: Akıllı telefonlar için optimize edilmiş `MobileBottomNav` ile Harcamalar, Firmalar, Hızlı Ekle (+), Analiz ve **Ayarlar** menülerine tek başparmak hareketiyle anında ulaşılır.
+- ⚙️ **Garantili "Şimdi Ayarla" Erişimi**: Ayarlar menüsü hem mobil üst başlıkta, hem alt gezinme çubuğunda hem de gösterge panelindeki *"Şimdi Ayarla"* butonuyla sabitlendi.
 - 🎨 **Özel Uygulama Logosu & Android Simgeleri**: Yüksek kaliteli modern fintech simgesi üretildi; PWA favicon, Android `ic_launcher` (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) ve splash screen görselleri yenilendi.
-- 📸 **Kapsamlı Ekran Görüntüleri**: Masaüstü ve mobil deneyimi gösteren görsel dokümantasyon eklendi.
-- 📥 **UTF-8 BOM Destekli CSV / Excel Aktarımı**: Türkçe karakterlerin Excel'de bozulmadan açılmasını sağlayan profesyonel veri dışa aktarma motoru.
-- ⚡ **Hızlı İşlem Kopyalama**: Mevcut harcama kayıtlarını tek tıkla cari aya çoğaltma kolaylığı.
-- 🎯 **Dinamik Bütçe Göstergesi**: Ay bazlı harcama limiti belirleme ve görsel doluluk ibresi.
-- 🔍 **Evrensel Arama Modalı**: Tüm aylar ve harcamalar içinde anahtar kelime, satıcı ve tutara göre arama.
-- 🔒 **Android Güvenlik & İmzalama (v2 Scheme)**: Gradle imzalama konfigürasyonu tamamlandı, release APK'sı Android v2 Signature ile doğrulandı.
-- 🤖 **GitHub Actions CI/CD (Node 22 + Java 21)**: Otomatik etiket (`v*`) tetiklemeli APK derleme, imzalama, artifact yükleme ve GitHub Release oluşturma iş akışı entegre edildi.
 
 ---
 
@@ -100,7 +105,8 @@
 ```mermaid
 graph TD
     subgraph Frontend ["Frontend (React 19 + TypeScript + Vite)"]
-        UI[Kullanıcı Arayüzü & Modallar] --> State[React State & Custom Hooks]
+        UI[Kullanıcı Arayüzü & Modallar] --> ThemeCtx[ThemeContext: Light/Dark + 5 Renk]
+        UI --> State[React State & Custom Hooks]
         State --> LocalDB[(Yerel Depolama / localStorage)]
         State --> ClientSync[Senkronizasyon Motoru]
     end
@@ -127,7 +133,7 @@ graph TD
 ## 💻 Kurulum ve Çalıştırma
 
 ### 1. Android APK Kurulumu (En Kolay)
-1. [Releases](https://github.com/eekilinc/MyFinans/releases/latest) sayfasından en güncel `MyFinans-v12.0.0.apk` dosyasını Android telefonunuza indirin.
+1. [Releases](https://github.com/eekilinc/MyFinans/releases/latest) sayfasından en güncel `MyFinans-v12.2.0.apk` dosyasını Android telefonunuza indirin.
 2. İndirilen APK dosyasına dokunup kurulumu tamamlayın.
 3. Uygulama tamamen çevrimdışı çalışmaya hazırdır!
 
@@ -152,42 +158,21 @@ Uygulama `http://localhost:3000` adresinde hazır olacaktır.
 
 ---
 
-## 📱 Android Derleme ve İmzalama (Geliştiriciler İçin)
-
-```bash
-# 1. Frontend derlemesini hazırlayın
-cd frontend
-npm run build
-npx cap sync android
-
-# 2. Android SDK yolunu tanımlayın
-export ANDROID_HOME=/yolunuz/android-sdk
-
-# 3. İmzalı Release APK üretin
-cd android
-./gradlew assembleRelease
-
-# Çıktı dosyası:
-# frontend/android/app/build/outputs/apk/release/app-release.apk
-```
-
----
-
 ## 🤖 CI / CD ve Otomatik Sürümleme
 
 Bu depoda GitHub Actions üzerinden tam otomatik derleme ve dağıtım hattı mevcuttur:
 
 1. Yeni bir sürüm etiketi (`tag`) oluşturup itin:
    ```bash
-   git tag v12.0.0
-   git push origin v12.0.0
+   git tag v12.2.0
+   git push origin v12.2.0
    ```
 2. `.github/workflows/release.yml` otomatik devreye girer:
    - Node.js 22, Java 21 ve Android SDK ortamlarını kurar.
    - Frontend lint ve build adımlarını çalıştırır.
    - Capacitor senkronizasyonu yapar.
    - Keystore ile Release APK'yı derler ve APK Signature v2 ile imzalar.
-   - GitHub Release oluşturup `MyFinans-v12.0.0.apk` dosyasını otomatik olarak yayınlar.
+   - GitHub Release oluşturup `MyFinans-v12.2.0.apk` dosyasını otomatik olarak yayınlar.
 
 ---
 
