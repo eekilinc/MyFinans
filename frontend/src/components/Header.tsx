@@ -101,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
                     MyFinans
                   </h1>
                   <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
-                    v12.3
+                    v12.3.2
                   </span>
                 </div>
                 <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
@@ -203,7 +203,7 @@ export const Header: React.FC<HeaderProps> = ({
                     MyFinans
                   </span>
                   <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-purple-50 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/40">
-                    v12.3
+                    v12.3.2
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[11px]">

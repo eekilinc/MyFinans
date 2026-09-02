@@ -23,7 +23,8 @@ import {
   ExternalLink,
   ShieldCheck,
   Sparkles,
-  Heart
+  Heart,
+  KeyRound
 } from 'lucide-react';
 import { useTheme, ACCENT_COLORS, type AccentColor } from '../../context/ThemeContext';
 
@@ -69,13 +70,14 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // PIN & Biometric
+  // PIN & Biometric states
   const [pinEnabled, setPinEnabled] = useState(() => !!localStorage.getItem('myfinans_pin'));
   const [bioEnabled, setBioEnabled] = useState(() => localStorage.getItem('myfinans_biometric') === 'true');
   const [showPinSetup, setShowPinSetup] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [pinConfirmInput, setPinConfirmInput] = useState('');
   const [pinError, setPinError] = useState('');
+  const [securityNotice, setSecurityNotice] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -109,21 +111,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     setShowPinSetup(false);
     setPinInput('');
     setPinConfirmInput('');
-    alert('PIN kilidi başarıyla etkinleştirildi.');
+    setSecurityNotice('PIN kilidi başarıyla etkinleştirildi.');
+    setTimeout(() => setSecurityNotice(null), 3000);
   };
 
   const handleRemovePin = () => {
-    if (window.confirm('PIN kilidini kaldırmak istediğinize emin misiniz?')) {
+    if (window.confirm('PIN kilidini ve biyometrik girişi kaldırmak istediğinize emin misiniz?')) {
       localStorage.removeItem('myfinans_pin');
       localStorage.removeItem('myfinans_biometric');
       setPinEnabled(false);
       setBioEnabled(false);
+      setSecurityNotice('Güvenlik kilidi devre dışı bırakıldı.');
+      setTimeout(() => setSecurityNotice(null), 3000);
     }
   };
 
   const handleToggleBio = (checked: boolean) => {
+    if (checked && !pinEnabled) {
+      setPinError('Biyometrik kilidi kullanabilmek için önce bir PIN belirlemelisiniz.');
+      setShowPinSetup(true);
+      return;
+    }
     setBioEnabled(checked);
     localStorage.setItem('myfinans_biometric', checked ? 'true' : 'false');
+    setSecurityNotice(checked ? 'Biyometrik giriş etkinleştirildi.' : 'Biyometrik giriş kapatıldı.');
+    setTimeout(() => setSecurityNotice(null), 3000);
   };
 
   const handleSyncAction = async (action: 'merge' | 'push' | 'pull') => {
@@ -175,27 +187,29 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </button>
         </div>
 
-        {/* Tab Selector Toolbar */}
-        <div className="px-4 py-2.5 bg-slate-50/80 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800/80 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          {tabs.map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap active:scale-95 ${
-                  isActive
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25'
-                    : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60'
-                }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
+        {/* 2-Row 3-Column Tab Grid: ZERO Horizontal Scroll */}
+        <div className="p-2.5 bg-slate-50/90 dark:bg-slate-950/70 border-b border-slate-200 dark:border-slate-800">
+          <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+            {tabs.map(tab => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs font-bold transition-all active:scale-95 ${
+                    isActive
+                      ? 'bg-purple-600 text-white shadow-md shadow-purple-600/25 ring-1 ring-purple-400/40'
+                      : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/60'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Scrollable Settings Content by Active Tab */}
@@ -214,7 +228,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <button
                   type="button"
                   onClick={toggleTheme}
-                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-bold text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-600 transition-all shadow-sm"
+                  className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-bold text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-600 transition-all shadow-sm active:scale-95"
                 >
                   {theme === 'dark' ? (
                     <>
@@ -309,7 +323,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Target className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                    {t('budget_limit')}
+                    {t('budget_limit') || 'Aylık Bütçe Limiti (₺)'}
                   </h4>
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
@@ -335,73 +349,114 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     type="submit"
                     className="px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-purple-600/20 active:scale-95"
                   >
-                    {t('save')}
+                    {t('save') || 'Kaydet'}
                   </button>
                 </form>
               </div>
             </div>
           )}
 
-          {/* TAB 3: GÜVENLİK */}
+          {/* TAB 3: GÜVENLİK (PIN + BİYOMETRİK TAM GÖRÜNÜR) */}
           {activeTab === 'security' && (
             <div className="space-y-4 animate-in fade-in duration-200">
+              {/* Status Alert Notification */}
+              {securityNotice && (
+                <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-xs font-bold text-emerald-700 dark:text-emerald-300 animate-in fade-in">
+                  ✓ {securityNotice}
+                </div>
+              )}
+
+              {/* Card 1: PIN Kilidi */}
               <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <Lock className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <div className="p-2 rounded-xl bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
+                      <Lock className="w-4 h-4" />
+                    </div>
                     <div>
-                      <span className="text-xs font-bold text-slate-900 dark:text-white block">
-                        {t('security_lock')}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          {t('security_lock') || 'Güvenlik & PIN Kilidi'}
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            pinEnabled
+                              ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+                          }`}
+                        >
+                          {pinEnabled ? 'Aktif' : 'Kapalı'}
+                        </span>
+                      </div>
                       <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-                        {pinEnabled ? 'PIN Kilidi Aktif' : 'PIN Kilidi Kapalı'}
+                        Uygulama açılışında 4 haneli PIN kodu ister
                       </span>
                     </div>
                   </div>
+
                   {pinEnabled ? (
-                    <button
-                      type="button"
-                      onClick={handleRemovePin}
-                      className="text-xs font-bold text-rose-600 dark:text-rose-400 hover:underline px-3 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50"
-                    >
-                      {t('disable_pin')}
-                    </button>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setShowPinSetup(true)}
+                        className="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-xs font-bold text-slate-700 dark:text-slate-200 transition-colors"
+                      >
+                        {t('change_pin') || 'Değiştir'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleRemovePin}
+                        className="px-2.5 py-1.5 rounded-xl bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-100 text-xs font-bold text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 transition-colors"
+                      >
+                        {t('disable_pin') || 'Kaldır'}
+                      </button>
+                    </div>
                   ) : (
                     <button
                       type="button"
                       onClick={() => setShowPinSetup(true)}
-                      className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-purple-600/20 active:scale-95"
+                      className="px-3.5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-purple-600/20 active:scale-95"
                     >
-                      {t('setup_pin')}
+                      {t('setup_pin') || 'PIN Belirle'}
                     </button>
                   )}
                 </div>
 
-                {showPinSetup && !pinEnabled && (
-                  <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 space-y-2.5 animate-in fade-in">
+                {/* PIN Setup Input Form */}
+                {showPinSetup && (
+                  <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-purple-300 dark:border-purple-800/80 space-y-2.5 animate-in fade-in">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-purple-700 dark:text-purple-300">
+                      <KeyRound className="w-3.5 h-3.5" />
+                      <span>{pinEnabled ? 'Yeni PIN Kodunu Girin' : '4 Haneli PIN Belirleyin'}</span>
+                    </div>
                     <div className="grid grid-cols-2 gap-2">
                       <input
                         type="password"
+                        inputMode="numeric"
                         maxLength={4}
                         value={pinInput}
                         onChange={e => setPinInput(e.target.value.replace(/\D/g, ''))}
                         placeholder="4 Haneli PIN"
-                        className="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-xs font-bold text-center text-slate-900 dark:text-white tracking-widest focus:outline-none focus:border-purple-500"
+                        className="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-xs font-bold text-center text-slate-900 dark:text-white tracking-widest focus:outline-none focus:border-purple-500 shadow-inner"
                       />
                       <input
                         type="password"
+                        inputMode="numeric"
                         maxLength={4}
                         value={pinConfirmInput}
                         onChange={e => setPinConfirmInput(e.target.value.replace(/\D/g, ''))}
                         placeholder="Tekrar Girin"
-                        className="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-xs font-bold text-center text-slate-900 dark:text-white tracking-widest focus:outline-none focus:border-purple-500"
+                        className="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-xs font-bold text-center text-slate-900 dark:text-white tracking-widest focus:outline-none focus:border-purple-500 shadow-inner"
                       />
                     </div>
                     {pinError && <p className="text-[11px] text-rose-500 font-bold">{pinError}</p>}
                     <div className="flex justify-end gap-2 pt-1">
                       <button
                         type="button"
-                        onClick={() => setShowPinSetup(false)}
+                        onClick={() => {
+                          setShowPinSetup(false);
+                          setPinError('');
+                        }}
                         className="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold"
                       >
                         İptal
@@ -409,35 +464,69 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                       <button
                         type="button"
                         onClick={handleSetPin}
-                        className="px-3.5 py-1.5 bg-purple-600 text-white rounded-xl text-xs font-bold"
+                        className="px-4 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold shadow-md shadow-purple-600/20"
                       >
-                        Kaydet
+                        {t('save') || 'Kaydet'}
                       </button>
                     </div>
                   </div>
                 )}
+              </div>
 
-                {pinEnabled && (
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-700/60">
-                    <div className="flex items-center gap-2">
-                      <Fingerprint className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                      <div>
-                        <span className="text-xs font-bold text-slate-900 dark:text-white block">
-                          {t('biometric_auth')}
+              {/* Card 2: Biyometrik Kimlik Doğrulama (Always Visible) */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60">
+                      <Fingerprint className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-900 dark:text-white">
+                          {t('biometric_auth') || 'Biyometrik Kimlik Doğrulama'}
                         </span>
-                        <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-                          Parmak İzi / Yüz Tanıma
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            bioEnabled
+                              ? 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+                          }`}
+                        >
+                          {bioEnabled ? 'Etkin' : 'Devre Dışı'}
                         </span>
                       </div>
+                      <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
+                        Parmak izi veya yüz tanıma (Face ID) ile tek dokunuşla hızlı giriş
+                      </span>
                     </div>
+                  </div>
+
+                  {/* Accessible Toggle Switch */}
+                  <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
                       checked={bioEnabled}
                       onChange={e => handleToggleBio(e.target.checked)}
-                      className="w-4 h-4 rounded text-purple-600 focus:ring-purple-500 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600 cursor-pointer"
+                      className="sr-only peer"
                     />
-                  </div>
+                    <div className="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                </div>
+
+                {!pinEnabled && (
+                  <p className="text-[11px] text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-xl border border-amber-200 dark:border-amber-800/50 font-medium">
+                    ℹ️ Biyometrik kimlik doğrulamanın çalışabilmesi için önce bir yedek PIN şifresi belirlemeniz önerilir.
+                  </p>
                 )}
+              </div>
+
+              {/* Card 3: Donanımsal Güvenlik Bilgisi */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-start gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-cyan-600 dark:text-cyan-400 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                  Biyometrik verileriniz cihazınızın donanımsal güvenli alanında (Android KeyStore / BiometricPrompt)
+                  işlenir. Hiçbir parola veya parmak izi sunucuya iletilmez.
+                </p>
               </div>
             </div>
           )}
@@ -535,7 +624,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="p-4 rounded-2xl bg-rose-50/80 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 space-y-2.5 mt-6">
                 <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
                   <AlertTriangle className="w-4 h-4" />
-                  <h4 className="text-xs font-bold uppercase tracking-wider">{t('danger_zone')}</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider">{t('danger_zone') || 'Tehlikeli Bölge'}</h4>
                 </div>
                 <p className="text-xs text-rose-700/90 dark:text-rose-300/90 font-medium">
                   Bu cihazdaki tüm harcama, grup ve firma kayıtlarını kalıcı olarak siler.
@@ -546,7 +635,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white shadow-sm transition-all active:scale-95"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>{t('clear_all_data')}</span>
+                  <span>{t('clear_all_data') || 'Tüm Verileri Temizle'}</span>
                 </button>
               </div>
             </div>
@@ -558,9 +647,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3">
                 <div className="flex items-center gap-2">
                   <Cloud className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">{t('cloud_sync')}</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white">
+                    {t('cloud_sync') || 'Bulut Senkronizasyonu'}
+                  </span>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">{t('sync_desc')}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                  {t('sync_desc') || 'Verilerinizi uzak PostgreSQL sunucunuzla senkronize edin.'}
+                </p>
 
                 <form onSubmit={handleSaveUrl} className="flex items-center gap-2">
                   <input
@@ -574,7 +667,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     type="submit"
                     className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-xl text-xs font-bold transition-colors border border-slate-200 dark:border-slate-600"
                   >
-                    {t('save')}
+                    {t('save') || 'Kaydet'}
                   </button>
                 </form>
 
@@ -585,7 +678,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     onClick={() => handleSyncAction('merge')}
                     className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
                   >
-                    {t('sync_merge')}
+                    {t('sync_merge') || 'Birleştir'}
                   </button>
                   <button
                     type="button"
@@ -593,7 +686,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     onClick={() => handleSyncAction('push')}
                     className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
                   >
-                    {t('sync_push')}
+                    {t('sync_push') || 'Sunucuya Yükle'}
                   </button>
                   <button
                     type="button"
@@ -601,7 +694,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     onClick={() => handleSyncAction('pull')}
                     className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
                   >
-                    {t('sync_pull')}
+                    {t('sync_pull') || 'Sunucudan Çek'}
                   </button>
                 </div>
 
@@ -638,10 +731,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
-                    Sürüm v12.3.0
+                    Sürüm v12.3.2
                   </span>
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                    Derleme 16
+                    Derleme 18
                   </span>
                 </div>
               </div>
