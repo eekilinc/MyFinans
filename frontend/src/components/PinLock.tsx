@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Lock, Fingerprint } from 'lucide-react';
 import { NativeBiometric } from 'capacitor-native-biometric';
@@ -49,6 +49,24 @@ export default function PinLock({ onUnlock }: PinLockProps) {
   const [error, setError] = useState('');
   const [hasBiometric, setHasBiometric] = useState(false);
 
+  const triggerBiometric = useCallback(async () => {
+    if (!Capacitor.isNativePlatform()) return;
+    try {
+      const result = await NativeBiometric.isAvailable();
+      if (result.isAvailable) {
+        await NativeBiometric.verifyIdentity({
+          reason: t('bio_reason') || "Lütfen giriş yapmak için kimliğinizi doğrulayın",
+          title: t('bio_title') || "Biyometrik Doğrulama",
+          subtitle: t('bio_subtitle') || "Güvenli Giriş",
+          description: t('bio_description') || "MyFinans uygulamasını açmak için parmak izi veya yüz tanımayı kullanın."
+        });
+        onUnlock();
+      }
+    } catch (e: any) {
+      console.error('Biometric authentication failed:', e);
+    }
+  }, [t, onUnlock]);
+
   useEffect(() => {
     // Check if biometric is available and enabled
     const checkBio = async () => {
@@ -66,25 +84,7 @@ export default function PinLock({ onUnlock }: PinLockProps) {
       }
     };
     checkBio();
-  }, []);
-
-  const triggerBiometric = async () => {
-    if (!Capacitor.isNativePlatform()) return;
-    try {
-      const result = await NativeBiometric.isAvailable();
-      if (result.isAvailable) {
-        await NativeBiometric.verifyIdentity({
-          reason: t('bio_reason') || "Lütfen giriş yapmak için kimliğinizi doğrulayın",
-          title: t('bio_title') || "Biyometrik Doğrulama",
-          subtitle: t('bio_subtitle') || "Güvenli Giriş",
-          description: t('bio_description') || "MyFinans uygulamasını açmak için parmak izi veya yüz tanımayı kullanın."
-        });
-        onUnlock();
-      }
-    } catch (e: any) {
-      console.error('Biometric authentication failed:', e);
-    }
-  };
+  }, [triggerBiometric]);
 
   const handleDigit = (d: string) => {
     if (pin.length >= 4) return;

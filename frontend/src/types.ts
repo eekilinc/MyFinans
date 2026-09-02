@@ -68,3 +68,18 @@ export interface HistoryItem {
   paid_amount: number;
   unpaid_amount: number;
 }
+
+export interface CategoryStat {
+  category: string;
+  labelKey: string;
+  amount: number;
+  percentage: number;
+  count: number;
+  color: string;
+}
+
+export interface ToastMessage {
+  id: string;
+  type: 'success' | 'error' | 'info';
+  message: string;
+}

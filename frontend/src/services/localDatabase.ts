@@ -337,7 +337,7 @@ export const localDatabase = {
   },
 
   async toggleTransactionPaid(id: string, year: number, month: number): Promise<{ is_paid: boolean }> {
-    let list = readTable<PaymentRaw>(KEYS.PAYMENTS);
+    const list = readTable<PaymentRaw>(KEYS.PAYMENTS);
     const existingIndex = list.findIndex(p => p.transaction_id === id && p.year === year && p.month === month);
 
     if (existingIndex !== -1) {
@@ -699,7 +699,43 @@ export const localDatabase = {
     if (createdNew) {
       writeTable(KEYS.TRANSACTIONS, newList);
     }
+  },
+
+  // Convenience Aliases
+  async createBank(name: string): Promise<Bank> {
+    return this.addBank(name);
+  },
+
+  async createCompany(name: string): Promise<Company> {
+    return this.addCompany(name);
+  },
+
+  async createGroup(group: { name: string; type: string; due_day: number; statement_day?: number | null; bank_id?: string | null }): Promise<any> {
+    return this.saveGroup(group);
+  },
+
+  async updateGroup(id: string, group: { name: string; type: string; due_day: number; statement_day?: number | null; bank_id?: string | null }): Promise<any> {
+    return this.saveGroup({ ...group, id });
+  },
+
+  async createTransaction(tx: any): Promise<any> {
+    return this.saveTransaction(tx);
+  },
+
+  async updateTransaction(id: string, tx: any): Promise<any> {
+    return this.saveTransaction({ ...tx, id });
+  },
+
+  async togglePaid(id: string, year: number, month: number): Promise<{ is_paid: boolean }> {
+    return this.toggleTransactionPaid(id, year, month);
+  },
+
+  clearAll(): void {
+    Object.values(KEYS).forEach(k => {
+      localStorage.removeItem(k);
+    });
   }
 };
+
 
 

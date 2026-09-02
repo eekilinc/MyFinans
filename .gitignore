@@ -1,17 +1,36 @@
 # Dependencies
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Build output
 dist/
 build/
 out/
 www/
+*.apk
+*.aab
 
-# Environment
+# Android
+frontend/android/.gradle/
+frontend/android/build/
+frontend/android/app/build/
+frontend/android/capacitor-cordova-android-plugins/build/
+frontend/android/local.properties
+*.keystore
+!frontend/android/app/release.keystore
+
+# Environment & Databases
 .env
 .env.*
 !.env.example
+*.sqlite
+*.db
 
-# Logs & OS
+# Logs & IDE & OS
 *.log
 .DS_Store
+.idea/
+.vscode/
+*.swp
