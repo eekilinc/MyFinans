@@ -118,7 +118,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
-              placeholder="Örn: Garanti Bonus, Konut Kredisi, Ev Kirası..."
+              placeholder={t('group_name_placeholder')}
               required
               className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500"
             />
@@ -161,7 +161,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
                 onClick={() => setIsCreatingBank(!isCreatingBank)}
                 className="text-[11px] font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
               >
-                {isCreatingBank ? 'Listeden Seç' : '+ Yeni Banka'}
+                {isCreatingBank ? t('select_from_list') : `+ ${t('new_bank')}`}
               </button>
             </div>
 
@@ -171,7 +171,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
                   type="text"
                   value={newBankName}
                   onChange={e => setNewBankName(e.target.value)}
-                  placeholder="Banka Adı..."
+                  placeholder={t('bank_name_placeholder')}
                   className="flex-1 px-3.5 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                 />
                 <button
@@ -179,7 +179,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
                   onClick={handleQuickAddBank}
                   className="px-3 py-2 bg-purple-600 text-white rounded-2xl text-xs font-bold"
                 >
-                  Ekle
+                  {t('add')}
                 </button>
               </div>
             ) : (

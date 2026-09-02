@@ -59,12 +59,12 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           <button
             onClick={onOpenAddTx}
             className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 hover:from-purple-500 hover:to-cyan-400 text-white flex items-center justify-center shadow-lg shadow-purple-600/40 border-2 border-white dark:border-slate-900 active:scale-90 transition-all"
-            title={t('add_transaction') || 'Harcama Ekle'}
-            aria-label="Yeni Harcama Ekle"
+            title={t('add_transaction')}
+            aria-label={t('add_transaction')}
           >
             <Plus className="w-6 h-6 stroke-[2.5]" />
           </button>
-          <span className="text-[9px] font-bold text-purple-700 dark:text-purple-300/80 mt-1">Ekle</span>
+          <span className="text-[9px] font-bold text-purple-700 dark:text-purple-300/80 mt-1">{t('add')}</span>
         </div>
 
         {/* Analiz / İstatistik Tab */}

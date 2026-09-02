@@ -49,7 +49,7 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
             </span>
           </div>
           <div className="mt-3.5 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium">
-            <span>Ödeme İlerlemesi</span>
+            <span>{t('payment_progress')}</span>
             <span className="font-extrabold text-purple-600 dark:text-purple-400">%{paidRatio.toFixed(0)}</span>
           </div>
           <div className="mt-1.5 w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700/60 p-0.5">
@@ -78,7 +78,7 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
           </div>
           <div className="mt-3.5 text-xs text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-            <span>Kapanan ve ödenmiş harcamalar</span>
+            <span>{t('paid_desc')}</span>
           </div>
         </div>
 
@@ -100,7 +100,7 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
           </div>
           <div className="mt-3.5 text-xs text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
-            <span>Ödenmeyi bekleyen aktif tutar</span>
+            <span>{t('unpaid_desc')}</span>
           </div>
         </div>
       </div>
@@ -164,7 +164,7 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
               onClick={onOpenSettings}
               className="self-start sm:self-auto text-xs font-bold px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors active:scale-95"
             >
-              Limiti Güncelle
+              {t('update_limit')}
             </button>
           </div>
 
@@ -188,9 +188,9 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
               <Target className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-900 dark:text-white">Aylık Bütçe Hedefi Belirleyin</p>
+              <p className="text-xs font-bold text-slate-900 dark:text-white">{t('set_budget_title')}</p>
               <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-                Aylık harcama sınırınızı belirleyerek bütçenizi aşmadan tasarruf edin.
+                {t('set_budget_desc')}
               </p>
             </div>
           </div>
@@ -199,7 +199,7 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
             className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-xl shadow-md shadow-purple-600/30 border border-purple-400/30 transition-all whitespace-nowrap active:scale-95"
           >
             <Target className="w-3.5 h-3.5" />
-            <span>Şimdi Ayarla</span>
+            <span>{t('set_now')}</span>
           </button>
         </div>
       )}

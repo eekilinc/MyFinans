@@ -139,13 +139,13 @@ export const ExpenseGroupCard: React.FC<ExpenseGroupCardProps> = ({
         <div className="pt-3 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-4 flex-wrap">
             <div>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold block">Aylık Tutar</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold block">{t('monthly_amount')}</span>
               <span className="text-base font-black text-slate-900 dark:text-white">
                 {formatCurrency(totalAmount)}
               </span>
             </div>
             <div>
-              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold block">Kalan</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold block">{t('unpaid_summary')}</span>
               <span
                 className={`text-base font-black ${
                   unpaidAmount > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'
@@ -190,7 +190,7 @@ export const ExpenseGroupCard: React.FC<ExpenseGroupCardProps> = ({
           {filteredTransactions.length === 0 ? (
             <div className="py-6 text-center text-slate-500 dark:text-slate-400 text-xs font-medium">
               {categoryFilter
-                ? 'Seçili kategoriye ait işlem bulunamadı.'
+                ? t('no_cat_transactions')
                 : t('no_transactions')}
             </div>
           ) : (

@@ -142,7 +142,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
           </span>
           {tx.is_installment && (
             <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-              Toplam: {formatCurrency(tx.amount)}
+              {t('total')}: {formatCurrency(tx.amount)}
             </span>
           )}
         </div>

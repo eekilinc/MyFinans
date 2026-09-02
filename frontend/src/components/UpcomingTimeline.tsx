@@ -77,7 +77,7 @@ export const UpcomingTimeline: React.FC<UpcomingTimelineProps> = ({
           <h3 className="text-sm font-bold text-slate-900 dark:text-slate-200">{t('upcoming_payments')}</h3>
         </div>
         <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">
-          {upcomingItems.length} Ödeme
+          {t('payments_count', { count: upcomingItems.length })}
         </span>
       </div>
 
@@ -138,14 +138,14 @@ export const UpcomingTimeline: React.FC<UpcomingTimelineProps> = ({
                     ? t('overdue_by_days', { days: Math.abs(diffDays) })
                     : statusType === 'upcoming'
                     ? t('due_in_days', { days: diffDays })
-                    : `${dueDay}. gün`}
+                    : t('due_day_label', { day: dueDay })}
                 </span>
               </div>
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800/60">
               <div>
-                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">Kalan Tutar</span>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">{t('remaining_amount')}</span>
                 <p className="text-base font-black text-slate-900 dark:text-white">{formatCurrency(unpaidAmount)}</p>
               </div>
 
@@ -155,7 +155,7 @@ export const UpcomingTimeline: React.FC<UpcomingTimelineProps> = ({
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-600/30 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-500/50 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 transition-all active:scale-95"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Öde</span>
+                  <span>{t('pay_action')}</span>
                 </button>
               )}
             </div>

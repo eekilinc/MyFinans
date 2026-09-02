@@ -213,12 +213,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   const tabs: { id: SettingsTab; label: string; icon: React.FC<{ className?: string }> }[] = [
-    { id: 'appearance', label: 'Görünüm', icon: Palette },
-    { id: 'budget', label: 'Bütçe', icon: Target },
-    { id: 'security', label: 'Güvenlik', icon: Lock },
-    { id: 'backup', label: 'Yedekleme', icon: Archive },
-    { id: 'sync', label: 'Senkron', icon: Cloud },
-    { id: 'about', label: 'Hakkında', icon: Info }
+    { id: 'appearance', label: t('appearance_tab'), icon: Palette },
+    { id: 'budget', label: t('budget_tab'), icon: Target },
+    { id: 'security', label: t('security_tab'), icon: Lock },
+    { id: 'backup', label: t('backup_tab'), icon: Archive },
+    { id: 'sync', label: t('sync_tab'), icon: Cloud },
+    { id: 'about', label: t('about_tab'), icon: Info }
   ];
 
   return (
@@ -236,7 +236,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div>
               <h3 className="text-base font-black text-slate-900 dark:text-white">{t('settings')}</h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                Tercihler, bütçe, güvenlik ve uygulama bilgileri
+                {t('settings_subtitle')}
               </p>
             </div>
           </div>
@@ -281,9 +281,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {/* Dark / Light Toggle */}
               <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 shadow-sm flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold text-slate-900 dark:text-white block">Arayüz Modu</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white block">{t('theme_mode')}</span>
                   <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-                    {theme === 'dark' ? 'Koyu Tema Aktif' : 'Açık Tema Aktif'}
+                    {theme === 'dark' ? t('theme_dark') : t('theme_light')}
                   </span>
                 </div>
                 <button
@@ -294,12 +294,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   {theme === 'dark' ? (
                     <>
                       <Sun className="w-4 h-4 text-amber-400" />
-                      <span>Açık Moda Geç</span>
+                      <span>{t('theme_light')}</span>
                     </>
                   ) : (
                     <>
                       <Moon className="w-4 h-4 text-indigo-600" />
-                      <span>Koyu Moda Geç</span>
+                      <span>{t('theme_dark')}</span>
                     </>
                   )}
                 </button>
@@ -308,9 +308,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {/* 5 Accent Colors */}
               <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">Vurgu Rengi Paleti</span>
+                  <span className="text-xs font-bold text-slate-900 dark:text-white">{t('theme_accent')}</span>
                   <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-                    Uygulama buton ve grafik renkleri
+                    {t('theme_mode')}
                   </span>
                 </div>
                 <div className="grid grid-cols-5 gap-2.5 pt-1">
@@ -345,7 +345,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="flex items-center gap-2.5">
                   <Globe className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   <div>
-                    <span className="text-xs font-bold text-slate-900 dark:text-white block">Uygulama Dili</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white block">{t('language')}</span>
                     <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">Language</span>
                   </div>
                 </div>
@@ -384,12 +384,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Target className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                    {t('budget_limit') || 'Aylık Bütçe Limiti (₺)'}
+                    {t('budget_goal')}
                   </h4>
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                  Aylık harcama hedefinizi belirleyin. Harcamalarınız bütçenizin %80 ve %100 sınırına ulaştığında
-                  gösterge panelinde renkli uyarılar verilir.
+                  {t('budget_goal_desc')}
                 </p>
                 <form onSubmit={handleSaveBudget} className="flex items-center gap-2 pt-1">
                   <div className="relative flex-1">
@@ -602,10 +601,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <FileCode className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                     <div>
                       <span className="text-xs font-bold text-slate-900 dark:text-white block">
-                        Uygulama Ayarları
+                        {t('settings_export')}
                       </span>
                       <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-                        Bütçe, Tema, Renk ve Dil tercihleri
+                        {t('settings_subtitle')}
                       </span>
                     </div>
                   </div>
@@ -617,12 +616,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 text-xs font-bold text-indigo-700 dark:text-indigo-300 transition-all shadow-sm active:scale-95"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Ayarları İndir</span>
+                    <span>{t('settings_export')}</span>
                   </button>
 
                   <label className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 text-xs font-bold text-indigo-700 dark:text-indigo-300 cursor-pointer transition-all shadow-sm active:scale-95">
                     <Upload className="w-3.5 h-3.5" />
-                    <span>Ayarları Yükle</span>
+                    <span>{t('settings_import')}</span>
                     <input
                       type="file"
                       accept=".json"
@@ -640,10 +639,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     <Archive className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                     <div>
                       <span className="text-xs font-bold text-slate-900 dark:text-white block">
-                        Tam Sistem Yedekleme
+                        {t('full_backup_export')}
                       </span>
                       <span className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
-                        Tüm harcamalar, gruplar, firmalar ve ayarlar
+                        {t('full_backup_export_desc')}
                       </span>
                     </div>
                   </div>
@@ -655,12 +654,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 border border-purple-200 dark:border-purple-800/60 text-xs font-bold text-purple-700 dark:text-purple-300 transition-all shadow-sm active:scale-95"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Tam Yedek İndir</span>
+                    <span>{t('full_backup_export')}</span>
                   </button>
 
                   <label className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 border border-purple-200 dark:border-purple-800/60 text-xs font-bold text-purple-700 dark:text-purple-300 cursor-pointer transition-all shadow-sm active:scale-95">
                     <Upload className="w-3.5 h-3.5" />
-                    <span>Tam Yedek Yükle</span>
+                    <span>{t('full_backup_import')}</span>
                     <input
                       type="file"
                       accept=".json"
@@ -678,17 +677,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold text-emerald-700 dark:text-emerald-300 transition-all shadow-sm active:scale-95"
               >
                 <FileSpreadsheet className="w-4 h-4" />
-                <span>Cari Ay Harcamalarını Excel / CSV Olarak İndir</span>
+                <span>{t('export_monthly_csv')}</span>
               </button>
 
               {/* Danger Zone */}
               <div className="p-4 rounded-2xl bg-rose-50/80 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 space-y-2.5 mt-6">
                 <div className="flex items-center gap-2 text-rose-600 dark:text-rose-400">
                   <AlertTriangle className="w-4 h-4" />
-                  <h4 className="text-xs font-bold uppercase tracking-wider">{t('danger_zone') || 'Tehlikeli Bölge'}</h4>
+                  <h4 className="text-xs font-bold uppercase tracking-wider">{t('danger_zone')}</h4>
                 </div>
                 <p className="text-xs text-rose-700/90 dark:text-rose-300/90 font-medium">
-                  Bu cihazdaki tüm harcama, grup ve firma kayıtlarını kalıcı olarak siler.
+                  {t('clear_data_desc')}
                 </p>
                 <button
                   type="button"
@@ -696,7 +695,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-bold text-white shadow-sm transition-all active:scale-95"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                  <span>{t('clear_all_data') || 'Tüm Verileri Temizle'}</span>
+                  <span>{t('clear_all_data')}</span>
                 </button>
               </div>
             </div>
@@ -711,7 +710,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <div className="flex items-center gap-2">
                     <Cloud className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                     <span className="text-xs font-bold text-slate-900 dark:text-white">
-                      Bulut ve Çoklu Cihaz Senkronizasyonu
+                      {t('cloud_sync_title')}
                     </span>
                   </div>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50">
@@ -719,38 +718,39 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </span>
                 </div>
                 <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
-                  Tüm harcama, taksit ve bütçe verilerinizi telefon, tablet ve bilgisayarlarınız arasında güvenle senkronize edin.
+                  {t('cloud_sync_subtitle')}
                 </p>
 
-                {/* API URL Form */}
+                {/* API URL Form - Non-overflowing stacked layout */}
                 <form onSubmit={handleSaveUrl} className="space-y-2">
                   <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                     <Server className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Uzak / Yerel Sunucu Adresi (URL)</span>
+                    <span>{t('server_url_label')}</span>
                   </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={tempApiUrl}
-                      onChange={e => setTempApiUrl(e.target.value)}
-                      placeholder="http://localhost:5001 veya https://myfinans.onrender.com"
-                      className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 shadow-inner"
-                    />
+                  <input
+                    type="text"
+                    value={tempApiUrl}
+                    onChange={e => setTempApiUrl(e.target.value)}
+                    placeholder="http://localhost:5001 veya https://myfinans.onrender.com"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 shadow-inner"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       type="submit"
-                      className="px-3.5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm active:scale-95"
                     >
-                      {t('save') || 'Kaydet'}
+                      <Check className="w-3.5 h-3.5" />
+                      <span>{t('save')}</span>
                     </button>
                     <button
                       type="button"
                       disabled={testingConnection}
                       onClick={handleTestConnection}
-                      className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors border border-slate-200 dark:border-slate-600 disabled:opacity-50"
-                      title="Sunucu bağlantısını ve gecikme süresini test et"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors border border-slate-200 dark:border-slate-600 disabled:opacity-50 active:scale-95"
+                      title={t('test_connection')}
                     >
                       <Wifi className={`w-3.5 h-3.5 ${testingConnection ? 'animate-spin' : ''}`} />
-                      <span>{testingConnection ? 'Test Ediliyor...' : 'Test Et'}</span>
+                      <span className="truncate">{testingConnection ? t('testing_connection') : t('test_connection')}</span>
                     </button>
                   </div>
                 </form>
@@ -773,74 +773,80 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </div>
                 )}
 
-                {/* Quick Presets */}
+                {/* Quick Presets - Responsive 1 to 3 cols */}
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-1.5">
                   <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
-                    Hızlı Hazır Şablonlar:
+                    {t('quick_presets')}
                   </span>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
                     <button
                       type="button"
                       onClick={() => handleApplyPreset('http://localhost:5001')}
-                      className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+                      className="flex items-center justify-center gap-1.5 text-[11px] font-bold px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors truncate"
                     >
-                      <Laptop className="w-3 h-3 text-slate-400" />
-                      <span>Yerel PC (localhost:5001)</span>
+                      <Laptop className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="truncate">{t('preset_localhost')}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleApplyPreset('http://192.168.1.100:5001')}
-                      className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+                      className="flex items-center justify-center gap-1.5 text-[11px] font-bold px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors truncate"
                     >
-                      <Smartphone className="w-3 h-3 text-slate-400" />
-                      <span>Ev Wi-Fi (192.168.1.X)</span>
+                      <Smartphone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="truncate">{t('preset_lan')}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => handleApplyPreset('https://myfinans-api.onrender.com')}
-                      className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+                      className="flex items-center justify-center gap-1.5 text-[11px] font-bold px-2.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors truncate"
                     >
-                      <Cloud className="w-3 h-3 text-slate-400" />
-                      <span>Render.com Bulut</span>
+                      <Cloud className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="truncate">{t('preset_cloud')}</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Sync Action Buttons */}
+                {/* Sync Action Buttons - 3 columns on tablet/desktop, 1 column or stack on mobile */}
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-2">
                   <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
-                    Senkronizasyon İşlemleri:
+                    {t('sync_actions')}
                   </span>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <button
                       type="button"
                       disabled={syncing}
                       onClick={() => handleSyncAction('merge')}
-                      className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/70 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
+                      className="flex sm:flex-col items-center justify-start sm:justify-center gap-2.5 sm:gap-1 p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/70 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-bold disabled:opacity-50 transition-all active:scale-95 text-left sm:text-center w-full min-w-0"
                     >
-                      <RefreshCw className={`w-4 h-4 mb-1 ${syncing ? 'animate-spin' : ''}`} />
-                      <span>Birleştir</span>
-                      <span className="text-[9px] font-normal text-purple-600/80 dark:text-purple-400/80 mt-0.5">Çakışmasız (Önerilen)</span>
+                      <RefreshCw className={`w-4 h-4 shrink-0 sm:mb-0.5 ${syncing ? 'animate-spin' : ''}`} />
+                      <div className="min-w-0 flex-1 sm:flex-none">
+                        <span className="block font-black truncate">{t('sync_merge_btn')}</span>
+                        <span className="text-[10px] font-medium text-purple-600/80 dark:text-purple-400/80 block truncate">{t('sync_merge_sub')}</span>
+                      </div>
                     </button>
                     <button
                       type="button"
                       disabled={syncing}
                       onClick={() => handleSyncAction('push')}
-                      className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
+                      className="flex sm:flex-col items-center justify-start sm:justify-center gap-2.5 sm:gap-1 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-50 transition-all active:scale-95 text-left sm:text-center w-full min-w-0"
                     >
-                      <Upload className="w-4 h-4 mb-1" />
-                      <span>Sunucuya Yükle</span>
-                      <span className="text-[9px] font-normal text-slate-500 dark:text-slate-400 mt-0.5">Cihaz ➔ Bulut</span>
+                      <Upload className="w-4 h-4 shrink-0 sm:mb-0.5" />
+                      <div className="min-w-0 flex-1 sm:flex-none">
+                        <span className="block font-black truncate">{t('sync_push_btn')}</span>
+                        <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 block truncate">{t('sync_push_sub')}</span>
+                      </div>
                     </button>
                     <button
                       type="button"
                       disabled={syncing}
                       onClick={() => handleSyncAction('pull')}
-                      className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
+                      className="flex sm:flex-col items-center justify-start sm:justify-center gap-2.5 sm:gap-1 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-50 transition-all active:scale-95 text-left sm:text-center w-full min-w-0"
                     >
-                      <Download className="w-4 h-4 mb-1" />
-                      <span>Sunucudan Çek</span>
-                      <span className="text-[9px] font-normal text-slate-500 dark:text-slate-400 mt-0.5">Bulut ➔ Cihaz</span>
+                      <Download className="w-4 h-4 shrink-0 sm:mb-0.5" />
+                      <div className="min-w-0 flex-1 sm:flex-none">
+                        <span className="block font-black truncate">{t('sync_pull_btn')}</span>
+                        <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 block truncate">{t('sync_pull_sub')}</span>
+                      </div>
                     </button>
                   </div>
                 </div>
@@ -863,7 +869,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <HelpCircle className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                    Hangi Servislerle Senkronize Edilebilir?
+                    {t('which_services_title')}
                   </h4>
                 </div>
 
@@ -914,22 +920,22 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {/* App Identity Banner */}
               <div className="p-5 rounded-3xl bg-gradient-to-br from-purple-500/10 via-slate-50 to-indigo-500/10 dark:from-purple-950/40 dark:via-slate-900 dark:to-indigo-950/40 border border-purple-200 dark:border-purple-800/50 text-center space-y-2.5 shadow-sm">
                 <img
-                  src="/icon.png?v=12.4.1"
+                  src="/icon.png?v=12.4.2"
                   alt="MyFinans Logo"
                   className="w-16 h-16 mx-auto rounded-2xl shadow-lg border border-purple-500/30 object-cover"
                 />
                 <div>
                   <h3 className="text-lg font-black text-slate-900 dark:text-white">MyFinans</h3>
                   <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                    Kişisel Bütçe, Kredi Kartı ve Taksit Takip Sistemi
+                    {t('app_desc')}
                   </p>
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
-                    Sürüm v12.4.1
+                    Sürüm v12.4.2
                   </span>
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                    Derleme 20
+                    Derleme 21
                   </span>
                 </div>
               </div>
@@ -939,25 +945,25 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
-                    Öne Çıkan Özellikler
+                    {t('highlights')}
                   </h4>
                 </div>
                 <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-2 font-medium">
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-500 font-bold">✓</span>
-                    <span><strong>%100 Çevrimdışı ve Gizlilik Odaklı:</strong> Verileriniz yalnızca cihazınızda (IndexedDB / SQLite) saklanır.</span>
+                    <span><strong>{t('offline_guarantee')}</strong> {t('offline_guarantee_desc')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-purple-500 font-bold">✓</span>
-                    <span><strong>Hesap Kesim ve Taksit Motoru:</strong> Kart hesap kesim döngülerinize göre taksitlerinizi otomatik takvimler.</span>
+                    <span><strong>{t('installment_engine')}</strong> {t('installment_engine_desc')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-cyan-500 font-bold">✓</span>
-                    <span><strong>Dinamik Açık & Koyu Temalar:</strong> 5 farklı renk aksanı ile modern finans deneyimi.</span>
+                    <span>{t('dynamic_themes_desc')}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-indigo-500 font-bold">✓</span>
-                    <span><strong>Excel / CSV & Tam Yedekleme:</strong> Tek dokunuşla tüm verilerinizi dışa aktarın ve geri yükleyin.</span>
+                    <span>{t('excel_backup_desc')}</span>
                   </li>
                 </ul>
               </div>
@@ -965,12 +971,12 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {/* Developer & Community Links */}
               <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3">
                 <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium">
-                  <span>Geliştirici</span>
+                  <span>{t('developer')}</span>
                   <span className="font-bold text-slate-900 dark:text-white">Ekrem Eşref KILINÇ (@eekilinc)</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium">
-                  <span>Lisans</span>
-                  <span className="font-bold text-slate-900 dark:text-white">MIT Açık Kaynak Lisansı</span>
+                  <span>{t('license')}</span>
+                  <span className="font-bold text-slate-900 dark:text-white">MIT</span>
                 </div>
                 <div className="pt-2 border-t border-slate-200 dark:border-slate-700/60 grid grid-cols-2 gap-2">
                   <a
@@ -979,7 +985,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors"
                   >
-                    <span>GitHub Deposu</span>
+                    <span>{t('source_code')}</span>
                     <ExternalLink className="w-3 h-3 text-slate-400" />
                   </a>
                   <a
@@ -988,7 +994,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/50 dark:hover:bg-purple-900/60 text-xs font-bold text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 transition-colors"
                   >
-                    <span>Sürümler & İndir</span>
+                    <span>Releases</span>
                     <ExternalLink className="w-3 h-3 text-purple-400" />
                   </a>
                 </div>
@@ -996,7 +1002,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
               {/* Bottom Copyright */}
               <div className="text-center py-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium flex items-center justify-center gap-1">
-                <span>© 2026 MyFinans • Sevgiyle Geliştirildi</span>
+                <span>© 2026 MyFinans • Ekrem Eşref KILINÇ</span>
                 <Heart className="w-3 h-3 text-rose-500 fill-rose-500" />
               </div>
             </div>

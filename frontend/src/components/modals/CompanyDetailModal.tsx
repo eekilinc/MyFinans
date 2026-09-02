@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Building2, Calendar, Layers } from 'lucide-react';
 import type { CompanyStats } from '../../types';
 
@@ -15,6 +16,8 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
   company,
   transactions
 }) => {
+  const { t } = useTranslation();
+
   if (!isOpen || !company) return null;
 
   const formatCurrency = (val: number) => {
@@ -35,7 +38,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
             <div>
               <h3 className="text-base font-black text-slate-900 dark:text-white">{company.name}</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {transactions.length} İşlem • Toplam {formatCurrency(company.total_amount || 0)}
+                {t('company_tx_summary', { count: transactions.length, total: formatCurrency(company.total_amount || 0) })}
               </p>
             </div>
           </div>
@@ -51,7 +54,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
         <div className="p-5 space-y-2.5 overflow-y-auto">
           {transactions.length === 0 ? (
             <div className="py-8 text-center text-slate-400 text-xs font-medium">
-              Bu firmaya ait harcama kaydı bulunamadı.
+              {t('no_company_transactions')}
             </div>
           ) : (
             transactions.map((tx: any, idx: number) => (
@@ -76,7 +79,7 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
                     {tx.is_installment && (
                       <span className="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-semibold">
                         <Layers className="w-3 h-3" />
-                        {tx.installment_count} Taksit
+                        {t('installments_count', { count: tx.installment_count })}
                       </span>
                     )}
                   </div>

@@ -85,7 +85,7 @@ export const CompanyStatsView: React.FC<CompanyStatsViewProps> = ({
             <h2 className="text-lg font-black text-slate-900 dark:text-white">{t('companies_tab')}</h2>
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Toplam {companyStats.length} kayıtlı firma üzerinden toplam {formatCurrency(totalAllSpending)} harcama.
+            {t('company_stats_summary', { count: companyStats.length, total: formatCurrency(totalAllSpending) })}
           </p>
         </div>
 
@@ -223,7 +223,7 @@ export const CompanyStatsView: React.FC<CompanyStatsViewProps> = ({
                   </p>
                 </div>
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-purple-600 dark:text-purple-400 group-hover:translate-x-0.5 transition-transform">
-                  <span>Detaylar</span>
+                  <span>{t('details')}</span>
                   <ExternalLink className="w-3 h-3" />
                 </span>
               </div>

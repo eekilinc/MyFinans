@@ -67,12 +67,12 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSea
             </div>
           ) : results.length === 0 ? (
             <div className="py-12 text-center text-slate-400 text-xs font-medium">
-              "{query}" için {t('search_no_results')}
+              {t('search_no_results_for', { query })}
             </div>
           ) : (
             <>
               <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 px-1 pb-1">
-                {results.length} {t('search_results')} bulundu
+                {t('search_results_found', { count: results.length })}
               </div>
               {results.map((tx: any, idx: number) => {
                 const categoryConfig = getCategoryConfig(tx.category);
@@ -119,7 +119,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSea
                       </span>
                       {tx.is_installment && (
                         <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold block">
-                          {tx.installment_count} Taksit
+                          {t('installments_count', { count: tx.installment_count })}
                         </span>
                       )}
                     </div>

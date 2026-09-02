@@ -278,7 +278,7 @@ export default function App() {
           body: JSON.stringify(groupData)
         });
       }
-      showToast('Grup güncellendi!');
+      showToast(t('group_updated'));
     } else {
       // Create
       if (!apiUrl) {
@@ -290,7 +290,7 @@ export default function App() {
           body: JSON.stringify(groupData)
         });
       }
-      showToast('Grup oluşturuldu!');
+      showToast(t('group_created'));
     }
     await fetchData();
   };
@@ -302,7 +302,7 @@ export default function App() {
     } else {
       await fetch(`${apiUrl}/api/groups/${groupId}`, { method: 'DELETE' });
     }
-    showToast('Grup ve bağlı işlemler silindi.');
+    showToast(t('group_deleted'));
     await fetchData();
   };
 
@@ -330,7 +330,7 @@ export default function App() {
           body: JSON.stringify(txData)
         });
       }
-      showToast('İşlem güncellendi!');
+      showToast(t('transaction_updated'));
     } else {
       if (!apiUrl) {
         await localDatabase.createTransaction(txData);
@@ -341,7 +341,7 @@ export default function App() {
           body: JSON.stringify(txData)
         });
       }
-      showToast('İşlem eklendi!');
+      showToast(t('transaction_added'));
     }
     await fetchData();
     await fetchCompanies();
@@ -355,7 +355,7 @@ export default function App() {
     } else {
       await fetch(`${apiUrl}/api/transactions/${txId}`, { method: 'DELETE' });
     }
-    showToast('İşlem silindi.');
+    showToast(t('transaction_deleted'));
     await fetchData();
     await fetchCompanyStats();
   };
@@ -429,7 +429,7 @@ export default function App() {
         body: JSON.stringify({ name })
       });
     }
-    showToast('Firma güncellendi.');
+    showToast(t('company_updated'));
     await fetchCompanies();
     await fetchCompanyStats();
     await fetchData();
@@ -441,7 +441,7 @@ export default function App() {
     } else {
       await fetch(`${apiUrl}/api/companies/${id}`, { method: 'DELETE' });
     }
-    showToast('Firma silindi.');
+    showToast(t('company_deleted'));
     await fetchCompanies();
     await fetchCompanyStats();
     await fetchData();
@@ -528,7 +528,7 @@ export default function App() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    showToast('Ayarlar dosyası başarıyla indirildi.');
+    showToast(t('settings_exported'));
   };
 
   const handleImportSettings = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -555,12 +555,12 @@ export default function App() {
           if (settings.language) {
             i18n.changeLanguage(settings.language);
           }
-          showToast('Ayarlar başarıyla içe aktarıldı ve uygulandı!');
+          showToast(t('settings_imported'));
         } else {
-          showToast('Geçersiz ayar dosyası formatı.', 'error');
+          showToast(t('invalid_settings_format'), 'error');
         }
       } catch (_err) {
-        showToast('Ayarlar dosyası okunamadı.', 'error');
+        showToast(t('settings_read_error'), 'error');
       }
     };
     reader.readAsText(file);
@@ -592,7 +592,7 @@ export default function App() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    showToast('Tam yedek dosyası başarıyla indirildi.');
+    showToast(t('full_backup_exported'));
   };
 
   const handleImportFullBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -617,10 +617,10 @@ export default function App() {
           await fetchCompanies();
           await fetchCompanyStats();
           await fetchBanks();
-          showToast('Tüm veriler ve ayarlar başarıyla geri yüklendi!');
+          showToast(t('full_backup_imported'));
         }
       } catch (_err) {
-        showToast('Yedek dosyası okunamadı veya bozuk.', 'error');
+        showToast(t('backup_read_error'), 'error');
       }
     };
     reader.readAsText(file);
@@ -652,13 +652,13 @@ export default function App() {
   const handleSaveBudgetLimit = (limit: number) => {
     setBudgetLimit(limit);
     localStorage.setItem('myfinans_budget_limit', limit.toString());
-    showToast('Bütçe limiti kaydedildi.');
+    showToast(t('budget_saved'));
   };
 
   const handleSaveApiUrl = (url: string) => {
     setApiUrl(url);
     localStorage.setItem('myfinans_api_url', url);
-    showToast('Sunucu adresi güncellendi.');
+    showToast(t('server_url_updated'));
   };
 
   const handleClearAllData = async () => {

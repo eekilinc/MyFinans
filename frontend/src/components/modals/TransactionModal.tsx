@@ -278,7 +278,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 onClick={() => setIsCreatingCompany(!isCreatingCompany)}
                 className="text-[11px] font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
               >
-                {isCreatingCompany ? 'Listeden Seç' : '+ Yeni Firma'}
+                {isCreatingCompany ? t('select_from_list') : `+ ${t('new_company')}`}
               </button>
             </div>
 
@@ -288,7 +288,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   type="text"
                   value={newCompanyName}
                   onChange={e => setNewCompanyName(e.target.value)}
-                  placeholder="Firma Adı..."
+                  placeholder={t('company_name_placeholder')}
                   className="flex-1 px-3.5 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                 />
                 <button
@@ -296,7 +296,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   onClick={handleQuickAddCompany}
                   className="px-3 py-2 bg-purple-600 text-white rounded-2xl text-xs font-bold"
                 >
-                  Ekle
+                  {t('add')}
                 </button>
               </div>
             ) : (
@@ -337,7 +337,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-700/60">
                 <div className="flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-300">
                   <span>{t('installment_count')}</span>
-                  <span className="font-bold text-purple-600 dark:text-purple-400">{installmentCount} Taksit</span>
+                  <span className="font-bold text-purple-600 dark:text-purple-400">{t('installments_count', { count: installmentCount })}</span>
                 </div>
                 <input
                   type="range"
@@ -375,7 +375,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
               {isRecurring && (
                 <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-700/60 text-xs">
-                  <span className="text-slate-700 dark:text-slate-300 font-semibold">Her Ayın Hangi Günü?</span>
+                  <span className="text-slate-700 dark:text-slate-300 font-semibold">{t('recurring_day_question')}</span>
                   <input
                     type="number"
                     min="1"
