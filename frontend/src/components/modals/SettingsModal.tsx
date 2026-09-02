@@ -27,6 +27,7 @@ import {
   KeyRound
 } from 'lucide-react';
 import { useTheme, ACCENT_COLORS, type AccentColor } from '../../context/ThemeContext';
+import { savePin, removePin, isPinEnabled, isBiometricEnabled, enableBiometric } from '../PinLock';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -70,9 +71,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // PIN & Biometric states
-  const [pinEnabled, setPinEnabled] = useState(() => !!localStorage.getItem('myfinans_pin'));
-  const [bioEnabled, setBioEnabled] = useState(() => localStorage.getItem('myfinans_biometric') === 'true');
+  // PIN & Biometric states synchronized with PinLock
+  const [pinEnabled, setPinEnabled] = useState(() => isPinEnabled());
+  const [bioEnabled, setBioEnabled] = useState(() => isBiometricEnabled());
   const [showPinSetup, setShowPinSetup] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [pinConfirmInput, setPinConfirmInput] = useState('');
@@ -106,7 +107,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       setPinError('PIN kodları birbiriyle eşleşmiyor.');
       return;
     }
-    localStorage.setItem('myfinans_pin', pinInput);
+    savePin(pinInput);
     setPinEnabled(true);
     setShowPinSetup(false);
     setPinInput('');
@@ -117,8 +118,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   const handleRemovePin = () => {
     if (window.confirm('PIN kilidini ve biyometrik girişi kaldırmak istediğinize emin misiniz?')) {
-      localStorage.removeItem('myfinans_pin');
-      localStorage.removeItem('myfinans_biometric');
+      removePin();
       setPinEnabled(false);
       setBioEnabled(false);
       setSecurityNotice('Güvenlik kilidi devre dışı bırakıldı.');
@@ -132,8 +132,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
       setShowPinSetup(true);
       return;
     }
+    enableBiometric(checked);
     setBioEnabled(checked);
-    localStorage.setItem('myfinans_biometric', checked ? 'true' : 'false');
     setSecurityNotice(checked ? 'Biyometrik giriş etkinleştirildi.' : 'Biyometrik giriş kapatıldı.');
     setTimeout(() => setSecurityNotice(null), 3000);
   };
@@ -731,10 +731,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
-                    Sürüm v12.3.2
+                    Sürüm v12.4.0
                   </span>
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                    Derleme 18
+                    Derleme 19
                   </span>
                 </div>
               </div>
@@ -771,7 +771,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3">
                 <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium">
                   <span>Geliştirici</span>
-                  <span className="font-bold text-slate-900 dark:text-white">Emre Erdem Kılınç (@eekilinc)</span>
+                  <span className="font-bold text-slate-900 dark:text-white">Ekrem Eşref KILINÇ (@eekilinc)</span>
                 </div>
                 <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium">
                   <span>Lisans</span>

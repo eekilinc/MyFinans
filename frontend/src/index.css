@@ -47,7 +47,7 @@ html:not(.dark) {
   --shadow-color: rgba(15, 23, 42, 0.08);
 }
 
-/* Accent Themes */
+/* Accent Themes: Dynamically rebinds primary brand palette for instant app-wide theme switching */
 .theme-purple {
   --primary-accent: #9333ea;
   --primary-accent-hover: #7e22ce;
@@ -58,24 +58,68 @@ html:not(.dark) {
   --primary-accent: #10b981;
   --primary-accent-hover: #059669;
   --primary-glow: rgba(16, 185, 129, 0.35);
+  --color-purple-50: #ecfdf5;
+  --color-purple-100: #d1fae5;
+  --color-purple-200: #a7f3d0;
+  --color-purple-300: #6ee7b7;
+  --color-purple-400: #34d399;
+  --color-purple-500: #10b981;
+  --color-purple-600: #059669;
+  --color-purple-700: #047857;
+  --color-purple-800: #065f46;
+  --color-purple-900: #064e3b;
+  --color-purple-950: #022c22;
 }
 
 .theme-blue {
   --primary-accent: #0284c7;
   --primary-accent-hover: #0369a1;
   --primary-glow: rgba(2, 132, 199, 0.35);
+  --color-purple-50: #f0f9ff;
+  --color-purple-100: #e0f2fe;
+  --color-purple-200: #bae6fd;
+  --color-purple-300: #7dd3fc;
+  --color-purple-400: #38bdf8;
+  --color-purple-500: #0ea5e9;
+  --color-purple-600: #0284c7;
+  --color-purple-700: #0369a1;
+  --color-purple-800: #075985;
+  --color-purple-900: #0c4a6e;
+  --color-purple-950: #082f49;
 }
 
 .theme-rose {
   --primary-accent: #f43f5e;
   --primary-accent-hover: #e11d48;
   --primary-glow: rgba(244, 63, 94, 0.35);
+  --color-purple-50: #fff1f2;
+  --color-purple-100: #ffe4e6;
+  --color-purple-200: #fecdd3;
+  --color-purple-300: #fda4af;
+  --color-purple-400: #fb7185;
+  --color-purple-500: #f43f5e;
+  --color-purple-600: #e11d48;
+  --color-purple-700: #be123c;
+  --color-purple-800: #9f1239;
+  --color-purple-900: #881337;
+  --color-purple-950: #4c0519;
 }
 
 .theme-slate {
   --primary-accent: #475569;
   --primary-accent-hover: #334155;
   --primary-glow: rgba(71, 85, 105, 0.35);
+  --color-purple-50: #f8fafc;
+  --color-purple-100: #f1f5f9;
+  --color-purple-200: #e2e8f0;
+  --color-purple-300: #cbd5e1;
+  --color-purple-400: #94a3b8;
+  --color-purple-500: #64748b;
+  --color-purple-600: #475569;
+  --color-purple-700: #334155;
+  --color-purple-800: #1e293b;
+  --color-purple-900: #0f172a;
+  --color-purple-950: #020617;
 }
 
 @layer utilities {
