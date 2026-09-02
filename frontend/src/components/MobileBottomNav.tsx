@@ -26,7 +26,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           className={`flex flex-col items-center justify-center w-16 py-1 transition-all active:scale-95 ${
             activeTab === 'expenses'
               ? 'text-purple-600 dark:text-purple-400 font-extrabold'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium'
           }`}
         >
           <div className={`p-1 rounded-xl transition-colors ${activeTab === 'expenses' ? 'bg-purple-50 dark:bg-purple-950/70 border border-purple-200 dark:border-purple-800/50' : ''}`}>
@@ -43,7 +43,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           className={`flex flex-col items-center justify-center w-16 py-1 transition-all active:scale-95 ${
             activeTab === 'companies'
               ? 'text-purple-600 dark:text-purple-400 font-extrabold'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium'
           }`}
         >
           <div className={`p-1 rounded-xl transition-colors ${activeTab === 'companies' ? 'bg-purple-50 dark:bg-purple-950/70 border border-purple-200 dark:border-purple-800/50' : ''}`}>
@@ -73,7 +73,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
           className={`flex flex-col items-center justify-center w-16 py-1 transition-all active:scale-95 ${
             activeTab === 'stats'
               ? 'text-purple-600 dark:text-purple-400 font-extrabold'
-              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium'
+              : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-medium'
           }`}
         >
           <div className={`p-1 rounded-xl transition-colors ${activeTab === 'stats' ? 'bg-purple-50 dark:bg-purple-950/70 border border-purple-200 dark:border-purple-800/50' : ''}`}>

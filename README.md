@@ -83,6 +83,10 @@
 
 ## 🚀 v12.3 ile Gelen Yenilikler
 
+- 📊 **Koyu Temada Gösterge Paneli Yüksek Kontrastı**: Aylık toplam harcama, ödenen ve kalan gösterge kartlarının koyu temadaki bulanık/çamurlu arka planı kaldırılarak derin, katmanlı ve net zeminler (`bg-slate-900 border-slate-800 shadow-2xl`) getirildi. Başlıklar, tutarlar ve alt durum açıklamaları karanlık modda anında okunan parlak ve canlı renklere dönüştürüldü.
+- ⚙️ **Ayarlar Menüsünde Sekmeli (Tabbed) Tasarım & "Hakkında" Bölümü**:
+  - Ayarlar penceresi uzun dikey kaydırma yerine *Görünüm*, *Bütçe*, *Güvenlik*, *Yedekleme & Aktarım*, *Senkronizasyon* ve *Hakkında* sekmelerine ayrıldı.
+  - "Hakkında" bölümü eklenerek MyFinans logosu, sürüm, geliştirici (@eekilinc), %100 çevrimdışı gizlilik mimarisi, MIT lisansı ve doğrudan GitHub/Releases bağlantıları entegre edildi.
 - 📱 **Android Kurulum Simgesi (App Icon) Tamamen Yenilendi**: Android 8.0+ (API 26+) adaptive icon yapısı (`ic_launcher_foreground`, `ic_launcher_round`, `ic_launcher_background`) baştan üretildi. Telefona kurulduğunda çıkan varsayılan React/Capacitor logosu kaldırılarak safe-zone hizalı özel 3D MyFinans fintech logosu entegre edildi.
 - 🖼️ **Android Açılış Ekranı (Splash Screen)**: Android telefonlarda açılış ekranı karanlık fintech teması ve parlak MyFinans logosu ile tüm ekran yoğunluklarında (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) güncellendi.
 - ☀️ **Tüm Kartlar ve Pencerelerde Tam Açık/Koyu Tema Uyumu**:

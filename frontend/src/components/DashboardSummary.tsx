@@ -32,14 +32,14 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
     <div className="space-y-4">
       {/* 3 Metric Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Total Monthly Expense */}
-        <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-gradient-to-br dark:from-slate-900/90 dark:via-purple-950/20 dark:to-slate-900/90 border border-slate-200 dark:border-purple-500/20 p-5 shadow-sm dark:shadow-xl dark:shadow-purple-950/10 transition-colors">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
+        {/* Total Monthly Expense Card */}
+        <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 p-5 shadow-sm dark:shadow-2xl transition-all duration-200">
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 rounded-t-3xl" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               {t('total_monthly_expense')}
             </span>
-            <div className="p-2 rounded-2xl bg-purple-50 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30">
+            <div className="p-2.5 rounded-2xl bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/70 shadow-sm">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
@@ -48,11 +48,11 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
               {formatCurrency(totalAmount)}
             </span>
           </div>
-          <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 font-medium">
+          <div className="mt-3.5 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-medium">
             <span>Ödeme İlerlemesi</span>
-            <span className="font-bold text-purple-600 dark:text-purple-400">%{paidRatio.toFixed(0)}</span>
+            <span className="font-extrabold text-purple-600 dark:text-purple-400">%{paidRatio.toFixed(0)}</span>
           </div>
-          <div className="mt-1.5 w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+          <div className="mt-1.5 w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden border border-slate-200 dark:border-slate-700/60 p-0.5">
             <div
               className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-all duration-500"
               style={{ width: `${Math.min(paidRatio, 100)}%` }}
@@ -60,14 +60,14 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
           </div>
         </div>
 
-        {/* Paid Amount */}
-        <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-gradient-to-br dark:from-slate-900/90 dark:via-emerald-950/20 dark:to-slate-900/90 border border-slate-200 dark:border-emerald-500/20 p-5 shadow-sm dark:shadow-xl dark:shadow-emerald-950/10 transition-colors">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+        {/* Paid Amount Card */}
+        <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 p-5 shadow-sm dark:shadow-2xl transition-all duration-200">
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-t-3xl" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               {t('paid_summary')}
             </span>
-            <div className="p-2 rounded-2xl bg-emerald-50 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30">
+            <div className="p-2.5 rounded-2xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/70 shadow-sm">
               <CheckCircle className="w-4 h-4" />
             </div>
           </div>
@@ -76,19 +76,20 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
               {formatCurrency(paidAmount)}
             </span>
           </div>
-          <div className="mt-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
-            Kapanan ve ödenmiş harcamalar
+          <div className="mt-3.5 text-xs text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+            <span>Kapanan ve ödenmiş harcamalar</span>
           </div>
         </div>
 
-        {/* Unpaid / Remaining Amount */}
-        <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-gradient-to-br dark:from-slate-900/90 dark:via-rose-950/20 dark:to-slate-900/90 border border-slate-200 dark:border-rose-500/20 p-5 shadow-sm dark:shadow-xl dark:shadow-rose-950/10 transition-colors">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
+        {/* Unpaid / Remaining Amount Card */}
+        <div className="relative overflow-hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/90 p-5 shadow-sm dark:shadow-2xl transition-all duration-200">
+          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-rose-500 to-amber-500 rounded-t-3xl" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
               {t('unpaid_summary')}
             </span>
-            <div className="p-2 rounded-2xl bg-rose-50 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30">
+            <div className="p-2.5 rounded-2xl bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800/70 shadow-sm">
               <Clock className="w-4 h-4" />
             </div>
           </div>
@@ -97,8 +98,9 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
               {formatCurrency(unpaidAmount)}
             </span>
           </div>
-          <div className="mt-3 text-xs text-slate-500 dark:text-slate-400 font-medium">
-            Ödenmeyi bekleyen aktif tutar
+          <div className="mt-3.5 text-xs text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
+            <span>Ödenmeyi bekleyen aktif tutar</span>
           </div>
         </div>
       </div>
@@ -108,10 +110,10 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
         <div
           className={`p-4 sm:p-5 rounded-3xl border transition-all duration-300 ${
             isOverBudget
-              ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-500/40 text-rose-800 dark:text-rose-200'
+              ? 'bg-rose-50/90 dark:bg-slate-900 border-rose-300 dark:border-rose-500/60 text-rose-900 dark:text-rose-200 shadow-sm dark:shadow-xl'
               : isNearBudget
-              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-500/40 text-amber-800 dark:text-amber-200'
-              : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300 shadow-sm'
+              ? 'bg-amber-50/90 dark:bg-slate-900 border-amber-300 dark:border-amber-500/60 text-amber-900 dark:text-amber-200 shadow-sm dark:shadow-xl'
+              : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 shadow-sm dark:shadow-xl'
           }`}
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -119,10 +121,10 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
               <div
                 className={`p-2.5 rounded-2xl ${
                   isOverBudget
-                    ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400'
+                    ? 'bg-rose-100 dark:bg-rose-950/80 text-rose-600 dark:text-rose-300 border border-rose-200 dark:border-rose-800'
                     : isNearBudget
-                    ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400'
-                    : 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400'
+                    ? 'bg-amber-100 dark:bg-amber-950/80 text-amber-600 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+                    : 'bg-purple-100 dark:bg-purple-950/80 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
                 }`}
               >
                 {isOverBudget ? (
@@ -137,18 +139,18 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
                     {t('budget_usage')} ({formatCurrency(totalAmount)} / {formatCurrency(budgetLimit)})
                   </h4>
                   <span
-                    className={`text-xs font-extrabold px-2 py-0.5 rounded-full ${
+                    className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full ${
                       isOverBudget
-                        ? 'bg-rose-600 text-white'
+                        ? 'bg-rose-600 text-white shadow-sm'
                         : isNearBudget
-                        ? 'bg-amber-500 text-slate-950'
-                        : 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300'
+                        ? 'bg-amber-500 text-slate-950 shadow-sm'
+                        : 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60'
                     }`}
                   >
                     %{budgetRatio.toFixed(0)}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5 font-medium">
                   {isOverBudget
                     ? t('budget_warning')
                     : isNearBudget
@@ -160,13 +162,13 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
 
             <button
               onClick={onOpenSettings}
-              className="self-start sm:self-auto text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-colors"
+              className="self-start sm:self-auto text-xs font-bold px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-700 shadow-sm transition-colors active:scale-95"
             >
               Limiti Güncelle
             </button>
           </div>
 
-          <div className="mt-3.5 w-full h-2.5 bg-slate-100 dark:bg-slate-800/90 rounded-full overflow-hidden p-0.5 border border-slate-200 dark:border-slate-700/40">
+          <div className="mt-3.5 w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200 dark:border-slate-700/60">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 isOverBudget
@@ -180,14 +182,14 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
           </div>
         </div>
       ) : (
-        <div className="p-4 rounded-3xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/70 shadow-sm flex items-center justify-between gap-3 transition-colors">
+        <div className="p-4.5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-xl flex items-center justify-between gap-3 transition-colors">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-2xl bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/20">
-              <Target className="w-4 h-4" />
+            <div className="p-2.5 rounded-2xl bg-purple-100 dark:bg-purple-950/80 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
+              <Target className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-bold text-slate-900 dark:text-slate-200">Aylık Bütçe Hedefi Belirleyin</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              <p className="text-xs font-bold text-slate-900 dark:text-white">Aylık Bütçe Hedefi Belirleyin</p>
+              <p className="text-[11px] text-slate-600 dark:text-slate-300 font-medium">
                 Aylık harcama sınırınızı belirleyerek bütçenizi aşmadan tasarruf edin.
               </p>
             </div>

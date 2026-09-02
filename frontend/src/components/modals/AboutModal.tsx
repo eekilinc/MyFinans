@@ -36,7 +36,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               }}
             />
             <div>
-              <h3 className="text-base font-black text-slate-900 dark:text-white">MyFinans v12.2</h3>
+              <h3 className="text-base font-black text-slate-900 dark:text-white">MyFinans v12.3</h3>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">{t('app_subtitle')}</p>
             </div>
           </div>
@@ -135,8 +135,18 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
           {activeTab === 'changelog' && (
             <div className="space-y-3">
               <div className="p-3.5 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-500/30 space-y-1">
-                <span className="text-xs font-black text-purple-700 dark:text-purple-300">v12.2 (Navbar, Temalar & Ayar İçe Aktarma)</span>
+                <span className="text-xs font-black text-purple-700 dark:text-purple-300">v12.3 (Android İkon, Koyu Tema Kontrastı & Ayarlar)</span>
                 <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                  • Android 8.0+ uyarlanabilir uygulama ikonu ve açılış ekranı (splash screen) MyFinans logosu ile tamamen yenilendi.
+                  {"\n"}• Aylık toplam harcama, ödenen ve kalan gösterge kartlarının koyu tema arka plan ve metin kontrastları baştan tasarlandı.
+                  {"\n"}• Ayarlar penceresi modern sekmeli (Görünüm, Bütçe, Güvenlik, Yedekleme, Senkronizasyon, Hakkında) tasarıma kavuşturuldu.
+                  {"\n"}• Tüm kartlar ve modallar için açık/koyu tema uyumu mükemmelleştirildi.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 space-y-1">
+                <span className="text-xs font-black text-slate-700 dark:text-slate-300">v12.2</span>
+                <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
                   • Top Navbar kalabalıktan arındırıldı; ferah, modern ve açılır menülü bir üst çubuk yapısı kuruldu.
                   {"\n"}• Kusursuz Açık Tema (Light Mode) ve 5 farklı renk paleti (Asil Mor, Zümrüt, Okyanus, Gün Batımı, Titanyum) entegre edildi.
                   {"\n"}• Ayarları Dışa Aktarma ve Dosyadan Ayarları İçe Aktarma (Settings Import/Export) sistemi eklendi.
