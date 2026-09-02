@@ -88,22 +88,22 @@ export const GroupModal: React.FC<GroupModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
-      <div className="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-slate-900 border-t sm:border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh] pb-safe">
+      <div className="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh] pb-safe transition-colors">
         {/* Mobile drag handle */}
-        <div className="sm:hidden w-12 h-1 bg-slate-700 rounded-full mx-auto mt-2.5 mb-1" />
+        <div className="sm:hidden w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mt-2.5 mb-1" />
         {/* Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2.5 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/30">
+            <div className="p-2.5 rounded-2xl bg-purple-50 dark:bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30">
               <FolderPlus className="w-5 h-5" />
             </div>
-            <h3 className="text-base font-black text-white">
+            <h3 className="text-base font-black text-slate-900 dark:text-white">
               {editingGroup ? t('edit_group') : t('add_group')}
             </h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -113,20 +113,20 @@ export const GroupModal: React.FC<GroupModalProps> = ({
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           {/* Group Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-300">{t('group_name')} *</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">{t('group_name')} *</label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="Örn: Garanti Bonus, Konut Kredisi, Ev Kirası..."
               required
-              className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-xs font-semibold text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+              className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500"
             />
           </div>
 
           {/* Group Type Buttons */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-300">{t('group_type')}</label>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">{t('group_type')}</label>
             <div className="grid grid-cols-2 gap-2">
               {(['credit_card', 'loan', 'debt', 'other'] as const).map(tKey => (
                 <button
@@ -135,16 +135,16 @@ export const GroupModal: React.FC<GroupModalProps> = ({
                   onClick={() => setType(tKey)}
                   className={`flex items-center gap-2 p-2.5 rounded-2xl border text-xs font-bold transition-all ${
                     type === tKey
-                      ? 'bg-purple-600/30 border-purple-500 text-white shadow-md shadow-purple-600/20'
-                      : 'bg-slate-800/60 border-slate-700/60 text-slate-400 hover:text-white'
+                      ? 'bg-purple-50 dark:bg-purple-600/30 border-purple-400 dark:border-purple-500 text-purple-700 dark:text-white shadow-sm'
+                      : 'bg-slate-50 dark:bg-slate-800/60 border-slate-200 dark:border-slate-700/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
                   {tKey === 'credit_card' ? (
-                    <CreditCard className="w-4 h-4 text-purple-400" />
+                    <CreditCard className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   ) : tKey === 'loan' ? (
-                    <Landmark className="w-4 h-4 text-indigo-400" />
+                    <Landmark className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   ) : (
-                    <Wallet className="w-4 h-4 text-cyan-400" />
+                    <Wallet className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                   )}
                   <span>{t(tKey)}</span>
                 </button>
@@ -155,11 +155,11 @@ export const GroupModal: React.FC<GroupModalProps> = ({
           {/* Bank Picker */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-300">{t('banks')}</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">{t('banks')}</label>
               <button
                 type="button"
                 onClick={() => setIsCreatingBank(!isCreatingBank)}
-                className="text-[11px] font-bold text-purple-400 hover:text-purple-300"
+                className="text-[11px] font-bold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
               >
                 {isCreatingBank ? 'Listeden Seç' : '+ Yeni Banka'}
               </button>
@@ -172,7 +172,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
                   value={newBankName}
                   onChange={e => setNewBankName(e.target.value)}
                   placeholder="Banka Adı..."
-                  className="flex-1 px-3.5 py-2 rounded-2xl bg-slate-800 border border-slate-700 text-xs font-semibold text-white focus:outline-none focus:border-purple-500"
+                  className="flex-1 px-3.5 py-2 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                 />
                 <button
                   type="button"
@@ -186,7 +186,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
               <select
                 value={bankId}
                 onChange={e => setBankId(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-xs font-semibold text-white focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
               >
                 <option value="">{t('select_bank')}</option>
                 {banks.map(b => (
@@ -201,7 +201,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
           {/* Due Day & Statement Day */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-slate-300">{t('due_day')} *</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300">{t('due_day')} *</label>
               <input
                 type="number"
                 min="1"
@@ -209,20 +209,20 @@ export const GroupModal: React.FC<GroupModalProps> = ({
                 value={dueDay}
                 onChange={e => setDueDay(parseInt(e.target.value, 10))}
                 required
-                className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-xs font-bold text-white text-center focus:outline-none focus:border-purple-500"
+                className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white text-center focus:outline-none focus:border-purple-500"
               />
             </div>
 
             {type === 'credit_card' && (
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300">{t('statement_day')}</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">{t('statement_day')}</label>
                 <input
                   type="number"
                   min="1"
                   max="31"
                   value={statementDay}
                   onChange={e => setStatementDay(parseInt(e.target.value, 10))}
-                  className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-800 border border-slate-700 text-xs font-bold text-white text-center focus:outline-none focus:border-purple-500"
+                  className="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-900 dark:text-white text-center focus:outline-none focus:border-purple-500"
                 />
               </div>
             )}
@@ -233,7 +233,7 @@ export const GroupModal: React.FC<GroupModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 transition-colors"
+              className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 transition-colors"
             >
               {t('cancel')}
             </button>

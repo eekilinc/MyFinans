@@ -31,29 +31,29 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSea
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center p-2 sm:p-4 pt-10 sm:pt-24 bg-black/75 backdrop-blur-sm animate-in fade-in">
-      <div className="relative w-full max-w-xl rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+      <div className="relative w-full max-w-xl rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh] transition-colors">
         {/* Search Input Bar */}
-        <div className="p-4 border-b border-slate-800 flex items-center gap-3">
-          <Search className="w-5 h-5 text-purple-400 shrink-0" />
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
+          <Search className="w-5 h-5 text-purple-600 dark:text-purple-400 shrink-0" />
           <input
             type="text"
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder={t('search_placeholder')}
             autoFocus
-            className="w-full bg-transparent text-sm font-bold text-white placeholder-slate-500 focus:outline-none"
+            className="w-full bg-transparent text-sm font-bold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 rounded-lg text-slate-400 hover:text-white"
+              className="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white"
             >
               <X className="w-4 h-4" />
             </button>
           )}
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition-colors ml-1"
+            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors ml-1"
           >
             <X className="w-5 h-5" />
           </button>
@@ -71,7 +71,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSea
             </div>
           ) : (
             <>
-              <div className="text-[11px] font-bold text-slate-400 px-1 pb-1">
+              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 px-1 pb-1">
                 {results.length} {t('search_results')} bulundu
               </div>
               {results.map((tx: any, idx: number) => {
@@ -79,24 +79,24 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSea
                 return (
                   <div
                     key={tx.id || idx}
-                    className="p-3.5 rounded-2xl bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700/60 transition-colors flex items-center justify-between gap-3"
+                    className="p-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/50 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-700/60 transition-colors flex items-center justify-between gap-3"
                   >
                     <div className="space-y-1 min-w-0">
-                      <span className="text-xs font-bold text-white block truncate">
+                      <span className="text-xs font-bold text-slate-900 dark:text-white block truncate">
                         {tx.description}
                       </span>
-                      <div className="flex items-center gap-2 text-[11px] text-slate-400 flex-wrap">
+                      <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 flex-wrap">
                         <span className="flex items-center gap-1 text-slate-400">
                           <Calendar className="w-3 h-3" />
                           {tx.date}
                         </span>
                         {tx.group_name && (
-                          <span className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-300 font-semibold border border-purple-500/20">
+                          <span className="px-2 py-0.5 rounded-md bg-purple-100 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 font-semibold border border-purple-200 dark:border-purple-500/20">
                             {tx.group_name}
                           </span>
                         )}
                         {tx.company_name && (
-                          <span className="flex items-center gap-1 text-slate-300 font-medium">
+                          <span className="flex items-center gap-1 text-slate-700 dark:text-slate-300 font-medium">
                             <Building2 className="w-3 h-3 text-slate-400" />
                             {tx.company_name}
                           </span>
@@ -114,11 +114,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSea
                     </div>
 
                     <div className="text-right shrink-0">
-                      <span className="text-sm font-black text-white block">
+                      <span className="text-sm font-black text-slate-900 dark:text-white block">
                         {formatCurrency(tx.amount)}
                       </span>
                       {tx.is_installment && (
-                        <span className="text-[10px] text-indigo-400 font-semibold block">
+                        <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold block">
                           {tx.installment_count} Taksit
                         </span>
                       )}

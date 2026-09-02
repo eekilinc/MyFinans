@@ -47,13 +47,13 @@ export const ExpenseGroupsView: React.FC<ExpenseGroupsViewProps> = ({
 
   if (groups.length === 0) {
     return (
-      <div className="p-8 sm:p-12 rounded-3xl bg-slate-900/60 border border-slate-800/80 text-center space-y-4">
-        <div className="w-16 h-16 rounded-3xl bg-purple-600/10 text-purple-400 border border-purple-500/20 flex items-center justify-center mx-auto shadow-inner">
+      <div className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 text-center space-y-4 shadow-sm">
+        <div className="w-16 h-16 rounded-3xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center justify-center mx-auto shadow-inner">
           <FolderPlus className="w-8 h-8" />
         </div>
         <div className="max-w-md mx-auto">
-          <h3 className="text-lg font-black text-white">Ödeme Grubu Ekleyin</h3>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">{t('no_groups')}</p>
+          <h3 className="text-lg font-black text-slate-900 dark:text-white">Ödeme Grubu Ekleyin</h3>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">{t('no_groups')}</p>
         </div>
         <button
           onClick={onOpenAddGroup}
@@ -78,8 +78,8 @@ export const ExpenseGroupsView: React.FC<ExpenseGroupsViewProps> = ({
               onClick={() => setTypeFilter(type)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 typeFilter === type
-                  ? 'bg-slate-700 text-white shadow-sm'
-                  : 'bg-slate-900/60 text-slate-400 hover:text-slate-200 border border-slate-800'
+                  ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/30'
+                  : 'bg-white dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800'
               }`}
             >
               {type === 'all' ? t('all') : t(type)}
@@ -90,7 +90,7 @@ export const ExpenseGroupsView: React.FC<ExpenseGroupsViewProps> = ({
         {/* Expand / Collapse All */}
         <button
           onClick={() => onExpandAll(!allExpanded)}
-          className="self-end sm:self-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/60 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-800 text-xs font-semibold transition-colors"
+          className="self-end sm:self-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800 text-xs font-semibold transition-colors"
         >
           <ChevronsUpDown className="w-3.5 h-3.5" />
           <span>{allExpanded ? 'Tümünü Daralt' : 'Tümünü Genişlet'}</span>

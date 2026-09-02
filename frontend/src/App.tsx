@@ -698,7 +698,6 @@ export default function App() {
           setEditingGroup(null);
           setShowGroupModal(true);
         }}
-        onOpenSettings={() => setShowSettingsModal(true)}
         onExportCSV={handleExportCSV}
         onPrintReport={handlePrintReport}
         isOnlineMode={!!apiUrl}

@@ -73,10 +73,10 @@ export const UpcomingTimeline: React.FC<UpcomingTimelineProps> = ({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-purple-400" />
-          <h3 className="text-sm font-bold text-slate-200">{t('upcoming_payments')}</h3>
+          <Calendar className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-200">{t('upcoming_payments')}</h3>
         </div>
-        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">
+        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30">
           {upcomingItems.length} Ödeme
         </span>
       </div>
@@ -87,12 +87,12 @@ export const UpcomingTimeline: React.FC<UpcomingTimelineProps> = ({
             key={group.id}
             className={`p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between gap-3 ${
               statusType === 'today'
-                ? 'bg-rose-950/30 border-rose-500/50 shadow-lg shadow-rose-950/20'
+                ? 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-500/50 shadow-sm'
                 : statusType === 'overdue'
-                ? 'bg-amber-950/30 border-amber-500/50 shadow-lg shadow-amber-950/20'
+                ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-500/50 shadow-sm'
                 : statusType === 'upcoming'
-                ? 'bg-purple-950/20 border-purple-500/40'
-                : 'bg-slate-900/60 border-slate-800'
+                ? 'bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-500/40 shadow-sm'
+                : 'bg-white dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 shadow-sm'
             }`}
           >
             <div className="flex items-start justify-between gap-2">
@@ -100,20 +100,20 @@ export const UpcomingTimeline: React.FC<UpcomingTimelineProps> = ({
                 <div
                   className={`p-2 rounded-xl ${
                     statusType === 'today'
-                      ? 'bg-rose-500/20 text-rose-400'
+                      ? 'bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400'
                       : statusType === 'overdue'
-                      ? 'bg-amber-500/20 text-amber-400'
-                      : 'bg-purple-500/20 text-purple-400'
+                      ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400'
+                      : 'bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400'
                   }`}
                 >
                   {getGroupIcon(group.type)}
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white truncate max-w-[140px]">
+                  <h4 className="text-sm font-bold text-slate-900 dark:text-white truncate max-w-[140px]">
                     {group.name}
                   </h4>
                   {group.bank_name && (
-                    <span className="text-[11px] text-slate-400 font-medium">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
                       {group.bank_name}
                     </span>
                   )}
@@ -124,12 +124,12 @@ export const UpcomingTimeline: React.FC<UpcomingTimelineProps> = ({
                 <span
                   className={`text-[11px] font-bold px-2 py-0.5 rounded-full inline-block ${
                     statusType === 'today'
-                      ? 'bg-rose-500 text-white animate-pulse'
+                      ? 'bg-rose-600 text-white animate-pulse'
                       : statusType === 'overdue'
-                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                      ? 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-500/40'
                       : statusType === 'upcoming'
-                      ? 'bg-purple-500/20 text-purple-300'
-                      : 'bg-slate-800 text-slate-400'
+                      ? 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/30'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                   }`}
                 >
                   {statusType === 'today'
@@ -143,16 +143,16 @@ export const UpcomingTimeline: React.FC<UpcomingTimelineProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-slate-800/60">
+            <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800/60">
               <div>
-                <span className="text-[11px] text-slate-400">Kalan Tutar</span>
-                <p className="text-base font-black text-white">{formatCurrency(unpaidAmount)}</p>
+                <span className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold">Kalan Tutar</span>
+                <p className="text-base font-black text-slate-900 dark:text-white">{formatCurrency(unpaidAmount)}</p>
               </div>
 
               {group.transactions.length === 1 && (
                 <button
                   onClick={() => onTogglePaid(group.transactions[0].id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-emerald-600/30 border border-slate-700 hover:border-emerald-500/50 text-xs font-bold text-slate-200 hover:text-emerald-300 transition-all active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800 dark:hover:bg-emerald-600/30 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-500/50 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-emerald-700 dark:hover:text-emerald-300 transition-all active:scale-95"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Öde</span>

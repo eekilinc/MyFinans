@@ -56,16 +56,16 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
   };
 
   return (
-    <div className="p-5 rounded-3xl bg-slate-900/70 border border-slate-800/80 shadow-xl space-y-4">
+    <div className="p-5 rounded-3xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-xl space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <PieChart className="w-4 h-4 text-purple-400" />
-          <h3 className="text-sm font-bold text-slate-200">{t('category_breakdown')}</h3>
+          <PieChart className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-200">{t('category_breakdown')}</h3>
         </div>
         {selectedCategory && (
           <button
             onClick={() => onSelectCategory(null)}
-            className="flex items-center gap-1 text-xs font-semibold text-purple-400 hover:text-purple-300 bg-purple-500/10 px-2.5 py-1 rounded-xl border border-purple-500/20"
+            className="flex items-center gap-1 text-xs font-semibold text-purple-700 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-500/10 px-2.5 py-1 rounded-xl border border-purple-200 dark:border-purple-500/20"
           >
             <Filter className="w-3 h-3" />
             <span>Filtreyi Kaldır</span>
@@ -74,7 +74,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
       </div>
 
       {/* Multi-segment stacked progress bar */}
-      <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden flex p-0.5 border border-slate-700/40">
+      <div className="w-full h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex p-0.5 border border-slate-200 dark:border-slate-700/40">
         {activeCategories.map(item => (
           <div
             key={item.id}
@@ -99,8 +99,8 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
               onClick={() => onSelectCategory(isSelected ? null : item.id)}
               className={`flex items-center justify-between p-2.5 rounded-2xl border text-left transition-all active:scale-95 ${
                 isSelected
-                  ? 'bg-purple-600/30 border-purple-500 shadow-md shadow-purple-600/20'
-                  : 'bg-slate-800/40 hover:bg-slate-800/80 border-slate-700/50'
+                  ? 'bg-purple-50 dark:bg-purple-600/30 border-purple-400 dark:border-purple-500 shadow-sm'
+                  : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800/80 border-slate-200 dark:border-slate-700/50'
               }`}
             >
               <div className="flex items-center gap-2 overflow-hidden">
@@ -108,15 +108,15 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
                   className="w-2.5 h-2.5 rounded-full shrink-0"
                   style={{ backgroundColor: item.config.color }}
                 />
-                <span className="text-xs font-semibold text-slate-200 truncate">
+                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                   {t(item.config.labelKey)}
                 </span>
               </div>
               <div className="text-right shrink-0">
-                <span className="text-xs font-bold text-white block">
+                <span className="text-xs font-bold text-slate-900 dark:text-white block">
                   {formatCurrency(item.amount)}
                 </span>
-                <span className="text-[10px] text-slate-400 font-medium">
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
                   %{item.percentage.toFixed(0)}
                 </span>
               </div>

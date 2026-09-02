@@ -2,10 +2,10 @@
   <img src="docs/screenshots/app_icon.png" width="120" height="120" alt="MyFinans Logo" style="border-radius: 26px; box-shadow: 0 8px 30px rgba(139, 92, 246, 0.35);">
 </p>
 
-<h1 align="center">MyFinans (v12.2)</h1>
+<h1 align="center">MyFinans (v12.3)</h1>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><img alt="Son Sürüm" src="https://img.shields.io/badge/sürüm-v12.2--final-8b5cf6?style=flat-square&logo=android"></a>
+  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><img alt="Son Sürüm" src="https://img.shields.io/badge/sürüm-v12.3--final-8b5cf6?style=flat-square&logo=android"></a>
   <a href="https://github.com/eekilinc/MyFinans/actions/workflows/release.yml"><img alt="Release CI" src="https://img.shields.io/badge/CI%2FCD-passing-success?style=flat-square&logo=githubactions"></a>
   <img alt="Android 7 ve üzeri" src="https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=flat-square&logo=android">
   <img alt="React 19 & TypeScript" src="https://img.shields.io/badge/React_19-TypeScript_5-61dafb?style=flat-square&logo=react">
@@ -20,10 +20,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><strong>↓ Final APK'yı İndir (v12.2)</strong></a>
+  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><strong>↓ Final APK'yı İndir (v12.3)</strong></a>
   · <a href="#-ekran-görüntüleri">Ekran Görüntüleri</a>
   · <a href="#-özellikler-ve-çalışma-mantığı">Özellikler</a>
-  · <a href="#-v122-ile-gelen-yenilikler">v12.2 Yenilikleri</a>
+  · <a href="#-v123-ile-gelen-yenilikler">v12.3 Yenilikleri</a>
   · <a href="#-kurulum-ve-çalıştırma">Kurulum</a>
   · <a href="#-mimari-ve-teknoloji-yığını">Mimari</a>
   · <a href="#-çevrimdışı-güvenlik-ve-gizlilik">Gizlilik</a>
@@ -78,6 +78,17 @@
 | **PIN & Biyometrik Kilit** | 4 haneli PIN şifresi ve Android parmak izi / yüz tanıma desteğiyle finansal verilerinize izinsiz erişimi engelleyin. |
 | **Android Ana Ekran Widget'ı** | Uygulamayı açmadan cari ayın toplam, ödenen ve bekleyen borçlarını ana ekrandan doğrudan takip edin. |
 | **Yerel Bildirimler** | Yaklaşan hesap kesim ve son ödeme tarihlerinde gecikmeye düşmemeniz için otomatik hatırlatıcı bildirimler. |
+
+---
+
+## 🚀 v12.3 ile Gelen Yenilikler
+
+- 📱 **Android Kurulum Simgesi (App Icon) Tamamen Yenilendi**: Android 8.0+ (API 26+) adaptive icon yapısı (`ic_launcher_foreground`, `ic_launcher_round`, `ic_launcher_background`) baştan üretildi. Telefona kurulduğunda çıkan varsayılan React/Capacitor logosu kaldırılarak safe-zone hizalı özel 3D MyFinans fintech logosu entegre edildi.
+- 🖼️ **Android Açılış Ekranı (Splash Screen)**: Android telefonlarda açılış ekranı karanlık fintech teması ve parlak MyFinans logosu ile tüm ekran yoğunluklarında (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) güncellendi.
+- ☀️ **Tüm Kartlar ve Pencerelerde Tam Açık/Koyu Tema Uyumu**:
+  - Giderler listesi, işlem kartları (`TransactionItem`), harcama grubu kartları (`ExpenseGroupCard`), yaklaşan ödemeler (`UpcomingTimeline`), kategori dağılımı (`CategoryBreakdown`) ve firma istatistikleri (`CompanyStatsView`) açık temada temiz beyaz/gri ve yüksek okunabilirliğe kavuşturuldu.
+  - Harcama ekleme/düzenleme (`TransactionModal`), grup yönetimi (`GroupModal`), firma detayları (`CompanyDetailModal`), evrensel arama (`SearchModal`) ve ayarlar (`SettingsModal`) pencerelerindeki tüm form alanları ve butonlar açık/koyu temaya tam duyarlı hale getirildi.
+- 🧭 **Top Navbar Sadeleştirmesi**: Üst gezinme çubuğundaki Ayarlar butonu kaldırılarak, tek noktadan ve başparmakla kolayca erişilen mobil alt dock (Bottom Navigation) ile sade, dengeli ve mükemmel bir gezinme deneyimi sağlandı.
 
 ---
 

@@ -5,7 +5,6 @@ import {
   ChevronRight,
   Sun,
   Moon,
-  Settings,
   Search,
   Plus,
   FileSpreadsheet,
@@ -29,7 +28,6 @@ interface HeaderProps {
   onOpenSearch: () => void;
   onOpenAddTx: () => void;
   onOpenAddGroup: () => void;
-  onOpenSettings: () => void;
   onExportCSV: () => void;
   onPrintReport: () => void;
   isOnlineMode: boolean;
@@ -45,7 +43,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSearch,
   onOpenAddTx,
   onOpenAddGroup,
-  onOpenSettings,
   onExportCSV,
   onPrintReport,
   isOnlineMode
@@ -145,16 +142,6 @@ export const Header: React.FC<HeaderProps> = ({
                 title="Dil"
               >
                 {i18n.language.startsWith('tr') ? 'TR' : 'EN'}
-              </button>
-
-              <button
-                onClick={onOpenSettings}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/80 border border-purple-200 dark:border-purple-700/60 text-purple-700 dark:text-purple-200 active:scale-95 shadow-sm transition-all"
-                title={t('settings')}
-                aria-label="Ayarlar"
-              >
-                <Settings className="w-4 h-4 text-purple-600 dark:text-purple-300" />
-                <span className="text-xs font-bold">{t('settings')}</span>
               </button>
             </div>
           </div>
@@ -384,16 +371,6 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 )}
               </div>
-
-              {/* Ayarlar Button (Prominent & Clear) */}
-              <button
-                onClick={onOpenSettings}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/60 dark:hover:bg-purple-900/60 border border-purple-200 dark:border-purple-700/50 text-xs font-bold text-purple-700 dark:text-purple-200 transition-all shadow-sm active:scale-95"
-                title={t('settings')}
-              >
-                <Settings className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                <span>{t('settings')}</span>
-              </button>
             </div>
           </div>
 
