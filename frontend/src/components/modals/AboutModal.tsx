@@ -20,16 +20,23 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-      <div className="relative w-full max-w-xl rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+      <div className="relative w-full sm:max-w-xl rounded-t-3xl sm:rounded-3xl bg-slate-900 border-t sm:border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[85vh] pb-safe">
+        {/* Mobile drag handle */}
+        <div className="sm:hidden w-12 h-1 bg-slate-700 rounded-full mx-auto mt-2.5 mb-1" />
         {/* Header */}
         <div className="p-5 border-b border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-cyan-500 flex items-center justify-center text-white font-extrabold text-base shadow-md shadow-purple-500/20">
-              M
-            </div>
+            <img
+              src="/icon.png"
+              alt="MyFinans Logo"
+              className="w-9 h-9 rounded-2xl shadow-md border border-purple-500/30 object-cover"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
             <div>
-              <h3 className="text-base font-black text-white">MyFinans v12.0</h3>
+              <h3 className="text-base font-black text-white">MyFinans v12.1</h3>
               <p className="text-[11px] text-slate-400">{t('app_subtitle')}</p>
             </div>
           </div>
@@ -128,13 +135,23 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
           {activeTab === 'changelog' && (
             <div className="space-y-3">
               <div className="p-3.5 rounded-2xl bg-purple-950/30 border border-purple-500/30 space-y-1">
-                <span className="text-xs font-black text-purple-300">v12.0 (Final Sürüm)</span>
+                <span className="text-xs font-black text-purple-300">v12.1 (Mobil & UI Güncellemesi)</span>
+                <p className="text-xs text-slate-300 whitespace-pre-line leading-relaxed">
+                  • Mobil Alt Gezinme Çubuğu (Bottom Dock) eklendi; tek parmakla Harcamalar, Firmalar, Ekle, Analiz ve Ayarlar erişimi sağlandı.
+                  {"\n"}• Garantili "Şimdi Ayarla" ve Ayarlar görünürlüğü getirildi.
+                  {"\n"}• Yepyeni modern uygulama logosu, ikon seti ve Android launcher simgeleri entegre edildi.
+                  {"\n"}• Mobil alt sayfa (Bottom-Sheet) modallar tasarlandı.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-800/40 border border-slate-700/50 space-y-1">
+                <span className="text-xs font-black text-slate-300">v12.0</span>
                 <p className="text-xs text-slate-300 whitespace-pre-line leading-relaxed">
                   • Modüler bileşen mimarisi ve performans optimizasyonları yapıldı.
                   {"\n"}• Kategori harcama dağılımı görsel barları ve dinamik kategori filtresi eklendi.
                   {"\n"}• Excel ve CSV Türkçe karakter uyumlu UTF-8 BOM dışa aktarma entegre edildi.
                   {"\n"}• Tek tıkla harcama kopyalama (duplicate) ve hızlı işlem oluşturma özelliği eklendi.
-                  {"\n"}• Android 16/17 (API 36) derleme desteği, sürüm 12.0 ve otomatik GitHub Release iş akışı kuruldu.
+                  {"\n"}• Android 16/17 (API 36) derleme desteği ve otomatik GitHub Release iş akışı kuruldu.
                 </p>
               </div>
 

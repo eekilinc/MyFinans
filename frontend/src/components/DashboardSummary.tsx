@@ -194,9 +194,10 @@ export const DashboardSummary: React.FC<DashboardSummaryProps> = ({
           </div>
           <button
             onClick={onOpenSettings}
-            className="px-3 py-1.5 text-xs font-bold text-purple-400 hover:text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 rounded-xl border border-purple-500/30 transition-colors whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-xl shadow-md shadow-purple-600/30 border border-purple-400/30 transition-all whitespace-nowrap active:scale-95"
           >
-            Bütçe Kur
+            <Target className="w-3.5 h-3.5" />
+            <span>Şimdi Ayarla</span>
           </button>
         </div>
       )}

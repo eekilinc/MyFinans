@@ -19,6 +19,7 @@ import { exportMonthlyTransactionsToCSV } from './services/csvExport';
 import PinLock, { isPinEnabled } from './components/PinLock';
 import { Toast } from './components/Toast';
 import { Header } from './components/Header';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { DashboardSummary } from './components/DashboardSummary';
 import { UpcomingTimeline } from './components/UpcomingTimeline';
 import { CategoryBreakdown } from './components/CategoryBreakdown';
@@ -603,7 +604,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-purple-500 selection:text-white pb-16">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-purple-500 selection:text-white pb-28 sm:pb-12">
       {/* Toast Notifications */}
       <Toast toasts={toasts} onDismiss={dismissToast} />
 
@@ -716,6 +717,18 @@ export default function App() {
         {/* Analytics & Stats Tab */}
         {activeTab === 'stats' && <HistoryTrendsView historyData={historyData} />}
       </main>
+
+      {/* Mobile Bottom Navigation Bar */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onOpenAddTx={() => {
+          setEditingTx(null);
+          setDefaultGroupId(undefined);
+          setShowTxModal(true);
+        }}
+        onOpenSettings={() => setShowSettingsModal(true)}
+      />
 
       {/* Modals */}
       <TransactionModal

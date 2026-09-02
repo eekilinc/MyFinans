@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="frontend/public/icon.png" width="100" height="100" alt="MyFinans Logo" style="border-radius: 20px; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);">
+  <img src="docs/screenshots/app_icon.png" width="120" height="120" alt="MyFinans Logo" style="border-radius: 26px; box-shadow: 0 8px 30px rgba(139, 92, 246, 0.35);">
 </p>
 
 <h1 align="center">MyFinans (v12.0)</h1>
@@ -21,6 +21,7 @@
 
 <p align="center">
   <a href="https://github.com/eekilinc/MyFinans/releases/latest"><strong>↓ Final APK'yı İndir (v12.0)</strong></a>
+  · <a href="#-ekran-görüntüleri">Ekran Görüntüleri</a>
   · <a href="#-özellikler-ve-çalışma-mantığı">Özellikler</a>
   · <a href="#-120-ile-gelen-yenilikler">v12.0 Yenilikleri</a>
   · <a href="#-kurulum-ve-çalıştırma">Kurulum</a>
@@ -39,13 +40,34 @@
 
 ---
 
+## 📸 Ekran Görüntüleri
+
+<p align="center">
+  <img src="docs/screenshots/dashboard_preview.jpg" alt="MyFinans Web Dashboard" width="820" style="border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+</p>
+<p align="center">
+  <em>Masaüstü & Web Paneli: Geniş özet göstergeleri, kategori dağılım grafiği ve harcama grupları</em>
+</p>
+
+<br>
+
+<p align="center">
+  <img src="docs/screenshots/mobile_preview.jpg" alt="MyFinans Android Mobil Uygulaması" width="360" style="border-radius: 28px; box-shadow: 0 12px 35px rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.12);">
+</p>
+<p align="center">
+  <em>Android Akıllı Telefon Arayüzü: Alt gezinme barı (Harcamalar, Firmalar, Ekle, Analiz, Ayarlar) ve dokunmatik mobil deneyim</em>
+</p>
+
+---
+
 ## 💡 Özellikler ve Çalışma Mantığı
 
 | Özellik | Nasıl Çalışır? |
 | :--- | :--- |
 | **Kredi Kartı Ekstre Döngüsü** | Kartın hesap kesim gününe (statement day) ve son ödeme gününe (due day) göre taksitleri ait oldukları aya otomatik yansıtır. |
 | **Gelişmiş Taksit Motoru** | Taksitli alışverişlerde toplam tutarı veya aylık taksit tutarını girin; kalan taksitleri ve gelecekteki ayların ödeme planını anında hesaplar. |
-| **Dinamik Bütçe Limiti** | Aylık harcama hedefinizi belirleyin; %80, %90 ve %100 aşım seviyelerinde renkli gösterge ve anlık durum ikazları alın. |
+| **Dinamik Bütçe Limiti & "Şimdi Ayarla"** | Aylık harcama hedefinizi belirleyin; %80, %90 ve %100 aşım seviyelerinde renkli gösterge ve anlık durum ikazları alın. Bütçe hedefi yoksa tek tıkla "Şimdi Ayarla" butonuyla kurun. |
+| **Mobil Alt Gezinme Barı (Bottom Dock)** | Mobil cihazlarda tek parmakla Harcamalar, Firmalar, Hızlı Ekle (+), Analiz ve her zaman görünür **Ayarlar** menüsü arasında geçiş yapın. |
 | **Kategori Dağılımı ve Filtre** | Market, fatura, eğlence vb. harcamaların görsel ağırlık çubuğu üzerinden kategoriye göre tek tıkla filtreleme yapın. |
 | **Hızlı İşlem Kopyalama (Duplicate)** | Her ay tekrarlanan veya benzer harcamaları tek dokunuşla cari aya çoğaltın. |
 | **Evrensel Arama & Filtreleme** | Açıklama, firma, tutar aralığı ve ödeme durumuna göre anlık sonuç getiren arama motoru. |
@@ -60,14 +82,16 @@
 
 ## 🚀 12.0 ile Gelen Yenilikler
 
-- 🎨 **Modern ve Modüler Tasarım**: `App.tsx` monolith yapısı modüler bileşenlere (`DashboardSummary`, `CategoryBreakdown`, `UpcomingTimeline`, `ExpenseGroupCard`, `CompanyStatsView`, `HistoryTrendsView`, `Toast`) ayrıştırıldı.
-- 📊 **Kategori Dağılım Grafiği**: Aylık harcamaların kategorik yüzdelerini ve toplamlarını gösteren interaktif görsel oran çubuğu.
+- 📱 **Tam Mobil Uyumluluk & Mobil Alt Bar (Bottom Dock)**: Akıllı telefonlar için optimize edilmiş `MobileBottomNav` eklendi. Harcamalar, Firmalar, Hızlı Ekle (+), Analiz ve **Ayarlar** menülerine tek başparmak hareketiyle anında ulaşılır.
+- ⚙️ **Kesintisiz "Ayarlar" ve "Şimdi Ayarla" Erişimi**: Ayarlar menüsü hem mobil üst başlıkta, hem alt gezinme çubuğunda hem de gösterge panelindeki *"Şimdi Ayarla"* butonuyla garantilendi.
+- 🎨 **Özel Uygulama Logosu & Android Simgeleri**: Yüksek kaliteli modern fintech simgesi üretildi; PWA favicon, Android `ic_launcher` (mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi) ve splash screen görselleri yenilendi.
+- 📸 **Kapsamlı Ekran Görüntüleri**: Masaüstü ve mobil deneyimi gösteren görsel dokümantasyon eklendi.
 - 📥 **UTF-8 BOM Destekli CSV / Excel Aktarımı**: Türkçe karakterlerin Excel'de bozulmadan açılmasını sağlayan profesyonel veri dışa aktarma motoru.
-- ⚡ **Hızlı İşlem Kopyalama**: Mevcut harcama kayıtlarını tek tıkla kopyalayarak yeni kayıt açma kolaylığı.
+- ⚡ **Hızlı İşlem Kopyalama**: Mevcut harcama kayıtlarını tek tıkla cari aya çoğaltma kolaylığı.
 - 🎯 **Dinamik Bütçe Göstergesi**: Ay bazlı harcama limiti belirleme ve görsel doluluk ibresi.
 - 🔍 **Evrensel Arama Modalı**: Tüm aylar ve harcamalar içinde anahtar kelime, satıcı ve tutara göre arama.
 - 🔒 **Android Güvenlik & İmzalama (v2 Scheme)**: Gradle imzalama konfigürasyonu tamamlandı, release APK'sı Android v2 Signature ile doğrulandı.
-- 🤖 **GitHub Actions CI/CD**: Otomatik etiket (`v*.*.*`) tetiklemeli APK derleme, imzalama, artifact yükleme ve GitHub Release oluşturma iş akışı entegre edildi.
+- 🤖 **GitHub Actions CI/CD (Node 22 + Java 21)**: Otomatik etiket (`v*`) tetiklemeli APK derleme, imzalama, artifact yükleme ve GitHub Release oluşturma iş akışı entegre edildi.
 
 ---
 
@@ -96,14 +120,14 @@ graph TD
 
 - **Frontend**: React 19, TypeScript 5, Vite 8, Tailwind CSS v4, Lucide React, i18next (Türkçe & İngilizce).
 - **Mobil**: Android SDK (API 36 / Android 14+), Capacitor 8, Native Biometrics, Local Notifications, Native AppWidget.
-- **Backend (Opsiyonel)**: Node.js 20, Express, SQLite3, Docker & Docker Compose.
+- **Backend (Opsiyonel)**: Node.js 20/22, Express, SQLite3, Docker & Docker Compose.
 
 ---
 
 ## 💻 Kurulum ve Çalıştırma
 
 ### 1. Android APK Kurulumu (En Kolay)
-1. [Releases](https://github.com/eekilinc/MyFinans/releases/latest) sayfasından en güncel `MyFinans-v12.0.apk` dosyasını Android telefonunuza indirin.
+1. [Releases](https://github.com/eekilinc/MyFinans/releases/latest) sayfasından en güncel `MyFinans-v12.0.0.apk` dosyasını Android telefonunuza indirin.
 2. İndirilen APK dosyasına dokunup kurulumu tamamlayın.
 3. Uygulama tamamen çevrimdışı çalışmaya hazırdır!
 
@@ -159,7 +183,7 @@ Bu depoda GitHub Actions üzerinden tam otomatik derleme ve dağıtım hattı me
    git push origin v12.0.0
    ```
 2. `.github/workflows/release.yml` otomatik devreye girer:
-   - Node.js, Java 17 ve Android SDK ortamlarını kurar.
+   - Node.js 22, Java 21 ve Android SDK ortamlarını kurar.
    - Frontend lint ve build adımlarını çalıştırır.
    - Capacitor senkronizasyonu yapar.
    - Keystore ile Release APK'yı derler ve APK Signature v2 ile imzalar.
