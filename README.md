@@ -2,10 +2,10 @@
   <img src="docs/screenshots/app_icon.png" width="120" height="120" alt="MyFinans Logo" style="border-radius: 26px; box-shadow: 0 8px 30px rgba(139, 92, 246, 0.35);">
 </p>
 
-<h1 align="center">MyFinans (v12.4.0)</h1>
+<h1 align="center">MyFinans (v12.4.1)</h1>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><img alt="Son Sürüm" src="https://img.shields.io/badge/sürüm-v12.4.0--final-8b5cf6?style=flat-square&logo=android"></a>
+  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><img alt="Son Sürüm" src="https://img.shields.io/badge/sürüm-v12.4.1--final-8b5cf6?style=flat-square&logo=android"></a>
   <a href="https://github.com/eekilinc/MyFinans/actions/workflows/release.yml"><img alt="Release CI" src="https://img.shields.io/badge/CI%2FCD-passing-success?style=flat-square&logo=githubactions"></a>
   <img alt="Android 7 ve üzeri" src="https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=flat-square&logo=android">
   <img alt="React 19 & TypeScript" src="https://img.shields.io/badge/React_19-TypeScript_5-61dafb?style=flat-square&logo=react">
@@ -20,12 +20,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><strong>↓ Final APK'yı İndir (v12.4.0)</strong></a>
+  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><strong>↓ Final APK'yı İndir (v12.4.1)</strong></a>
   · <a href="#-ekran-görüntüleri">Ekran Görüntüleri</a>
   · <a href="#-özellikler-ve-çalışma-mantığı">Özellikler</a>
-  · <a href="#-v1240-ile-gelen-yenilikler">v12.4.0 Yenilikleri</a>
-  · <a href="#-v1232-ile-gelen-yenilikler">v12.3.2 Yenilikleri</a>
-  · <a href="#-v123-ile-gelen-yenilikler">v12.3 Yenilikleri</a>
+  · <a href="#-v1241-ile-gelen-yenilikler">v12.4.1 Yenilikleri</a>
+  · <a href="#-bulut-ve-çoklu-cihaz-senkronizasyon-rehberi">Bulut Senkronizasyon Rehberi</a>
   · <a href="#-kurulum-ve-çalıştırma">Kurulum</a>
   · <a href="#-mimari-ve-teknoloji-yığını">Mimari</a>
   · <a href="#-çevrimdışı-güvenlik-ve-gizlilik">Gizlilik</a>
@@ -80,6 +79,19 @@
 | **PIN & Biyometrik Kilit** | 4 haneli PIN şifresi ve Android parmak izi / yüz tanıma desteğiyle finansal verilerinize izinsiz erişimi engelleyin. |
 | **Android Ana Ekran Widget'ı** | Uygulamayı açmadan cari ayın toplam, ödenen ve bekleyen borçlarını ana ekrandan doğrudan takip edin. |
 | **Yerel Bildirimler** | Yaklaşan hesap kesim ve son ödeme tarihlerinde gecikmeye düşmemeniz için otomatik hatırlatıcı bildirimler. |
+
+---
+
+## 🚀 v12.4.1 ile Gelen Yenilikler
+
+- 🌟 **Top Navbar & Tüm Ekranlarda Yeni Logo Sabitlendi**:
+  - Üst gezinme çubuğunda (Top Navbar) ve modallarda önbelleğe takılabilen eski logo kaldırıldı; tüm ekranlar için `?v=12.4.1` önbellek kırma parametresi ve yeni ferah `icon.png` tescillendi.
+  - Ayarlar modalındaki "Hakkında" paneline doğrudan yeni minimalist fintech ikonu entegre edildi.
+- ☁️ **Bulut Senkronizasyon Merkezi & Canlı Ping/Gecikme Testi**:
+  - Ayarlar ➔ Senkron sekmesi baştan sona zenginleştirildi:
+    - **Canlı Bağlantı Testi (Ping)**: Sunucu adresini yazıp "Test Et" butonuna bastığınızda sunucunun aktifliğini ve milisaniye cinsinden gecikme süresini ölçen akıllı araç eklendi.
+    - **Hızlı Hazır Şablonlar**: *Yerel PC (localhost:5001)*, *Ev Wi-Fi Ağı (192.168.1.X)* ve *Render.com Bulut* adreslerini tek dokunuşla doldurma butonları eklendi.
+    - **Servis Seçenekleri Rehberi**: Hangi bulut servislerinin kullanılabileceğini anlatan interaktif kartlar eklendi.
 
 ---
 
@@ -218,6 +230,44 @@ Bu depoda GitHub Actions üzerinden tam otomatik derleme ve dağıtım hattı me
    - Capacitor senkronizasyonu yapar.
    - Keystore ile Release APK'yı derler ve APK Signature v2 ile imzalar.
    - GitHub Release oluşturup `MyFinans-v12.2.0.apk` dosyasını otomatik olarak yayınlar.
+
+---
+
+## ☁️ Bulut ve Çoklu Cihaz Senkronizasyon Rehberi
+
+MyFinans normal şartlarda **%100 çevrimdışı** çalışır. Ancak harcamalarınızı hem telefonunuzdan, hem tabletinizden hem de bilgisayarınızdan ortaklaşa yönetmek isterseniz, dahili **Senkronizasyon Motoru**'nu kullanabilirsiniz:
+
+### 1. Hangi Servisler Kullanılabilir?
+
+| Yöntem | Maliyet | Zorluk | Açıklama |
+| :--- | :--- | :--- | :--- |
+| **Render.com / Railway** *(Önerilen)* | **%100 Ücretsiz** | 🟢 Çok Kolay | GitHub deponuzu ücretsiz Render veya Railway hesabınıza bağlayıp `Dockerfile` ile 2 dakikada yayına alabilirsiniz. Size `https://myfinans-api.onrender.com` gibi ücretsiz HTTPS adresi verir. |
+| **Ev / Yerel Wi-Fi Ağı** | **Sıfır Maliyet** | 🟢 Çok Kolay | Hiçbir harici bulut servisine gerek kalmadan, evinizdeki bilgisayarda `cd backend && npm start` çalıştırın. Bilgisayarınızın yerel IP'sini (`http://192.168.1.100:5001`) telefonunuza girin. |
+| **Kendi VPS / Sunucunuz** | Düşük / Mevcut | 🟡 Orta | Ubuntu sunucunuzda `docker compose up -d` ile SQLite tabanlı 7/24 kesintisiz kişisel bulutunuzu çalıştırabilirsiniz. |
+
+---
+
+### 2. Adım Adım Render.com Kurulumu (2 Dakika)
+
+1. [Render.com](https://render.com)'a ücretsiz üye olun veya GitHub ile giriş yapın.
+2. **"New +" ➔ "Web Service"** seçeneğine tıklayın.
+3. GitHub deponuzu (`eekilinc/MyFinans`) seçin.
+4. **Environment** kısmında `Docker` seçili olduğundan emin olun (Render projedeki `Dockerfile`'ı otomatik tanır).
+5. **Instance Type** olarak **"Free"** seçeneğini işaretleyip **"Deploy Web Service"** butonuna basın.
+6. Derleme bittiğinde Render size bir URL verecektir (örn: `https://myfinans-xxxx.onrender.com`).
+7. Telefonunuzdaki MyFinans uygulamasını açın ➔ **Ayarlar** ➔ **Senkron** ➔ Sunucu Adresi alanına bu URL'yi yapıştırın ve **"Test Et"** butonuna basın.
+8. **"Birleştir"** butonuna basarak verilerinizi anında eşitleyin!
+
+---
+
+### 3. Senkronizasyon Modları Nasıl Çalışır?
+
+- 🔄 **Akıllı Birleştir (Merge - Önerilen)**:
+  - Telefondaki yerel kayıtlar ile sunucudaki kayıtları benzersiz ID ve tarihlerine göre harmanlar. İki taraftaki yeni harcamalar da kaybolmaz.
+- ⬆️ **Sunucuya Yükle (Push)**:
+  - Telefonunuzdaki tüm verileri sunucuya gönderir ve sunucuyu günceller.
+- ⬇️ **Sunucudan Çek (Pull)**:
+  - Sunucudaki verileri indirir ve cihazınızdaki yerel veritabanını günceller.
 
 ---
 

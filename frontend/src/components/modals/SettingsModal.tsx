@@ -22,9 +22,16 @@ import {
   Info,
   ExternalLink,
   ShieldCheck,
-  Sparkles,
   Heart,
-  KeyRound
+  KeyRound,
+  Wifi,
+  Server,
+  RefreshCw,
+  Smartphone,
+  Laptop,
+  CheckCircle2,
+  XCircle,
+  HelpCircle
 } from 'lucide-react';
 import { useTheme, ACCENT_COLORS, type AccentColor } from '../../context/ThemeContext';
 import { savePin, removePin, isPinEnabled, isBiometricEnabled, enableBiometric } from '../PinLock';
@@ -80,6 +87,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   const [pinError, setPinError] = useState('');
   const [securityNotice, setSecurityNotice] = useState<string | null>(null);
 
+  // Cloud connection test state
+  const [testingConnection, setTestingConnection] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<{ ok: boolean; latency?: number; message: string } | null>(null);
+
   if (!isOpen) return null;
 
   const handleSaveBudget = async (e: React.FormEvent) => {
@@ -91,10 +102,60 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   };
 
-  const handleSaveUrl = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await onSaveApiUrl(tempApiUrl.trim());
-    alert('Sunucu adresi kaydedildi.');
+  const handleSaveUrl = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanUrl = tempApiUrl.trim().replace(/\/+$/, '');
+    await onSaveApiUrl(cleanUrl);
+    setSyncMessage({ type: 'success', text: 'Sunucu adresi başarıyla kaydedildi.' });
+    setTimeout(() => setSyncMessage(null), 3500);
+  };
+
+  const handleTestConnection = async () => {
+    const cleanUrl = tempApiUrl.trim().replace(/\/+$/, '');
+    if (!cleanUrl) {
+      setConnectionStatus({ ok: false, message: 'Lütfen önce bir sunucu adresi girin.' });
+      return;
+    }
+    setTestingConnection(true);
+    setConnectionStatus(null);
+    const startTime = performance.now();
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 6000);
+      const res = await fetch(`${cleanUrl}/api/banks`, { signal: controller.signal });
+      clearTimeout(timer);
+      const latency = Math.round(performance.now() - startTime);
+      if (res.ok) {
+        setConnectionStatus({
+          ok: true,
+          latency,
+          message: `Bağlantı Başarılı! Sunucu aktif ve yanıt veriyor (${latency} ms).`
+        });
+      } else {
+        setConnectionStatus({
+          ok: false,
+          message: `Sunucuya ulaşıldı ancak durum kodu: ${res.status} ${res.statusText}`
+        });
+      }
+    } catch (err: unknown) {
+      const isAbort = (err as Error)?.name === 'AbortError';
+      setConnectionStatus({
+        ok: false,
+        message: isAbort
+          ? 'Zaman aşımı: Sunucu 6 saniye içerisinde yanıt vermedi.'
+          : 'Sunucuya ulaşılamadı. Sunucunun çalıştığından ve adresin doğru olduğundan emin olun.'
+      });
+    } finally {
+      setTestingConnection(false);
+    }
+  };
+
+  const handleApplyPreset = async (presetUrl: string) => {
+    setTempApiUrl(presetUrl);
+    await onSaveApiUrl(presetUrl);
+    setConnectionStatus(null);
+    setSyncMessage({ type: 'success', text: `Sunucu adresi "${presetUrl}" olarak ayarlandı.` });
+    setTimeout(() => setSyncMessage(null), 3500);
   };
 
   const handleSetPin = () => {
@@ -641,66 +702,152 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {/* TAB 5: SENKRONİZASYON */}
+          {/* TAB 5: SENKRONİZASYON (BULUT & ÇOKLU CİHAZ MERKEZİ) */}
           {activeTab === 'sync' && (
             <div className="space-y-4 animate-in fade-in duration-200">
+              {/* Server URL & Live Ping Test */}
               <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3">
-                <div className="flex items-center gap-2">
-                  <Cloud className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                  <span className="text-xs font-bold text-slate-900 dark:text-white">
-                    {t('cloud_sync') || 'Bulut Senkronizasyonu'}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Cloud className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">
+                      Bulut ve Çoklu Cihaz Senkronizasyonu
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/50">
+                    REST API
                   </span>
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                  {t('sync_desc') || 'Verilerinizi uzak PostgreSQL sunucunuzla senkronize edin.'}
+                <p className="text-xs text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                  Tüm harcama, taksit ve bütçe verilerinizi telefon, tablet ve bilgisayarlarınız arasında güvenle senkronize edin.
                 </p>
 
-                <form onSubmit={handleSaveUrl} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={tempApiUrl}
-                    onChange={e => setTempApiUrl(e.target.value)}
-                    placeholder="http://localhost:5001"
-                    className="flex-1 px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 shadow-inner"
-                  />
-                  <button
-                    type="submit"
-                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-xl text-xs font-bold transition-colors border border-slate-200 dark:border-slate-600"
-                  >
-                    {t('save') || 'Kaydet'}
-                  </button>
+                {/* API URL Form */}
+                <form onSubmit={handleSaveUrl} className="space-y-2">
+                  <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                    <Server className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Uzak / Yerel Sunucu Adresi (URL)</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={tempApiUrl}
+                      onChange={e => setTempApiUrl(e.target.value)}
+                      placeholder="http://localhost:5001 veya https://myfinans.onrender.com"
+                      className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 shadow-inner"
+                    />
+                    <button
+                      type="submit"
+                      className="px-3.5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
+                    >
+                      {t('save') || 'Kaydet'}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={testingConnection}
+                      onClick={handleTestConnection}
+                      className="inline-flex items-center gap-1.5 px-3 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-bold transition-colors border border-slate-200 dark:border-slate-600 disabled:opacity-50"
+                      title="Sunucu bağlantısını ve gecikme süresini test et"
+                    >
+                      <Wifi className={`w-3.5 h-3.5 ${testingConnection ? 'animate-spin' : ''}`} />
+                      <span>{testingConnection ? 'Test Ediliyor...' : 'Test Et'}</span>
+                    </button>
+                  </div>
                 </form>
 
-                <div className="grid grid-cols-3 gap-2 pt-1">
-                  <button
-                    type="button"
-                    disabled={syncing}
-                    onClick={() => handleSyncAction('merge')}
-                    className="p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
+                {/* Ping Result Banner */}
+                {connectionStatus && (
+                  <div
+                    className={`flex items-start gap-2 p-3 rounded-xl border text-xs font-medium ${
+                      connectionStatus.ok
+                        ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 border-emerald-200 dark:border-emerald-800/60'
+                        : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 border-rose-200 dark:border-rose-800/60'
+                    }`}
                   >
-                    {t('sync_merge') || 'Birleştir'}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={syncing}
-                    onClick={() => handleSyncAction('push')}
-                    className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
-                  >
-                    {t('sync_push') || 'Sunucuya Yükle'}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={syncing}
-                    onClick={() => handleSyncAction('pull')}
-                    className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
-                  >
-                    {t('sync_pull') || 'Sunucudan Çek'}
-                  </button>
+                    {connectionStatus.ok ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                    )}
+                    <span className="flex-1 leading-snug">{connectionStatus.message}</span>
+                  </div>
+                )}
+
+                {/* Quick Presets */}
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-1.5">
+                  <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 block">
+                    Hızlı Hazır Şablonlar:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('http://localhost:5001')}
+                      className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+                    >
+                      <Laptop className="w-3 h-3 text-slate-400" />
+                      <span>Yerel PC (localhost:5001)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('http://192.168.1.100:5001')}
+                      className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+                    >
+                      <Smartphone className="w-3 h-3 text-slate-400" />
+                      <span>Ev Wi-Fi (192.168.1.X)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleApplyPreset('https://myfinans-api.onrender.com')}
+                      className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 transition-colors"
+                    >
+                      <Cloud className="w-3 h-3 text-slate-400" />
+                      <span>Render.com Bulut</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sync Action Buttons */}
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-700/60 space-y-2">
+                  <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block">
+                    Senkronizasyon İşlemleri:
+                  </span>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      disabled={syncing}
+                      onClick={() => handleSyncAction('merge')}
+                      className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/60 hover:bg-purple-100 dark:hover:bg-purple-900/70 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
+                    >
+                      <RefreshCw className={`w-4 h-4 mb-1 ${syncing ? 'animate-spin' : ''}`} />
+                      <span>Birleştir</span>
+                      <span className="text-[9px] font-normal text-purple-600/80 dark:text-purple-400/80 mt-0.5">Çakışmasız (Önerilen)</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={syncing}
+                      onClick={() => handleSyncAction('push')}
+                      className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
+                    >
+                      <Upload className="w-4 h-4 mb-1" />
+                      <span>Sunucuya Yükle</span>
+                      <span className="text-[9px] font-normal text-slate-500 dark:text-slate-400 mt-0.5">Cihaz ➔ Bulut</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={syncing}
+                      onClick={() => handleSyncAction('pull')}
+                      className="flex flex-col items-center justify-center p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold disabled:opacity-50 transition-all active:scale-95"
+                    >
+                      <Download className="w-4 h-4 mb-1" />
+                      <span>Sunucudan Çek</span>
+                      <span className="text-[9px] font-normal text-slate-500 dark:text-slate-400 mt-0.5">Bulut ➔ Cihaz</span>
+                    </button>
+                  </div>
                 </div>
 
                 {syncMessage && (
                   <p
-                    className={`text-xs font-bold p-2.5 rounded-xl border ${
+                    className={`text-xs font-bold p-3 rounded-xl border ${
                       syncMessage.type === 'success'
                         ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60'
                         : 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800/60'
@@ -710,6 +857,54 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   </p>
                 )}
               </div>
+
+              {/* Cloud Services & Hosting Guide */}
+              <div className="p-4 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/70 shadow-sm space-y-3">
+                <div className="flex items-center gap-2">
+                  <HelpCircle className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                    Hangi Servislerle Senkronize Edilebilir?
+                  </h4>
+                </div>
+
+                <div className="space-y-2.5 text-xs text-slate-600 dark:text-slate-300">
+                  {/* Option 1: Render / Railway */}
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/60 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        1. Render.com / Railway (%100 Ücretsiz & En Kolay)
+                      </span>
+                      <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300">Önerilen</span>
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
+                      GitHub deponuzu <strong>Render.com</strong> veya <strong>Railway.app</strong>'e bağlayıp 'Web Service' olarak dağıtın. Projedeki <code className="text-purple-600 dark:text-purple-400">Dockerfile</code> otomatik algılanır ve 2 dakikada size ücretsiz bir HTTPS adresi verir (örn: <span className="font-mono text-purple-600 dark:text-purple-400">https://myfinans-api.onrender.com</span>). Bu adresi yukarıya yazıp dünyanın her yerinden anında eşitlenin.
+                    </p>
+                  </div>
+
+                  {/* Option 2: Local Wi-Fi */}
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/60 space-y-1">
+                    <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                      2. Ev / Wi-Fi Ağı (Sıfır Harici Servis & %100 Gizlilik)
+                    </span>
+                    <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
+                      Hiçbir harici bulut servisine gerek kalmadan, bilgisayarınızda terminalden <code className="text-purple-600 dark:text-purple-400">cd backend && npm start</code> çalıştırın. Bilgisayarınızın yerel IP adresini (örn: <span className="font-mono text-purple-600 dark:text-purple-400">http://192.168.1.100:5001</span>) telefonunuza girin. Evdeki tüm cihazlar aynı Wi-Fi üzerinden saniyeler içinde senkronize olsun.
+                    </p>
+                  </div>
+
+                  {/* Option 3: VPS / Docker */}
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-700/60 space-y-1">
+                    <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                      3. Kendi VPS / Sunucunuz (Docker Compose)
+                    </span>
+                    <p className="text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">
+                      Kendi sunucunuzda (DigitalOcean, Hetzner, Oracle Cloud Free Tier) <code className="text-purple-600 dark:text-purple-400">docker compose up -d</code> komutunu vererek 7/24 kesintisiz çalışan kişisel finans sunucunuzu ayağa kaldırabilirsiniz.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -718,11 +913,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="space-y-4 animate-in fade-in duration-200">
               {/* App Identity Banner */}
               <div className="p-5 rounded-3xl bg-gradient-to-br from-purple-500/10 via-slate-50 to-indigo-500/10 dark:from-purple-950/40 dark:via-slate-900 dark:to-indigo-950/40 border border-purple-200 dark:border-purple-800/50 text-center space-y-2.5 shadow-sm">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 p-0.5 shadow-lg shadow-purple-600/30">
-                  <div className="w-full h-full rounded-2xl bg-slate-950 flex items-center justify-center">
-                    <Sparkles className="w-8 h-8 text-purple-400" />
-                  </div>
-                </div>
+                <img
+                  src="/icon.png?v=12.4.1"
+                  alt="MyFinans Logo"
+                  className="w-16 h-16 mx-auto rounded-2xl shadow-lg border border-purple-500/30 object-cover"
+                />
                 <div>
                   <h3 className="text-lg font-black text-slate-900 dark:text-white">MyFinans</h3>
                   <p className="text-xs text-slate-600 dark:text-slate-300 font-medium">
@@ -731,10 +926,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
-                    Sürüm v12.4.0
+                    Sürüm v12.4.1
                   </span>
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                    Derleme 19
+                    Derleme 20
                   </span>
                 </div>
               </div>

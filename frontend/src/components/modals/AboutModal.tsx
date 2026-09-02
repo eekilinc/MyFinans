@@ -28,7 +28,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
         <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img
-              src="/icon.png"
+              src="/icon.png?v=12.4.1"
               alt="MyFinans Logo"
               className="w-9 h-9 rounded-2xl shadow-md border border-purple-500/30 object-cover"
               onError={(e) => {
@@ -36,7 +36,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               }}
             />
             <div>
-              <h3 className="text-base font-black text-slate-900 dark:text-white">MyFinans v12.4.0</h3>
+              <h3 className="text-base font-black text-slate-900 dark:text-white">MyFinans v12.4.1</h3>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">{t('app_subtitle')}</p>
             </div>
           </div>
@@ -140,12 +140,19 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
           {activeTab === 'changelog' && (
             <div className="space-y-3">
               <div className="p-3.5 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-500/30 space-y-1">
-                <span className="text-xs font-black text-purple-700 dark:text-purple-300">v12.4.0 (Fresh & Minimalist Yeni İkon, Canlı Renk Paletleri & Geliştirici Bilgisi)</span>
+                <span className="text-xs font-black text-purple-700 dark:text-purple-300">v12.4.1 (Top Navbar İkon Güncellemesi, Bulut Senkronizasyon Merkezi & Canlı Ping Testi)</span>
                 <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                  • Üst gezinme çubuğundaki (Top Navbar) ve Hakkında pencerelerindeki eski logo önbelleği temizlendi; yeni minimalist M monogramı ve camgöbeği kıvılcım ikonu kalıcı hale getirildi.
+                  {"\n"}• Bulut Senkronizasyon sekmesi baştan geliştirildi: Canlı sunucu ping/gecikme testi, tek dokunuşla hazır adres şablonları (Localhost, Ev Wi-Fi, Render.com) eklendi.
+                  {"\n"}• Ücretsiz bulut servisleri (Render.com, Railway, Ev Wi-Fi, VPS Docker) için adım adım kurulum rehberleri entegre edildi.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 space-y-1">
+                <span className="text-xs font-black text-slate-700 dark:text-slate-300">v12.4.0</span>
+                <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
                   • Geliştirici kimliği Ekrem Eşref KILINÇ (@eekilinc) olarak güncellendi.
-                  {"\n"}• Uygulama ikonu ve açılış ekranı daha taze, minimalist ve modern fintech geometrisiyle (parlak beyaz M & neon camgöbeği büyüme kıvılcımı) baştan tasarlandı.
-                  {"\n"}• 5 farklı renk paleti (Asil Mor, Zümrüt, Mavi, Gül, Titanyum) Tailwind motoruna dinamik olarak bağlandı; artık seçilen tema rengi tüm arayüze anında yansıyor.
-                  {"\n"}• PIN ve Biyometrik kilit arayüzü tek çatı altında eksiksiz Türkçeleştirildi ve senkronize edildi.
+                  {"\n"}• Minimalist yeni fintech ikonu ve canlı dinamik tema paletleri entegre edildi.
                 </p>
               </div>
 
