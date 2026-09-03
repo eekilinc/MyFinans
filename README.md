@@ -2,10 +2,10 @@
   <img src="docs/screenshots/app_icon.png" width="120" height="120" alt="MyFinans Logo" style="border-radius: 26px; box-shadow: 0 8px 30px rgba(139, 92, 246, 0.35);">
 </p>
 
-<h1 align="center">MyFinans (v12.4.2)</h1>
+<h1 align="center">MyFinans (v12.4.3)</h1>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><img alt="Son Sürüm" src="https://img.shields.io/badge/sürüm-v12.4.2--final-8b5cf6?style=flat-square&logo=android"></a>
+  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><img alt="Son Sürüm" src="https://img.shields.io/badge/sürüm-v12.4.3--final-8b5cf6?style=flat-square&logo=android"></a>
   <a href="https://github.com/eekilinc/MyFinans/actions/workflows/release.yml"><img alt="Release CI" src="https://img.shields.io/badge/CI%2FCD-passing-success?style=flat-square&logo=githubactions"></a>
   <img alt="Android 7 ve üzeri" src="https://img.shields.io/badge/Android-7.0%2B-3ddc84?style=flat-square&logo=android">
   <img alt="React 19 & TypeScript" src="https://img.shields.io/badge/React_19-TypeScript_5-61dafb?style=flat-square&logo=react">
@@ -20,10 +20,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><strong>↓ Final APK'yı İndir (v12.4.2)</strong></a>
+  <a href="https://github.com/eekilinc/MyFinans/releases/latest"><strong>↓ Final APK'yı İndir (v12.4.3)</strong></a>
   · <a href="#-ekran-görüntüleri">Ekran Görüntüleri</a>
   · <a href="#-özellikler-ve-çalışma-mantığı">Özellikler</a>
-  · <a href="#-v1242-ile-gelen-yenilikler">v12.4.2 Yenilikleri</a>
+  · <a href="#-v1243-ile-gelen-yenilikler">v12.4.3 Yenilikleri</a>
   · <a href="#-bulut-ve-çoklu-cihaz-senkronizasyon-rehberi">Bulut Senkronizasyon Rehberi</a>
   · <a href="#-kurulum-ve-çalıştırma">Kurulum</a>
   · <a href="#-mimari-ve-teknoloji-yığını">Mimari</a>
@@ -79,6 +79,20 @@
 | **PIN & Biyometrik Kilit** | 4 haneli PIN şifresi ve Android parmak izi / yüz tanıma desteğiyle finansal verilerinize izinsiz erişimi engelleyin. |
 | **Android Ana Ekran Widget'ı** | Uygulamayı açmadan cari ayın toplam, ödenen ve bekleyen borçlarını ana ekrandan doğrudan takip edin. |
 | **Yerel Bildirimler** | Yaklaşan hesap kesim ve son ödeme tarihlerinde gecikmeye düşmemeniz için otomatik hatırlatıcı bildirimler. |
+
+---
+
+## 🚀 v12.4.3 ile Gelen Yenilikler
+
+- 📊 **İstatistik & Trend Ekranı Açık Tema (Light Mode) Uyumu**:
+  - Daha önce koyu renk sınıflarıyla kısıtlı olan İstatistik & Trend ekranı baştan aşağı Açık Tema uyumlu hale getirildi.
+  - Yıllık harcama, ödenen ve kalan tutar kartları açık temada ferah beyaz zemin, yüksek kontrastlı renkli üst aksanlar ve yumuşak gölgeler kazandı.
+  - Aylık karşılaştırma grafik çubukları, ay başlıkları ve 12 aylık detaylı özet tablosu hem açık hem koyu temada kusursuz okunabilirliğe ulaştırıldı.
+  - Dinamik yıl açıklaması (`history_trends_subtitle`), kayıtlı ay sayaçları (`months_recorded`) ve boş durum göstergesi eklendi.
+- 🏢 **Firmalar Ekranında Sıfır Taşma (Mobile Responsive Overflow Fix)**:
+  - Hızlı firma ekleme formu dar mobil ekranlarda (`flex flex-col sm:flex-row`, `min-w-0`, `w-full`) buton ve metin kutusunun ekran dışına taşmasını önleyecek şekilde esnekleştirildi.
+  - Firma kartlarındaki uzun firma adları otomatik kırpma (`truncate`) ile güvenli alana alındı; inline düzenleme ve `Düzenle`/`Sil` butonlarının dar ekranlarda kaybolması veya taşması tamamen engellendi.
+  - Firma detay modalının başlık ve kapatma butonları responsive güvenliğe alındı.
 
 ---
 

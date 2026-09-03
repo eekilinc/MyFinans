@@ -68,7 +68,7 @@ export const CategoryBreakdown: React.FC<CategoryBreakdownProps> = ({
             className="flex items-center gap-1 text-xs font-semibold text-purple-700 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300 bg-purple-50 dark:bg-purple-500/10 px-2.5 py-1 rounded-xl border border-purple-200 dark:border-purple-500/20"
           >
             <Filter className="w-3 h-3" />
-            <span>Filtreyi Kaldır</span>
+            <span>{t('remove_filter')}</span>
           </button>
         )}
       </div>

@@ -920,7 +920,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               {/* App Identity Banner */}
               <div className="p-5 rounded-3xl bg-gradient-to-br from-purple-500/10 via-slate-50 to-indigo-500/10 dark:from-purple-950/40 dark:via-slate-900 dark:to-indigo-950/40 border border-purple-200 dark:border-purple-800/50 text-center space-y-2.5 shadow-sm">
                 <img
-                  src="/icon.png?v=12.4.2"
+                  src="/icon.png?v=12.4.3"
                   alt="MyFinans Logo"
                   className="w-16 h-16 mx-auto rounded-2xl shadow-lg border border-purple-500/30 object-cover"
                 />
@@ -932,10 +932,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60">
-                    Sürüm v12.4.2
+                    Sürüm v12.4.3
                   </span>
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                    Derleme 21
+                    Derleme 22
                   </span>
                 </div>
               </div>

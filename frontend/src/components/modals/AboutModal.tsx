@@ -28,7 +28,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
         <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img
-              src="/icon.png?v=12.4.2"
+              src="/icon.png?v=12.4.3"
               alt="MyFinans Logo"
               className="w-9 h-9 rounded-2xl shadow-md border border-purple-500/30 object-cover"
               onError={(e) => {
@@ -36,7 +36,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
               }}
             />
             <div>
-              <h3 className="text-base font-black text-slate-900 dark:text-white">MyFinans v12.4.2</h3>
+              <h3 className="text-base font-black text-slate-900 dark:text-white">MyFinans v12.4.3</h3>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">{t('app_subtitle')}</p>
             </div>
           </div>
@@ -139,8 +139,16 @@ export const AboutModal: React.FC<AboutModalProps> = ({ isOpen, onClose }) => {
           {activeTab === 'changelog' && (
             <div className="space-y-3">
               <div className="p-3.5 rounded-2xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-500/30 space-y-1">
-                <span className="text-xs font-black text-purple-700 dark:text-purple-300">v12.4.2 (Kapsamlı Çift Dilli Çeviri & Senkronizasyon Taşma Düzeltmesi)</span>
+                <span className="text-xs font-black text-purple-700 dark:text-purple-300">v12.4.3 (İstatistik & Trend Açık Tema Uyumu ve Firma Buton Taşma Düzeltmesi)</span>
                 <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                  • İstatistik ve Trend ekranı tamamen Açık Tema (Light Mode) uyumlu hale getirildi; yüksek kontrastlı gösterge kartları, renkli grafik çubukları ve modern geçmiş tablosu eklendi.
+                  {"\n"}• Firmalar ekranındaki hızlı firma ekleme formu ve kart aksiyon butonları (`Düzenle`, `Sil`) dar mobil ekranlarda dışa taşmayacak şekilde responsive ızgara ve esnek genişlik düzenine geçirildi.
+                </p>
+              </div>
+
+              <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-700/50 space-y-1">
+                <span className="text-xs font-black text-slate-700 dark:text-slate-300">v12.4.2</span>
+                <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
                   • Tüm uygulama genelinde (kartlar, sekmeler, diyaloglar, bildirimler) eksik Türkçe/İngilizce dil anahtarları tamamlandı.
                   {"\n"}• Bulut Senkronizasyon sekmesinde dar ekranlarda butonların ekran dışına taşması engellendi; dikey ve esnek ızgara yapısına kavuşturuldu.
                 </p>

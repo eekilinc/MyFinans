@@ -30,21 +30,21 @@ export const CompanyDetailModal: React.FC<CompanyDetailModalProps> = ({
         {/* Mobile drag handle */}
         <div className="sm:hidden w-12 h-1 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mt-2.5 mb-1" />
         {/* Header */}
-        <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-purple-50 dark:bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30">
+        <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div className="p-2.5 rounded-2xl bg-purple-50 dark:bg-purple-600/20 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-500/30 shrink-0">
               <Building2 className="w-5 h-5" />
             </div>
-            <div>
-              <h3 className="text-base font-black text-slate-900 dark:text-white">{company.name}</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base font-black text-slate-900 dark:text-white truncate">{company.name}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                 {t('company_tx_summary', { count: transactions.length, total: formatCurrency(company.total_amount || 0) })}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+            className="p-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors shrink-0"
           >
             <X className="w-5 h-5" />
           </button>

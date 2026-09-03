@@ -299,7 +299,13 @@ const resources = {
       server_url_updated: "Sunucu adresi güncellendi.",
       cloud: "Bulut",
       offline: "Çevrimdışı",
-      search: "Ara"
+      search: "Ara",
+      remove_filter: "Filtreyi Kaldır",
+      history_trends_subtitle: "{{year}} yılı boyunca gerçekleşen toplam ve ödenen harcama geçmişi.",
+      monthly_comparison_chart: "Aylık Karşılaştırma Grafiği",
+      months_recorded: "{{count}} Ay Kayıtlı",
+      no_history_year: "Seçilen yıla ait harcama kaydı bulunamadı.",
+      delete_company: "Firmayı Sil"
     }
   },
   en: {
@@ -599,7 +605,13 @@ const resources = {
       server_url_updated: "Server URL updated.",
       cloud: "Cloud",
       offline: "Offline",
-      search: "Search"
+      search: "Search",
+      remove_filter: "Remove Filter",
+      history_trends_subtitle: "Total and paid expense history throughout {{year}}.",
+      monthly_comparison_chart: "Monthly Comparison Chart",
+      months_recorded: "{{count}} Months Recorded",
+      no_history_year: "No expense history found for the selected year.",
+      delete_company: "Delete Company"
     }
   }
 };
